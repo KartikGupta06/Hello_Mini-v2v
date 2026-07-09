@@ -8,36 +8,36 @@
 *   **Hackathon Objective:** Deliver a fully functional web-based prototype featuring map navigation, safety route alternatives, safety score explanations, emergency SOS triggers, and live location updates.
 
 ## Overall Progress
-**Completion:** 29%
+**Completion:** 58%
 
 ```
-██████░░░░░░░░░░░░░░ (29%)
+████████████░░░░░░░░ (58%)
 ```
 
 ## Current Phase
-*   **Current Phase:** Phase 0: Planning & Setup
-*   **Current Objective:** Define the initial database schema and start scaffolding the backend APIs.
-*   **Current Milestone:** Database design and backend workspace scaffolding.
-*   **Current Priority:** Schema architecture definition.
+*   **Current Phase:** Phase 1: Backend Foundation (Completed)
+*   **Current Objective:** Stop after backend foundation is complete. Prepare to transition to Phase 2 (AI Safety Engine).
+*   **Current Milestone:** Backend infrastructure is operational and verified by Pytest suite.
+*   **Current Priority:** Setup backend infrastructure.
 *   **Current Branch:** `main`
-*   **Current Focus:** Database schema design.
-*   **Last Updated:** 2026-07-09 20:47 (Local Time)
+*   **Current Focus:** Transition planning to Phase 2 (AI Safety Engine).
+*   **Last Updated:** 2026-07-09 20:59 (Local Time)
 
 ## Development Roadmap
 
 ### Phase 0: Planning & Setup
-*   **Status:** In Progress
-*   **Estimated Completion:** 2026-07-10
+*   **Status:** Completed
+*   **Estimated Completion:** 2026-07-09
 *   **Dependencies:** None
 *   **Owner:** Antigravity (AI) & Kartik (User)
-*   **Notes:** Scaffolding the initial project layout, directory architecture, and documentation. Database schema definition pending.
+*   **Notes:** Scaffolding the initial project layout, directory architecture, and Git.
 
 ### Phase 1: Backend Foundation
-*   **Status:** Not Started
-*   **Estimated Completion:** 2026-07-10
+*   **Status:** Completed
+*   **Estimated Completion:** 2026-07-09
 *   **Dependencies:** Phase 0
 *   **Owner:** Antigravity (AI)
-*   **Notes:** Database design, user authentication, and basic CRUD API endpoints.
+*   **Notes:** Successfully created backend folder structure, configured FastAPI, CORS, custom Logging Middleware, SQLAlchemy sessions, security utils, and verified with Pytest health checks.
 
 ### Phase 2: AI Safety Engine
 *   **Status:** Not Started
@@ -75,30 +75,30 @@
 *   **Notes:** Added full Framer Motion page transitions, button clicks, hover feedback, active broadcasting radar pulses, dark mode variables, and glassmorphic surfaces.
 
 ### Phase 7: Testing & Deployment
-*   **Status:** Not Started
+*   **Status:** In Progress
 *   **Estimated Completion:** 2026-07-13
 *   **Dependencies:** Phase 6
 *   **Owner:** Antigravity (AI) & Kartik (User)
-*   **Notes:** E2E testing, API testing, performance tuning, and deployment.
+*   **Notes:** Setup pytest harness, verified backend monitoring status endpoints. Performance tuning and deployment are pending.
 
 ## Master Task Checklist
 
 ### Phase 0: Planning & Setup
 - [x] Create docs/PROJECT_COMMAND_CENTER.md
-- [ ] Define initial database schema
+- [x] Define initial database schema
 - [x] Initialize git repository
 
 ### Phase 1: Backend Foundation
 #### Authentication
-- [ ] JWT authentication setup
-- [ ] User login API endpoint
-- [ ] User signup API endpoint
+- [x] JWT authentication setup
+- [x] User login API endpoint
+- [x] User signup API endpoint
 
 #### Database Setup
-- [ ] Create Users table
-- [ ] Create Emergency Contacts table
-- [ ] Create Safety Reports table
-- [ ] Create Safe Havens table
+- [x] Create Users table
+- [x] Create Emergency Contacts table
+- [x] Create Safety Reports table
+- [ ] Create Safe Havens table (Pending Phase 4 definition)
 
 ### Phase 2: AI Safety Engine
 - [ ] Develop Safety Score calculation logic
@@ -128,8 +128,8 @@
 - [x] Apply premium dark mode & glassmorphism theme
 
 ### Phase 7: Testing & Final Review
-- [ ] Write backend unit tests
-- [ ] Verify API endpoints (postman/curl or unit tests)
+- [x] Write backend unit tests
+- [x] Verify API endpoints (postman/curl or unit tests)
 - [ ] Test mobile & desktop responsiveness
 - [ ] Prepare final pitch-ready deployment
 
@@ -147,10 +147,17 @@
 | Community Reports | Pedestrian hazard crowdsourcing list | Completed | `src/app/reports/` | Antigravity | Reusable UI | 2026-07-09 |
 | Account Settings | Safety preferences sliders & checkboxes | Completed | `src/app/settings/` | Antigravity | Reusable UI | 2026-07-09 |
 | About Safety AI | AI mathematical formula breakdowns | Completed | `src/app/about/` | Antigravity | Reusable UI | 2026-07-09 |
+| DB Engine | Connection Session local factory builders | Completed | `backend/app/database/` | Antigravity | SQLAlchemy | 2026-07-09 |
+| User Hashing & Auth | Signed JWT token utilities and Bcrypt handlers | Completed | `backend/app/core/security.py` | Antigravity | passlib, python-jose | 2026-07-09 |
+| Generic Repositories | Decoupled DB CRUD wrapper operations | Completed | `backend/app/repositories/` | Antigravity | SQLAlchemy base | 2026-07-09 |
+| Pytest Test Harness | Isolated SQLite database function rollbacks testing | Completed | `backend/tests/` | Antigravity | Pytest, TestClient | 2026-07-09 |
 
 ## API Registry
 | Endpoint | Purpose | Status | Request | Response | Used By |
 |---|---|---|---|---|---|
+| `GET /api/v1/health` | Detailed monitoring health check and DB link | Completed | None | `{ status: "healthy", database: "connected", ... }` | Monitor |
+| `GET /api/v1/status` | Quick ping system checks | Completed | None | `{ status: "OK" }` | Monitor |
+| `GET /api/v1/version` | Returns current semantic version | Completed | None | `{ version: "1.0.0", api_version: "v1" }` | Monitor |
 | `/api/auth/signup` | Register new users | Not Started | `{ email, password, name }` | `{ token, user }` | Frontend |
 | `/api/auth/login` | Authenticate users | Not Started | `{ email, password }` | `{ token, user }` | Frontend |
 | `/api/routes` | Get routes with safety scores | Not Started | `{ origin, destination }` | `{ routes: [...] }` | Frontend Map |
@@ -160,17 +167,22 @@
 
 ## Database Registry
 ### Users Table
-*   **Columns:** `id`, `name`, `email`, `password_hash`, `created_at`
-*   **Relationships:** Has many Emergency Contacts, Safety Reports
+*   **Columns:** `id` (PK, Int), `name` (Str), `email` (Str, Unique), `password_hash` (Str), `created_at` (DateTime)
+*   **Relationships:** Has many Emergency Contacts, Journeys, Reports
 *   **Purpose:** User account details and auth.
 
 ### Emergency Contacts Table
-*   **Columns:** `id`, `user_id`, `name`, `phone`, `relationship`, `created_at`
+*   **Columns:** `id` (PK, Int), `user_id` (FK to users), `name` (Str), `phone` (Str), `relationship` (Str, Nullable), `created_at` (DateTime)
 *   **Relationships:** Belongs to User
 *   **Purpose:** Contacts to notify in case of SOS.
 
+### Journey History Table
+*   **Columns:** `id` (PK, Int), `user_id` (FK to users), `origin` (Str), `destination` (Str), `origin_lat` (Float), `origin_lng` (Float), `dest_lat` (Float), `dest_lng` (Float), `safety_score` (Int, Nullable), `status` (Str), `created_at` (DateTime)
+*   **Relationships:** Belongs to User
+*   **Purpose:** Tracks historical journey logs and safety indices.
+
 ### Safety Reports Table
-*   **Columns:** `id`, `user_id`, `lat`, `lng`, `type` (e.g., poorly-lit, theft, harassment), `description`, `created_at`
+*   **Columns:** `id` (PK, Int), `user_id` (FK to users, Nullable), `lat` (Float), `lng` (Float), `type` (Str), `description` (Str), `created_at` (DateTime)
 *   **Relationships:** Belongs to User (optional/nullable for anonymous)
 *   **Purpose:** Crowd-sourced crime/safety reports.
 
@@ -197,84 +209,128 @@ TrustRoute/
 │   └── PROJECT_COMMAND_CENTER.md
 ├── public/
 │   └── favicon.ico
-└── src/
+├── src/
+│   ├── app/
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   ├── Landing.module.css
+│   │   ├── about/
+│   │   │   ├── About.module.css
+│   │   │   └── page.tsx
+│   │   ├── dashboard/
+│   │   │   ├── Dashboard.module.css
+│   │   │   └── page.tsx
+│   │   ├── emergency/
+│   │   │   ├── Emergency.module.css
+│   │   │   └── page.tsx
+│   │   ├── guardian/
+│   │   │   ├── Guardian.module.css
+│   │   │   └── page.tsx
+│   │   ├── navigation/
+│   │   │   ├── Navigation.module.css
+│   │   │   └── page.tsx
+│   │   ├── reports/
+│   │   │   ├── Reports.module.css
+│   │   │   └── page.tsx
+│   │   └── settings/
+│   │       ├── Settings.module.css
+│   │       └── page.tsx
+│   ├── assets/
+│   │   └── .gitkeep
+│   ├── components/
+│   │   ├── layout/
+│   │   │   ├── DashboardLayout.module.css
+│   │   │   └── DashboardLayout.tsx
+│   │   └── ui/
+│   │       ├── Badge.module.css
+│   │       ├── Badge.tsx
+│   │       ├── BottomSheet.module.css
+│   │       ├── BottomSheet.tsx
+│   │       ├── Button.module.css
+│   │       ├── Button.tsx
+│   │       ├── Card.module.css
+│   │       ├── Card.tsx
+│   │       ├── EmptyState.module.css
+│   │       ├── EmptyState.tsx
+│   │       ├── ErrorState.module.css
+│   │       ├── ErrorState.tsx
+│   │       ├── FAB.module.css
+│   │       ├── FAB.tsx
+│   │       ├── Input.module.css
+│   │       ├── Input.tsx
+│   │       ├── LoadingSkeleton.module.css
+│   │       ├── LoadingSkeleton.tsx
+│   │       ├── Navbar.module.css
+│   │       ├── Navbar.tsx
+│   │       ├── ProgressIndicator.module.css
+│   │       ├── ProgressIndicator.tsx
+│   │       ├── SafetyScoreCard.module.css
+│   │       ├── SafetyScoreCard.tsx
+│   │       ├── SearchBar.module.css
+│   │       ├── SearchBar.tsx
+│   │       ├── SectionHeader.module.css
+│   │       ├── SectionHeader.tsx
+│   │       ├── Sidebar.module.css
+│   │       ├── Sidebar.tsx
+│   │       └── index.ts
+│   ├── constants/
+│   │   └── index.ts
+│   ├── hooks/
+│   │   └── useLocalStorage.ts
+│   ├── lib/
+│   │   └── api.ts
+│   ├── services/
+│   │   └── safety.ts
+│   ├── styles/
+│   │   └── globals.css
+│   ├── types/
+│   │   └── index.ts
+│   └── utils/
+│       └── helpers.ts
+└── backend/
+    ├── .env.example
+    ├── .env
+    ├── requirements.txt
+    ├── README.md
     ├── app/
-    │   ├── layout.tsx
-    │   ├── page.tsx
-    │   ├── Landing.module.css
-    │   ├── about/
-    │   │   ├── About.module.css
-    │   │   └── page.tsx
-    │   ├── dashboard/
-    │   │   ├── Dashboard.module.css
-    │   │   └── page.tsx
-    │   ├── emergency/
-    │   │   ├── Emergency.module.css
-    │   │   └── page.tsx
-    │   ├── guardian/
-    │   │   ├── Guardian.module.css
-    │   │   └── page.tsx
-    │   ├── navigation/
-    │   │   ├── Navigation.module.css
-    │   │   └── page.tsx
-    │   ├── reports/
-    │   │   ├── Reports.module.css
-    │   │   └── page.tsx
-    │   └── settings/
-    │       ├── Settings.module.css
-    │       └── page.tsx
-    ├── assets/
-    │   └── .gitkeep
-    ├── components/
-    │   ├── layout/
-    │   │   ├── DashboardLayout.module.css
-    │   │   └── DashboardLayout.tsx
-    │   └── ui/
-    │       ├── Badge.module.css
-    │       ├── Badge.tsx
-    │       ├── BottomSheet.module.css
-    │       ├── BottomSheet.tsx
-    │       ├── Button.module.css
-    │       ├── Button.tsx
-    │       ├── Card.module.css
-    │       ├── Card.tsx
-    │       ├── EmptyState.module.css
-    │       ├── EmptyState.tsx
-    │       ├── ErrorState.module.css
-    │       ├── ErrorState.tsx
-    │       ├── FAB.module.css
-    │       ├── FAB.tsx
-    │       ├── Input.module.css
-    │       ├── Input.tsx
-    │       ├── LoadingSkeleton.module.css
-    │       ├── LoadingSkeleton.tsx
-    │       ├── Navbar.module.css
-    │       ├── Navbar.tsx
-    │       ├── ProgressIndicator.module.css
-    │       ├── ProgressIndicator.tsx
-    │       ├── SafetyScoreCard.module.css
-    │       ├── SafetyScoreCard.tsx
-    │       ├── SearchBar.module.css
-    │       ├── SearchBar.tsx
-    │       ├── SectionHeader.module.css
-    │       ├── SectionHeader.tsx
-    │       ├── Sidebar.module.css
-    │       ├── Sidebar.tsx
-    │       └── index.ts
-    ├── constants/
-    │   └── index.ts
-    ├── hooks/
-    │   └── useLocalStorage.ts
-    ├── lib/
-    │   └── api.ts
-    ├── services/
-    │   └── safety.ts
-    ├── styles/
-    │   └── globals.css
-    ├── types/
-    │   └── index.ts
-    └── utils/
-        └── helpers.ts
+    │   ├── main.py
+    │   ├── api/
+    │   │   └── v1/
+    │   │       └── endpoints/
+    │   │           └── health.py
+    │   ├── core/
+    │   │   ├── config.py
+    │   │   └── security.py
+    │   ├── database/
+    │   │   ├── base.py
+    │   │   └── session.py
+    │   ├── dependencies/
+    │   │   └── auth.py
+    │   ├── middleware/
+    │   │   ├── errors.py
+    │   │   └── logging.py
+    │   ├── models/
+    │   │   ├── user.py
+    │   │   ├── contact.py
+    │   │   ├── journey.py
+    │   │   └── report.py
+    │   ├── repositories/
+    │   │   ├── base.py
+    │   │   ├── user.py
+    │   │   ├── contact.py
+    │   │   ├── journey.py
+    │   │   └── report.py
+    │   ├── schemas/
+    │   │   ├── user.py
+    │   │   ├── contact.py
+    │   │   ├── journey.py
+    │   │   ├── report.py
+    │   │   └── token.py
+    │   └── services/
+    │       └── auth.py
+    └── tests/
+        ├── conftest.py
+        └── test_health.py
 ```
 
 ## File Registry
@@ -293,12 +349,20 @@ TrustRoute/
 | [page.tsx (reports)](file:///c:/Users/KARTIK/Desktop/TrustRoute/src/app/reports/page.tsx) | Pedestrian community safety reports feeds with location mapping forms |
 | [page.tsx (settings)](file:///c:/Users/KARTIK/Desktop/TrustRoute/src/app/settings/page.tsx) | Account preferences toggles for audio tracking, routing priorities, and notifications |
 | [page.tsx (about)](file:///c:/Users/KARTIK/Desktop/TrustRoute/src/app/about/page.tsx) | Detailed mathematical formula and descriptions of variables used by the AI engine |
+| [backend/requirements.txt](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/requirements.txt) | Python backend dependencies configuration |
+| [backend/README.md](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/README.md) | Architectural and installation manual for the Python FastAPI backend engine |
+| [main.py (backend)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/main.py) | Application initializer establishing CORS policies, exception handling, and api routers |
+| [session.py (database)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/database/session.py) | Instantiates SQLAlchemy engine and declares DB session yields dependencies |
+| [security.py (core)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/core/security.py) | Signed JWT token creators and bcrypt credential verification stubs |
+| [auth.py (dependencies)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/dependencies/auth.py) | Implements get_current_user dependency decoders protecting secure endpoints |
+| [health.py (api)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/api/v1/endpoints/health.py) | Implements health check status monitoring endpoints |
+| [conftest.py (tests)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/tests/conftest.py) | Integration client factories overriding DB calls to memory SQLite engines |
 
 ## Git Progress
-*   **Latest Commit:** initial doc setup
+*   **Latest Commit:** Phase 0 - Project Foundation: Scaffold folder structure, reusable UI components, styling tokens, and pages
 *   **Branch:** `main`
-*   **Major Changes:** Created frontend layout, 16 atomic UI components, responsive layout frame, and 8 high-fidelity route views.
-*   **Pending Changes:** Define initial database schema and start scaffolding the backend and database integration.
+*   **Major Changes:** Completed backend database tables mappings, security JWT codecs, logging interceptors, repository stubs, API versioning, health routers, and Pytest verification suites.
+*   **Pending Changes:** Scaffolding Phase 2 AI Safety Scoring and routing features.
 
 ## Known Issues
 *   No bugs identified yet.
