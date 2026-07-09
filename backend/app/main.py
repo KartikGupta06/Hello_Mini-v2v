@@ -68,3 +68,9 @@ app.include_router(
     prefix=f"/api/{settings.API_VERSION}/reports", 
     tags=["Community Safety Reports"]
 )
+from app.safety.api.router import router as safety_router
+app.include_router(
+    safety_router, 
+    prefix=f"/api/{settings.API_VERSION}/safety", 
+    tags=["Safety Intelligence Data"]
+)

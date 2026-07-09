@@ -8,20 +8,20 @@
 *   **Hackathon Objective:** Deliver a fully functional web-based prototype featuring map navigation, safety route alternatives, safety score explanations, emergency SOS triggers, and live location updates.
 
 ## Overall Progress
-**Completion:** 71%
+**Completion:** 87%
 
 ```
-██████████████░░░░░░ (71%)
+██████████████████░░ (87%)
 ```
 
 ## Current Phase
-*   **Current Phase:** Phase 2: Business Logic Layer (Completed)
-*   **Current Objective:** Stop after Business APIs are complete. Transition to Phase 3 (AI Safety Engine).
-*   **Current Milestone:** REST API business services operational with validation and integration tests.
-*   **Current Priority:** Phase 3 Planning.
+*   **Current Phase:** Phase 3: Safety Intelligence Data Layer (Completed)
+*   **Current Objective:** Stop after the Safety Intelligence Data Layer is complete. Transition to Phase 4 (AI Safety Engine).
+*   **Current Milestone:** Modular safety intelligence provider classes and aggregator endpoint operational with tests.
+*   **Current Priority:** Phase 4 Planning.
 *   **Current Branch:** `main`
-*   **Current Focus:** Transition planning to Phase 3 (AI Safety Engine).
-*   **Last Updated:** 2026-07-09 21:05 (Local Time)
+*   **Current Focus:** Transition planning to Phase 4 (AI Safety Engine).
+*   **Last Updated:** 2026-07-09 21:28 (Local Time)
 
 ## Development Roadmap
 
@@ -46,45 +46,52 @@
 *   **Owner:** Antigravity (AI)
 *   **Notes:** Building all core REST CRUD endpoints and services validation layer (Users, Contacts, Journeys, Reports).
 
-### Phase 3: AI Safety Engine
-*   **Status:** Not Started
-*   **Estimated Completion:** 2026-07-11
+### Phase 3: Safety Intelligence Data Layer
+*   **Status:** Completed
+*   **Estimated Completion:** 2026-07-09
 *   **Dependencies:** Phase 2
 *   **Owner:** Antigravity (AI)
-*   **Notes:** Safety Score calculation algorithm, confidence scoring, and AI explanation generation.
+*   **Notes:** Building a central SafetyAggregator collecting, validating, normalizing, and caching safety parameters (weather, crime, lighting, POIs).
 
-### Phase 4: Navigation & Routing
+### Phase 4: AI Safety Engine
 *   **Status:** Not Started
 *   **Estimated Completion:** 2026-07-11
 *   **Dependencies:** Phase 3
 *   **Owner:** Antigravity (AI)
+*   **Notes:** Safety Score calculation algorithm, confidence scoring, and AI explanation generation.
+
+### Phase 5: Navigation & Routing
+*   **Status:** Not Started
+*   **Estimated Completion:** 2026-07-11
+*   **Dependencies:** Phase 4
+*   **Owner:** Antigravity (AI)
 *   **Notes:** Map integration (Leaflet/Mapbox), safe routing algorithm, and route ranking.
 
-### Phase 5: Emergency Features
+### Phase 6: Emergency Features
 *   **Status:** Not Started
 *   **Estimated Completion:** 2026-07-12
-*   **Dependencies:** Phase 4
+*   **Dependencies:** Phase 5
 *   **Owner:** Antigravity (AI)
 *   **Notes:** SOS button, live location sharing, and Safe Haven finder.
 
-### Phase 6: Frontend Experience
+### Phase 7: Frontend Experience
 *   **Status:** Completed
 *   **Estimated Completion:** 2026-07-09
 *   **Dependencies:** None (Scaffolded ahead in Phase 0)
 *   **Owner:** Antigravity (AI)
 *   **Notes:** Finished full scaffolding of Landing page, Dashboard page, Map Navigation interface, Safety Cards, Guardian view, Emergency screen, Reports page, and Settings.
 
-### Phase 7: UI Polish & Aesthetics
+### Phase 8: UI Polish & Aesthetics
 *   **Status:** Completed
 *   **Estimated Completion:** 2026-07-09
-*   **Dependencies:** Phase 6
+*   **Dependencies:** Phase 7
 *   **Owner:** Antigravity (AI)
 *   **Notes:** Added full Framer Motion page transitions, button clicks, hover feedback, active broadcasting radar pulses, dark mode variables, and glassmorphic surfaces.
 
-### Phase 8: Testing & Deployment
+### Phase 9: Testing & Deployment
 *   **Status:** In Progress
 *   **Estimated Completion:** 2026-07-13
-*   **Dependencies:** Phase 7
+*   **Dependencies:** Phase 8
 *   **Owner:** Antigravity (AI) & Kartik (User)
 *   **Notes:** Setup pytest harness, verified backend monitoring status endpoints. Performance tuning and deployment are pending.
 
@@ -105,7 +112,7 @@
 - [x] Create Users table
 - [x] Create Emergency Contacts table
 - [x] Create Safety Reports table
-- [ ] Create Safe Havens table (Pending Phase 5 definition)
+- [ ] Create Safe Havens table (Pending Phase 6 definition)
 
 ### Phase 2: Business Logic Layer
 - [x] Implement Users CRUD REST APIs (Profile, Settings)
@@ -113,37 +120,43 @@
 - [x] Implement Journey History CRUD APIs (Start, Destination, Duration, Metadata)
 - [x] Implement Community Reports CRUD APIs (Filters, categories mapping)
 
-### Phase 3: AI Safety Engine
+### Phase 3: Safety Intelligence Data Layer
+- [x] Implement Provider Interfaces (Crime, Lighting, Reports, Weather, POIs, Context)
+- [x] Build central SafetyAggregator service merging responses
+- [x] Implement Caching Abstraction Layer with TTL limits
+- [x] Write integration checks ensuring graceful provider fallbacks
+
+### Phase 4: AI Safety Engine
 - [ ] Develop Safety Score calculation logic
 - [ ] Create AI explanation generator (Mock/OpenAI/Gemini API integration)
 - [ ] Build Confidence Score generator
 
-### Phase 4: Navigation & Map Routing
+### Phase 5: Navigation & Map Routing
 - [ ] Set up interactive map component
 - [ ] Implement multi-route pathfinding
 - [ ] Develop Route Safety Ranking algorithm
 
-### Phase 5: Emergency Features
+### Phase 6: Emergency Features
 - [ ] SOS quick-trigger mechanism
 - [ ] Live Location Sharing service
 - [ ] Safe Haven Finder (nearest safe locations)
 - [ ] Guardian notification setup
 
-### Phase 6: Frontend & User Interface
+### Phase 7: Frontend & User Interface
 - [x] Build Landing Page (USP, hero section)
 - [x] Build User Dashboard (recent safe trips, reports)
 - [x] Build Navigation Screen (interactive map, directions, route safety comparison)
 - [x] Build Safety Cards & Risk Details overlay
 
-### Phase 7: UI Polish & Aesthetics
+### Phase 8: UI Polish & Aesthetics
 - [x] Implement responsive styles for mobile & desktop
 - [x] Add smooth transitions & micro-animations
 - [x] Apply premium dark mode & glassmorphism theme
 
-### Phase 8: Testing & Final Review
+### Phase 9: Testing & Final Review
 - [x] Write backend unit tests
 - [x] Verify API endpoints (postman/curl or unit tests)
-- [ ] Test mobile & desktop responsiveness
+- [x] Test mobile & desktop responsiveness
 - [ ] Prepare final pitch-ready deployment
 
 ## Feature Registry
@@ -165,6 +178,7 @@
 | Generic Repositories | Decoupled DB CRUD wrapper operations | Completed | `backend/app/repositories/` | Antigravity | SQLAlchemy base | 2026-07-09 |
 | Dynamic Queries | Reusable Pagination, Sorting, Search, and Filters | Completed | `backend/app/utils/query.py` | Antigravity | SQLAlchemy | 2026-07-09 |
 | Business Services | Encapsulated logic layers validating profiles & updates | Completed | `backend/app/services/` | Antigravity | Repositories | 2026-07-09 |
+| Safety Data Aggregator | Gathers coordinates parameters concurrently | Completed | `backend/app/safety/` | Antigravity | asyncio, cache | 2026-07-09 |
 | Pytest Test Harness | Isolated SQLite database function rollbacks testing | Completed | `backend/tests/` | Antigravity | Pytest, TestClient | 2026-07-09 |
 
 ## API Registry
@@ -193,6 +207,8 @@
 | `GET /api/v1/reports/{id}` | Fetch details of a specific report | Completed | None | `{ id, user_id, lat, lng, type, description, ... }` | Frontend Feed |
 | `PUT /api/v1/reports/{id}` | Edit report details (ownership authorized check) | Completed | `{ lat, lng, type, description }` | `{ id, user_id, lat, lng, type, description, updated_at, ... }` | Frontend Feed |
 | `DELETE /api/v1/reports/{id}` | Delete report alert from database | Completed | None (Signed JWT Header) | `{ id, user_id, lat, lng, type, ... }` | Frontend Feed |
+| `GET /api/v1/safety/aggregate` | Fetch concurrently aggregated safety metrics from active providers | Completed | `lat`, `lng` query parameters | `{ location, timestamp, crime, lighting, community, weather, poi, time, future_event, metadata }` | Frontend Map |
+| `GET /api/v1/safety/health` | Lists data providers latency, status, availability | Completed | None | `[{ name, status, availability, latency_ms, last_update }]` | Admin / Monitor |
 
 ## Database Registry
 ### Users Table
@@ -366,12 +382,33 @@ TrustRoute/
     │   │   ├── contact.py
     │   │   ├── journey.py
     │   │   └── report.py
+    │   ├── safety/
+    │   │   ├── README.md
+    │   │   ├── aggregator/
+    │   │   │   └── aggregator.py
+    │   │   ├── api/
+    │   │   │   └── router.py
+    │   │   ├── cache/
+    │   │   │   └── cache.py
+    │   │   ├── providers/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── base.py
+    │   │   │   ├── crime.py
+    │   │   │   ├── lighting.py
+    │   │   │   ├── community.py
+    │   │   │   ├── weather.py
+    │   │   │   ├── poi.py
+    │   │   │   ├── time_context.py
+    │   │   │   └── future_event.py
+    │   │   └── schemas/
+    │   │       └── schemas.py
     │   └── utils/
     │       └── query.py
     └── tests/
         ├── conftest.py
         ├── test_health.py
-        └── test_business_crud.py
+        ├── test_business_crud.py
+        └── test_safety_intelligence.py
 ```
 
 ## File Registry
@@ -409,9 +446,15 @@ TrustRoute/
 | [journeys.py (endpoints)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/api/v1/endpoints/journeys.py) | Endpoint controllers logging and retrieving navigation journey routes logs |
 | [reports.py (endpoints)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/api/v1/endpoints/reports.py) | Endpoint controllers managing crowdsourced incident alerts submissions |
 | [test_business_crud.py (tests)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/tests/test_business_crud.py) | Functional integration tests suite validating signup, login, CRUDs, phone formatting, duplicate constraints |
+| [README.md (safety)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/safety/README.md) | Technical instructions detailing provider interfaces, caching TTLs, error limits and future plugins |
+| [schemas.py (safety)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/safety/schemas/schemas.py) | Pydantic safety schemas parsing combined crime, lighting, reports, weather, and context fields |
+| [base.py (safety)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/safety/providers/base.py) | Base class template logging latency EMAs, request availability percentage ratios and statuses |
+| [aggregator.py (safety)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/safety/aggregator/aggregator.py) | Aggregation hub routing lookups concurrently with timeouts boundaries and fallback maps |
+| [router.py (safety)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/safety/api/router.py) | FastAPI endpoints exposing combined metrics queries and providers health indexes |
+| [test_safety_intelligence.py (tests)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/tests/test_safety_intelligence.py) | Integration checks verifying validation bounds, cache TTLs, provider failures, and timeouts fallbacks |
 
 ## Git Progress
-*   **Latest Commit:** Phase 1 - Backend Foundation: Add FastAPI settings, SQLAlchemy database session engines, model schemas (Users, EmergencyContacts, JourneyHistory, CommunityReports), repository design patterns, JWT token creators, logging middleware, endpoints (GET /health, /status, /version), and verify with Pytest suites
+*   **Latest Commit:** Phase 2 - Business Logic Layer: Implement complete CRUD APIs, service validations, query paginations, search, sorting filters, E.164 phone validators, category literals, and write integration Pytest CRUD checks
 *   **Branch:** `main`
 *   **Major Changes:** Completed backend database tables mappings, security JWT codecs, logging interceptors, repository stubs, API versioning, health routers, and Pytest verification suites.
 *   **Pending Changes:** Scaffolding Phase 2 AI Safety Scoring and routing features.
