@@ -14,3 +14,4 @@ export * from "./LoadingSkeleton";
 export * from "./EmptyState";
 export * from "./ErrorState";
 export * from "./FAB";
+export * from "./Map";
