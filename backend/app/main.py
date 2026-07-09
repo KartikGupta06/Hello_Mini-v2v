@@ -80,3 +80,9 @@ app.include_router(
     prefix=f"/api/{settings.API_VERSION}/ai", 
     tags=["Explainable Safety Scoring Engine"]
 )
+from app.routing.api.router import router as routing_router
+app.include_router(
+    routing_router, 
+    prefix=f"/api/{settings.API_VERSION}/routes", 
+    tags=["Intelligent Route Analysis Engine"]
+)

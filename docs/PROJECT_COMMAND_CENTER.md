@@ -15,13 +15,13 @@
 ```
 
 ## Current Phase
-*   **Current Phase:** Phase 4: Explainable Safety Intelligence Engine (Completed)
-*   **Current Objective:** Stop after Explainable AI Engine is complete. Transition to Phase 5 (Navigation & Routing).
-*   **Current Milestone:** Configurable weights risk modules and safety score REST API operational with unit tests.
-*   **Current Priority:** Phase 5 Planning.
+*   **Current Phase:** Phase 5: Intelligent Route Analysis Engine (Completed)
+*   **Current Objective:** Stop after Route Analysis Engine is complete. Transition to Phase 6 (Emergency Features).
+*   **Current Milestone:** Route sampling engine, stats calculations, hotspots, ranking engine, and POST api/v1/routes/analyze endpoint operational with tests.
+*   **Current Priority:** Phase 6 Planning.
 *   **Current Branch:** `main`
-*   **Current Focus:** Transition planning to Phase 5 (Navigation & Routing).
-*   **Last Updated:** 2026-07-09 21:40 (Local Time)
+*   **Current Focus:** Transition planning to Phase 6 (Emergency Features).
+*   **Last Updated:** 2026-07-09 22:35 (Local Time)
 
 ## Development Roadmap
 
@@ -60,12 +60,12 @@
 *   **Owner:** Antigravity (AI)
 *   **Notes:** Building the modular explainable safety scoring decision engine combining provider risk parameters.
 
-### Phase 5: Navigation & Routing
-*   **Status:** Not Started
-*   **Estimated Completion:** 2026-07-11
+### Phase 5: Intelligent Route Analysis Engine
+*   **Status:** Completed
+*   **Estimated Completion:** 2026-07-09
 *   **Dependencies:** Phase 4
 *   **Owner:** Antigravity (AI)
-*   **Notes:** Map integration (Leaflet/Mapbox), safe routing algorithm, and route ranking.
+*   **Notes:** Building the Route Intelligence layer sampling polyline coordinates, scoring route statistics, marking risk hotspots, ranking paths, and generating text recommendations.
 
 ### Phase 6: Emergency Features
 *   **Status:** Not Started
@@ -132,10 +132,12 @@
 - [x] Build Confidence and explainable Reason generator from module metrics
 - [x] Create GET `/api/v1/ai/safety-score` endpoint exposing details
 
-### Phase 5: Navigation & Map Routing
-- [ ] Set up interactive map component
-- [ ] Implement multi-route pathfinding
-- [ ] Develop Route Safety Ranking algorithm
+### Phase 5: Intelligent Route Analysis Engine
+- [x] Implement sampling strategy algorithms (Distance, adaptive, maximum sample count)
+- [x] Build stats and hotspots detectors (Unsafe segments, score drops)
+- [x] Implement Route Ranking weighting (safety, distance, travel time, cluster penalties)
+- [x] Build Recommendation Engine generating text trade-off reasons
+- [x] Create POST `/api/v1/routes/analyze` REST route endpoint exposing details
 
 ### Phase 6: Emergency Features
 - [ ] SOS quick-trigger mechanism
@@ -181,6 +183,7 @@
 | Business Services | Encapsulated logic layers validating profiles & updates | Completed | `backend/app/services/` | Antigravity | Repositories | 2026-07-09 |
 | Safety Data Aggregator | Gathers coordinates parameters concurrently | Completed | `backend/app/safety/` | Antigravity | asyncio, cache | 2026-07-09 |
 | Safety Scoring AI Engine | Computes safety scoring breakdowns & explainable reasons | Completed | `backend/app/ai/` | Antigravity | config weights | 2026-07-09 |
+| Route Analysis Engine | Samples coordinate polylines, marks hotspots, and ranks paths | Completed | `backend/app/routing/` | Antigravity | Safety scoring, samplers | 2026-07-09 |
 | Pytest Test Harness | Isolated SQLite database function rollbacks testing | Completed | `backend/tests/` | Antigravity | Pytest, TestClient | 2026-07-09 |
 
 ## API Registry
@@ -212,6 +215,7 @@
 | `GET /api/v1/safety/aggregate` | Fetch concurrently aggregated safety metrics from active providers | Completed | `lat`, `lng` query parameters | `{ location, timestamp, crime, lighting, community, weather, poi, time, future_event, metadata }` | Frontend Map |
 | `GET /api/v1/safety/health` | Lists data providers latency, status, availability | Completed | None | `[{ name, status, availability, latency_ms, last_update }]` | Admin / Monitor |
 | `GET /api/v1/ai/safety-score` | Computes transit safety score, risk category, and explanations breakdown | Completed | `lat`, `lng` query parameters | `{ safety_score, confidence_level, confidence_percentage, risk_category, reasons, module_breakdown }` | Frontend Map Overlay |
+| `POST /api/v1/routes/analyze` | Evaluates coordinate polylines, highlighting hotspots, rankings and recommendations | Completed | `List[CandidateRouteInput]` | `{ recommended_route_id, recommendation_reason, trade_offs_summary, rankings, detailed_analyses }` | Frontend Map Router |
 
 ## Database Registry
 ### Users Table
@@ -408,7 +412,6 @@ TrustRoute/
     │   │       └── schemas.py
     │   ├── ai/
     │   │   ├── README.md
-    │   │   ├── aggregator/
     │   │   ├── api/
     │   │   │   └── router.py
     │   │   ├── confidence/
@@ -433,6 +436,21 @@ TrustRoute/
     │   │   │   └── ai_service.py
     │   │   └── weights/
     │   │       └── config.py
+    │   ├── routing/
+    │   │   ├── README.md
+    │   │   ├── analysis/
+    │   │   │   └── analyzer.py
+    │   │   ├── api/
+    │   │   │   └── router.py
+    │   │   ├── ranking/
+    │   │   │   └── ranker.py
+    │   │   ├── recommendation/
+    │   │   │   └── recommendation.py
+    │   │   ├── sampling/
+    │   │   │   └── sampler.py
+    │   │   ├── schemas/
+    │   │   │   └── schemas.py
+    │   │   └── services/
     │   └── utils/
     │       └── query.py
     └── tests/
@@ -440,7 +458,8 @@ TrustRoute/
         ├── test_health.py
         ├── test_business_crud.py
         ├── test_safety_intelligence.py
-        └── test_explainable_ai.py
+        ├── test_explainable_ai.py
+        └── test_route_intelligence.py
 ```
 
 ## File Registry
@@ -501,9 +520,17 @@ TrustRoute/
 | [ai_service.py (ai)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/ai/services/ai_service.py) | Interfacing aggregator lookups with evaluation algorithms |
 | [router.py (ai)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/ai/api/router.py) | FastAPI endpoints exposing explainable safety scoring engine |
 | [test_explainable_ai.py (tests)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/tests/test_explainable_ai.py) | Test cases checking risk parameters weights, mitigators, confidence engines, and API lookups |
+| [README.md (routing)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/routing/README.md) | Technical document outlining coordinate sampler intervals, stats analyzer, weighted ranker, and trade-offs recommender |
+| [schemas.py (routing)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/routing/schemas/schemas.py) | Pydantic models validating CandidateRouteInput, rankings, hotspots, and recommendation responses |
+| [sampler.py (routing)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/routing/sampling/sampler.py) | Distance-based Haversine sampling and adaptive maximum point caps |
+| [analyzer.py (routing)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/routing/analysis/analyzer.py) | Traverses path coordinates concurrently using AI engine to map statistics and unsafe regions |
+| [ranker.py (routing)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/routing/ranking/ranker.py) | Formulates scoring coefficients penalizing travel times, distances, and hotspots |
+| [recommendation.py (routing)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/routing/recommendation/recommendation.py) | Trade-offs generator comparing safety gains versus fastest path time extensions |
+| [router.py (routing)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/routing/api/router.py) | POST REST API endpoint evaluating candidate paths concurrently |
+| [test_route_intelligence.py (tests)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/tests/test_route_intelligence.py) | Functional test cases checking samplers, hotspots drops, ranking weights, trade-off ratios, and API POST requests |
 
 ## Git Progress
-*   **Latest Commit:** Phase 3 - Safety Intelligence Data Layer: Implement modular data aggregation providers (Crime, Lighting, Community, Weather, POIs, Context, Events), thread-safe TTL cache engine, SafetyAggregator with concurrent fetch limits, health trackers, and integration Pytest suites
+*   **Latest Commit:** Phase 4 - Explainable Safety Intelligence Engine: Implement independent risk modules (Crime, Lighting, Community, Weather, Time, Event, POI mitigations), configurable weights config, confidence calculations, reasoning builders, central SafetyDecisionEngine, safety-score API router, and unit test suites
 *   **Branch:** `main`
 *   **Major Changes:** Completed backend database tables mappings, security JWT codecs, logging interceptors, repository stubs, API versioning, health routers, and Pytest verification suites.
 *   **Pending Changes:** Scaffolding Phase 2 AI Safety Scoring and routing features.
