@@ -6,8 +6,8 @@ This document tracks the progress, roadmap, and tasks for the SafeRoute AI Pytho
 
 ## Current Status
 
-**Current Phase:** Phase 4 – PostgreSQL Setup
-**Next Planned Phase:** Phase 5 – SQLAlchemy Models
+**Current Phase:** Phase 4.3 – SQLAlchemy Models
+**Next Planned Phase:** Phase 4.4 – Alembic Initial Migration
 
 ---
 
@@ -17,16 +17,17 @@ This document tracks the progress, roadmap, and tasks for the SafeRoute AI Pytho
 ☑ Phase 2 – Backend Architecture
 ☑ Phase 3 – Dataset Engineering
 
-☐ Phase 4 – PostgreSQL Setup
-☐ Phase 5 – SQLAlchemy Models
-☐ Phase 6 – Alembic Migrations
-☐ Phase 7 – Database Seeding
-☐ Phase 8 – FastAPI APIs
-☐ Phase 9 – AI Safety Engine
-☐ Phase 10 – Route Recommendation Engine
-☐ Phase 11 – Authentication
-☐ Phase 12 – Testing
-☐ Phase 13 – Final Backend Freeze
+☑ Phase 4.1 – PostgreSQL Environment Setup
+☑ Phase 4.2 – Database Schema Design
+☑ Phase 4.3 – SQLAlchemy Models
+☐ Phase 4.4 – Alembic Initial Migration
+☐ Phase 5 – Database Seeding
+☐ Phase 6 – FastAPI APIs
+☐ Phase 7 – AI Safety Engine
+☐ Phase 8 – Route Recommendation Engine
+☐ Phase 9 – Authentication
+☐ Phase 10 – Testing
+☐ Phase 11 – Final Backend Freeze
 
 ---
 
@@ -120,6 +121,71 @@ Expanded the script to precisely generate and assign events across South Delhi, 
 
 **Summary:**
 Completed dataset validation, verified referential integrity, confirmed PostgreSQL compatibility, and officially froze the dataset for backend implementation.
+
+---
+
+**Date:** 10 July 2026
+
+**Phase:** Phase 4 – Database Foundation
+
+**Task:** Phase 4.1 PostgreSQL Environment Setup
+
+**Status:** ✅ Completed
+
+**Summary:**
+Configured `.env`, implemented Pydantic `config.py`, set up SQLAlchemy engine and `session.py`, and verified database connectivity successfully.
+
+---
+
+**Date:** 10 July 2026
+
+**Phase:** Phase 4 – Database Foundation
+
+**Task:** Dockerized PostgreSQL Environment Setup
+
+**Status:** ✅ Completed
+
+**Summary:**
+Created docker-compose.yml configuration to run PostgreSQL and pgAdmin in Docker. Verified container orchestrations, persistence volume, and established a successful connection from the SQLAlchemy engine.
+
+---
+
+**Date:** 10 July 2026
+
+**Phase:** Phase 4 – Database Foundation
+
+**Task:** Phase 4.2 Database Schema Design
+
+**Status:** ✅ Completed
+
+**Summary:**
+Designed a normalized, production-ready schema mapped directly to the five core frozen datasets (Crimes, Police Stations, Hospitals, Lights, CCTV). Documented datatypes, ER diagram, index strategies, and scalability pathways.
+
+---
+
+**Date:** 10 July 2026
+
+**Phase:** Phase 4 – Database Foundation
+
+**Task:** Phase 4.2 Database Schema Refinement
+
+**Status:** ✅ Completed
+
+**Summary:**
+Refined the schema by normalizing the Crime → Police Station relationship to reference station_id instead of station_name. Removed premature UNIQUE constraints from station_name and hospital_name while maintaining district column denormalizations.
+
+---
+
+**Date:** 10 July 2026
+
+**Phase:** Phase 4 – Database Foundation
+
+**Task:** Phase 4.3 SQLAlchemy Models
+
+**Status:** ✅ Completed
+
+**Summary:**
+Codified the frozen and refined database schema into SQLAlchemy ORM models (CrimeRecord, PoliceStation, Hospital, StreetLight, CCTVCamera) with correct datatypes, default values, and check constraints. Clarified that pre-existing repository models (`User`, `EmergencyContact`, `JourneyHistory`, `CommunityReport`) were strictly separated from newly created dataset models and were not modified.
 
 ---
 
