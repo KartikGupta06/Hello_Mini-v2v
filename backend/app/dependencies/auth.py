@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
@@ -49,3 +50,25 @@ def get_current_user(
     if user is None:
         raise credentials_exception
     return user
+
+def get_current_user_optional(
+    db: Session = Depends(get_db), 
+    token: str = Depends(oauth2_scheme)
+) -> Optional[User]:
+    """Resolves User profile optionally, returns None if token is missing or invalid."""
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(
+            token, 
+            settings.JWT_SECRET, 
+            algorithms=[settings.JWT_ALGORITHM]
+        )
+        user_id: str = payload.get("sub")
+        if user_id is None:
+            return None
+        user_id_int = int(user_id)
+        return user_repository.get(db, id=user_id_int)
+    except (JWTError, ValueError):
+        return None
+

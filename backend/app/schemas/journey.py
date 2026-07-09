@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Dict, Any
 
 class JourneyHistoryBase(BaseModel):
     origin: str
@@ -11,6 +11,9 @@ class JourneyHistoryBase(BaseModel):
     dest_lng: float
     safety_score: Optional[int] = None
     status: str = "active"
+    duration_seconds: Optional[int] = None
+    completed_at: Optional[datetime] = None
+    journey_metadata: Optional[Dict[str, Any]] = None
 
 class JourneyHistoryCreate(JourneyHistoryBase):
     user_id: int
@@ -24,14 +27,17 @@ class JourneyHistoryUpdate(BaseModel):
     dest_lng: Optional[float] = None
     safety_score: Optional[int] = None
     status: Optional[str] = None
+    duration_seconds: Optional[int] = None
+    completed_at: Optional[datetime] = None
+    journey_metadata: Optional[Dict[str, Any]] = None
 
 class JourneyHistoryInDB(JourneyHistoryBase):
     id: int
     user_id: int
     created_at: datetime
+    updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class JourneyHistory(JourneyHistoryInDB):
     pass

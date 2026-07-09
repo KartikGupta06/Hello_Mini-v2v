@@ -8,20 +8,20 @@
 *   **Hackathon Objective:** Deliver a fully functional web-based prototype featuring map navigation, safety route alternatives, safety score explanations, emergency SOS triggers, and live location updates.
 
 ## Overall Progress
-**Completion:** 58%
+**Completion:** 71%
 
 ```
-████████████░░░░░░░░ (58%)
+██████████████░░░░░░ (71%)
 ```
 
 ## Current Phase
-*   **Current Phase:** Phase 1: Backend Foundation (Completed)
-*   **Current Objective:** Stop after backend foundation is complete. Prepare to transition to Phase 2 (AI Safety Engine).
-*   **Current Milestone:** Backend infrastructure is operational and verified by Pytest suite.
-*   **Current Priority:** Setup backend infrastructure.
+*   **Current Phase:** Phase 2: Business Logic Layer (Completed)
+*   **Current Objective:** Stop after Business APIs are complete. Transition to Phase 3 (AI Safety Engine).
+*   **Current Milestone:** REST API business services operational with validation and integration tests.
+*   **Current Priority:** Phase 3 Planning.
 *   **Current Branch:** `main`
-*   **Current Focus:** Transition planning to Phase 2 (AI Safety Engine).
-*   **Last Updated:** 2026-07-09 20:59 (Local Time)
+*   **Current Focus:** Transition planning to Phase 3 (AI Safety Engine).
+*   **Last Updated:** 2026-07-09 21:05 (Local Time)
 
 ## Development Roadmap
 
@@ -37,47 +37,54 @@
 *   **Estimated Completion:** 2026-07-09
 *   **Dependencies:** Phase 0
 *   **Owner:** Antigravity (AI)
-*   **Notes:** Successfully created backend folder structure, configured FastAPI, CORS, custom Logging Middleware, SQLAlchemy sessions, security utils, and verified with Pytest health checks.
+*   **Notes:** Successfully created backend folder structure, configured FastAPI, CORS, logging, SQLAlchemy base engines, and verified health routes with pytest.
 
-### Phase 2: AI Safety Engine
-*   **Status:** Not Started
-*   **Estimated Completion:** 2026-07-11
+### Phase 2: Business Logic Layer
+*   **Status:** Completed
+*   **Estimated Completion:** 2026-07-09
 *   **Dependencies:** Phase 1
 *   **Owner:** Antigravity (AI)
-*   **Notes:** Safety Score calculation algorithm, confidence scoring, and AI explanation generation.
+*   **Notes:** Building all core REST CRUD endpoints and services validation layer (Users, Contacts, Journeys, Reports).
 
-### Phase 3: Navigation & Routing
+### Phase 3: AI Safety Engine
 *   **Status:** Not Started
 *   **Estimated Completion:** 2026-07-11
 *   **Dependencies:** Phase 2
 *   **Owner:** Antigravity (AI)
+*   **Notes:** Safety Score calculation algorithm, confidence scoring, and AI explanation generation.
+
+### Phase 4: Navigation & Routing
+*   **Status:** Not Started
+*   **Estimated Completion:** 2026-07-11
+*   **Dependencies:** Phase 3
+*   **Owner:** Antigravity (AI)
 *   **Notes:** Map integration (Leaflet/Mapbox), safe routing algorithm, and route ranking.
 
-### Phase 4: Emergency Features
+### Phase 5: Emergency Features
 *   **Status:** Not Started
 *   **Estimated Completion:** 2026-07-12
-*   **Dependencies:** Phase 3
+*   **Dependencies:** Phase 4
 *   **Owner:** Antigravity (AI)
 *   **Notes:** SOS button, live location sharing, and Safe Haven finder.
 
-### Phase 5: Frontend Experience
+### Phase 6: Frontend Experience
 *   **Status:** Completed
 *   **Estimated Completion:** 2026-07-09
 *   **Dependencies:** None (Scaffolded ahead in Phase 0)
 *   **Owner:** Antigravity (AI)
 *   **Notes:** Finished full scaffolding of Landing page, Dashboard page, Map Navigation interface, Safety Cards, Guardian view, Emergency screen, Reports page, and Settings.
 
-### Phase 6: UI Polish & Aesthetics
+### Phase 7: UI Polish & Aesthetics
 *   **Status:** Completed
 *   **Estimated Completion:** 2026-07-09
-*   **Dependencies:** Phase 5
+*   **Dependencies:** Phase 6
 *   **Owner:** Antigravity (AI)
 *   **Notes:** Added full Framer Motion page transitions, button clicks, hover feedback, active broadcasting radar pulses, dark mode variables, and glassmorphic surfaces.
 
-### Phase 7: Testing & Deployment
+### Phase 8: Testing & Deployment
 *   **Status:** In Progress
 *   **Estimated Completion:** 2026-07-13
-*   **Dependencies:** Phase 6
+*   **Dependencies:** Phase 7
 *   **Owner:** Antigravity (AI) & Kartik (User)
 *   **Notes:** Setup pytest harness, verified backend monitoring status endpoints. Performance tuning and deployment are pending.
 
@@ -98,36 +105,42 @@
 - [x] Create Users table
 - [x] Create Emergency Contacts table
 - [x] Create Safety Reports table
-- [ ] Create Safe Havens table (Pending Phase 4 definition)
+- [ ] Create Safe Havens table (Pending Phase 5 definition)
 
-### Phase 2: AI Safety Engine
+### Phase 2: Business Logic Layer
+- [x] Implement Users CRUD REST APIs (Profile, Settings)
+- [x] Implement Emergency Contacts CRUD APIs (Mark Primary, phone validation)
+- [x] Implement Journey History CRUD APIs (Start, Destination, Duration, Metadata)
+- [x] Implement Community Reports CRUD APIs (Filters, categories mapping)
+
+### Phase 3: AI Safety Engine
 - [ ] Develop Safety Score calculation logic
 - [ ] Create AI explanation generator (Mock/OpenAI/Gemini API integration)
 - [ ] Build Confidence Score generator
 
-### Phase 3: Navigation & Map Routing
+### Phase 4: Navigation & Map Routing
 - [ ] Set up interactive map component
 - [ ] Implement multi-route pathfinding
 - [ ] Develop Route Safety Ranking algorithm
 
-### Phase 4: Emergency Features
+### Phase 5: Emergency Features
 - [ ] SOS quick-trigger mechanism
 - [ ] Live Location Sharing service
 - [ ] Safe Haven Finder (nearest safe locations)
 - [ ] Guardian notification setup
 
-### Phase 5: Frontend & User Interface
+### Phase 6: Frontend & User Interface
 - [x] Build Landing Page (USP, hero section)
 - [x] Build User Dashboard (recent safe trips, reports)
 - [x] Build Navigation Screen (interactive map, directions, route safety comparison)
 - [x] Build Safety Cards & Risk Details overlay
 
-### Phase 6: UI Polish & Aesthetics
+### Phase 7: UI Polish & Aesthetics
 - [x] Implement responsive styles for mobile & desktop
 - [x] Add smooth transitions & micro-animations
 - [x] Apply premium dark mode & glassmorphism theme
 
-### Phase 7: Testing & Final Review
+### Phase 8: Testing & Final Review
 - [x] Write backend unit tests
 - [x] Verify API endpoints (postman/curl or unit tests)
 - [ ] Test mobile & desktop responsiveness
@@ -148,8 +161,10 @@
 | Account Settings | Safety preferences sliders & checkboxes | Completed | `src/app/settings/` | Antigravity | Reusable UI | 2026-07-09 |
 | About Safety AI | AI mathematical formula breakdowns | Completed | `src/app/about/` | Antigravity | Reusable UI | 2026-07-09 |
 | DB Engine | Connection Session local factory builders | Completed | `backend/app/database/` | Antigravity | SQLAlchemy | 2026-07-09 |
-| User Hashing & Auth | Signed JWT token utilities and Bcrypt handlers | Completed | `backend/app/core/security.py` | Antigravity | passlib, python-jose | 2026-07-09 |
+| User Hashing & Auth | Signed JWT token utilities and Bcrypt handlers | Completed | `backend/app/core/security.py` | Antigravity | bcrypt, python-jose | 2026-07-09 |
 | Generic Repositories | Decoupled DB CRUD wrapper operations | Completed | `backend/app/repositories/` | Antigravity | SQLAlchemy base | 2026-07-09 |
+| Dynamic Queries | Reusable Pagination, Sorting, Search, and Filters | Completed | `backend/app/utils/query.py` | Antigravity | SQLAlchemy | 2026-07-09 |
+| Business Services | Encapsulated logic layers validating profiles & updates | Completed | `backend/app/services/` | Antigravity | Repositories | 2026-07-09 |
 | Pytest Test Harness | Isolated SQLite database function rollbacks testing | Completed | `backend/tests/` | Antigravity | Pytest, TestClient | 2026-07-09 |
 
 ## API Registry
@@ -158,31 +173,45 @@
 | `GET /api/v1/health` | Detailed monitoring health check and DB link | Completed | None | `{ status: "healthy", database: "connected", ... }` | Monitor |
 | `GET /api/v1/status` | Quick ping system checks | Completed | None | `{ status: "OK" }` | Monitor |
 | `GET /api/v1/version` | Returns current semantic version | Completed | None | `{ version: "1.0.0", api_version: "v1" }` | Monitor |
-| `/api/auth/signup` | Register new users | Not Started | `{ email, password, name }` | `{ token, user }` | Frontend |
-| `/api/auth/login` | Authenticate users | Not Started | `{ email, password }` | `{ token, user }` | Frontend |
-| `/api/routes` | Get routes with safety scores | Not Started | `{ origin, destination }` | `{ routes: [...] }` | Frontend Map |
-| `/api/reports` | Submit safety report | Not Started | `{ lat, lng, type, description }` | `{ report }` | Frontend |
-| `/api/emergency/sos` | Trigger SOS alert | Not Started | `{ lat, lng }` | `{ status: "triggered" }` | Frontend |
-| `/api/havens` | Get nearby safe havens | Not Started | `{ lat, lng }` | `{ havens: [...] }` | Frontend |
+| `POST /api/v1/auth/signup` | Register new users | Completed | `{ email, password, name }` | `{ id, email, name, ... }` | Frontend |
+| `POST /api/v1/auth/login` | Authenticate credentials and issue JWT | Completed | `{ email, password }` | `{ access_token, token_type }` | Frontend |
+| `GET /api/v1/users/me` | Fetch authenticated user profile details | Completed | None (Signed JWT Header) | `{ id, email, name, created_at, ... }` | Frontend Profile |
+| `PUT /api/v1/users/me` | Update authenticated user details / settings | Completed | `{ email, name, password }` | `{ id, email, name, updated_at, ... }` | Frontend Settings |
+| `DELETE /api/v1/users/me` | Deletes current authenticated account | Completed | None (Signed JWT Header) | `{ id, email, name, ... }` | Frontend Settings |
+| `GET /api/v1/contacts` | Fetch emergency contacts registered under user | Completed | None (Signed JWT Header) | `[{ id, user_id, name, phone, relationship_type, is_primary, ... }]` | Frontend Contacts |
+| `POST /api/v1/contacts` | Create emergency contact | Completed | `{ name, phone, relationship_type, is_primary, user_id }` | `{ id, user_id, name, phone, relationship_type, is_primary, ... }` | Frontend Contacts |
+| `PUT /api/v1/contacts/{id}` | Update contact parameters | Completed | `{ name, phone, relationship_type, is_primary }` | `{ id, user_id, name, phone, relationship_type, is_primary, ... }` | Frontend Contacts |
+| `DELETE /api/v1/contacts/{id}` | Remove contact from database | Completed | None (Signed JWT Header) | `{ id, user_id, name, ... }` | Frontend Contacts |
+| `POST /api/v1/contacts/{id}/primary` | Explicitly set a contact as primary alert target | Completed | None (Signed JWT Header) | `{ id, user_id, name, is_primary: true, ... }` | Frontend Contacts |
+| `GET /api/v1/journeys` | Fetch paginated historical navigation logs of user | Completed | `skip`, `limit`, `sort_by`, `order` parameters | `[{ id, user_id, origin, destination, origin_lat, origin_lng, ... }]` | Frontend Dashboard |
+| `POST /api/v1/journeys` | Save new navigation journey log | Completed | `{ origin, destination, origin_lat, origin_lng, dest_lat, dest_lng, status, user_id, ... }` | `{ id, user_id, origin, destination, status, created_at, ... }` | Frontend Navigation |
+| `GET /api/v1/journeys/{id}` | Fetch details of specific navigation trip | Completed | None (Signed JWT Header) | `{ id, user_id, origin, destination, status, created_at, ... }` | Frontend Navigation |
+| `PUT /api/v1/journeys/{id}` | Modify journey metadata, statuses, or travel times | Completed | `{ status, duration_seconds, completed_at, journey_metadata }` | `{ id, status, duration_seconds, completed_at, ... }` | Frontend Navigation |
+| `DELETE /api/v1/journeys/{id}` | Remove a journey history item | Completed | None (Signed JWT Header) | `{ id, user_id, origin, ... }` | Frontend Dashboard |
+| `GET /api/v1/reports` | Query safety reports with filters and keyword search | Completed | `skip`, `limit`, `type`, `search`, `sort_by`, `order` | `[{ id, user_id, lat, lng, type, description, created_at, ... }]` | Frontend Feed |
+| `POST /api/v1/reports` | Submit community safety report (anonymous optional) | Completed | `{ lat, lng, type, description }` | `{ id, user_id, lat, lng, type, description, created_at, ... }` | Frontend Feed |
+| `GET /api/v1/reports/{id}` | Fetch details of a specific report | Completed | None | `{ id, user_id, lat, lng, type, description, ... }` | Frontend Feed |
+| `PUT /api/v1/reports/{id}` | Edit report details (ownership authorized check) | Completed | `{ lat, lng, type, description }` | `{ id, user_id, lat, lng, type, description, updated_at, ... }` | Frontend Feed |
+| `DELETE /api/v1/reports/{id}` | Delete report alert from database | Completed | None (Signed JWT Header) | `{ id, user_id, lat, lng, type, ... }` | Frontend Feed |
 
 ## Database Registry
 ### Users Table
-*   **Columns:** `id` (PK, Int), `name` (Str), `email` (Str, Unique), `password_hash` (Str), `created_at` (DateTime)
+*   **Columns:** `id` (PK, Int), `name` (Str), `email` (Str, Unique), `password_hash` (Str), `created_at` (DateTime), `updated_at` (DateTime)
 *   **Relationships:** Has many Emergency Contacts, Journeys, Reports
 *   **Purpose:** User account details and auth.
 
 ### Emergency Contacts Table
-*   **Columns:** `id` (PK, Int), `user_id` (FK to users), `name` (Str), `phone` (Str), `relationship` (Str, Nullable), `created_at` (DateTime)
+*   **Columns:** `id` (PK, Int), `user_id` (FK to users), `name` (Str), `phone` (Str), `relationship_type` (Str, Nullable), `is_primary` (Bool), `created_at` (DateTime), `updated_at` (DateTime)
 *   **Relationships:** Belongs to User
 *   **Purpose:** Contacts to notify in case of SOS.
 
 ### Journey History Table
-*   **Columns:** `id` (PK, Int), `user_id` (FK to users), `origin` (Str), `destination` (Str), `origin_lat` (Float), `origin_lng` (Float), `dest_lat` (Float), `dest_lng` (Float), `safety_score` (Int, Nullable), `status` (Str), `created_at` (DateTime)
+*   **Columns:** `id` (PK, Int), `user_id` (FK to users), `origin` (Str), `destination` (Str), `origin_lat` (Float), `origin_lng` (Float), `dest_lat` (Float), `dest_lng` (Float), `safety_score` (Int, Nullable), `status` (Str), `duration_seconds` (Int, Nullable), `completed_at` (DateTime, Nullable), `journey_metadata` (JSON, Nullable), `created_at` (DateTime), `updated_at` (DateTime)
 *   **Relationships:** Belongs to User
-*   **Purpose:** Tracks historical journey logs and safety indices.
+*   **Purpose:** Tracks historical journey logs, travel duration times, metadata, and safety indices.
 
 ### Safety Reports Table
-*   **Columns:** `id` (PK, Int), `user_id` (FK to users, Nullable), `lat` (Float), `lng` (Float), `type` (Str), `description` (Str), `created_at` (DateTime)
+*   **Columns:** `id` (PK, Int), `user_id` (FK to users, Nullable), `lat` (Float), `lng` (Float), `type` (Str), `description` (Str), `created_at` (DateTime), `updated_at` (DateTime)
 *   **Relationships:** Belongs to User (optional/nullable for anonymous)
 *   **Purpose:** Crowd-sourced crime/safety reports.
 
@@ -297,7 +326,12 @@ TrustRoute/
     │   ├── api/
     │   │   └── v1/
     │   │       └── endpoints/
-    │   │           └── health.py
+    │   │           ├── health.py
+    │   │           ├── auth.py
+    │   │           ├── users.py
+    │   │           ├── contacts.py
+    │   │           ├── journeys.py
+    │   │           └── reports.py
     │   ├── core/
     │   │   ├── config.py
     │   │   └── security.py
@@ -326,11 +360,18 @@ TrustRoute/
     │   │   ├── journey.py
     │   │   ├── report.py
     │   │   └── token.py
-    │   └── services/
-    │       └── auth.py
+    │   ├── services/
+    │   │   ├── auth.py
+    │   │   ├── user.py
+    │   │   ├── contact.py
+    │   │   ├── journey.py
+    │   │   └── report.py
+    │   └── utils/
+    │       └── query.py
     └── tests/
         ├── conftest.py
-        └── test_health.py
+        ├── test_health.py
+        └── test_business_crud.py
 ```
 
 ## File Registry
@@ -357,9 +398,20 @@ TrustRoute/
 | [auth.py (dependencies)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/dependencies/auth.py) | Implements get_current_user dependency decoders protecting secure endpoints |
 | [health.py (api)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/api/v1/endpoints/health.py) | Implements health check status monitoring endpoints |
 | [conftest.py (tests)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/tests/conftest.py) | Integration client factories overriding DB calls to memory SQLite engines |
+| [query.py (utils)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/utils/query.py) | Custom reusable pagination, sorting, search keyword, and filters filters helpers |
+| [user.py (services)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/services/user.py) | Service operations facilitating account details updates, profile lookups, and deletions |
+| [contact.py (services)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/services/contact.py) | Service operations handling contact additions, deletions, primary contact toggle |
+| [journey.py (services)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/services/journey.py) | Service operations enabling journey creations, completion times logging, and paging query logs |
+| [report.py (services)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/services/report.py) | Service operations managing incident alerts validations and searching feeds |
+| [auth.py (endpoints)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/api/v1/endpoints/auth.py) | Endpoint controllers facilitating signups and logins credentials check |
+| [users.py (endpoints)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/api/v1/endpoints/users.py) | Endpoint controllers facilitating profile information and setting updates |
+| [contacts.py (endpoints)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/api/v1/endpoints/contacts.py) | Endpoint controllers handling emergency contacts creations and details updates |
+| [journeys.py (endpoints)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/api/v1/endpoints/journeys.py) | Endpoint controllers logging and retrieving navigation journey routes logs |
+| [reports.py (endpoints)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/api/v1/endpoints/reports.py) | Endpoint controllers managing crowdsourced incident alerts submissions |
+| [test_business_crud.py (tests)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/tests/test_business_crud.py) | Functional integration tests suite validating signup, login, CRUDs, phone formatting, duplicate constraints |
 
 ## Git Progress
-*   **Latest Commit:** Phase 0 - Project Foundation: Scaffold folder structure, reusable UI components, styling tokens, and pages
+*   **Latest Commit:** Phase 1 - Backend Foundation: Add FastAPI settings, SQLAlchemy database session engines, model schemas (Users, EmergencyContacts, JourneyHistory, CommunityReports), repository design patterns, JWT token creators, logging middleware, endpoints (GET /health, /status, /version), and verify with Pytest suites
 *   **Branch:** `main`
 *   **Major Changes:** Completed backend database tables mappings, security JWT codecs, logging interceptors, repository stubs, API versioning, health routers, and Pytest verification suites.
 *   **Pending Changes:** Scaffolding Phase 2 AI Safety Scoring and routing features.

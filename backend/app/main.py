@@ -10,7 +10,7 @@ from app.middleware.errors import (
     validation_exception_handler,
     generic_exception_handler,
 )
-from app.api.v1.endpoints import health
+from app.api.v1.endpoints import health, auth, users, contacts, journeys, reports
 
 # Initialize application instance with custom OpenAPI configurations
 app = FastAPI(
@@ -42,4 +42,29 @@ app.include_router(
     health.router, 
     prefix=f"/api/{settings.API_VERSION}", 
     tags=["Utility & Monitoring"]
+)
+app.include_router(
+    auth.router, 
+    prefix=f"/api/{settings.API_VERSION}/auth", 
+    tags=["Authentication & Credentials"]
+)
+app.include_router(
+    users.router, 
+    prefix=f"/api/{settings.API_VERSION}/users", 
+    tags=["User Account Profile"]
+)
+app.include_router(
+    contacts.router, 
+    prefix=f"/api/{settings.API_VERSION}/contacts", 
+    tags=["Emergency Trust Contacts"]
+)
+app.include_router(
+    journeys.router, 
+    prefix=f"/api/{settings.API_VERSION}/journeys", 
+    tags=["Journey History logs"]
+)
+app.include_router(
+    reports.router, 
+    prefix=f"/api/{settings.API_VERSION}/reports", 
+    tags=["Community Safety Reports"]
 )

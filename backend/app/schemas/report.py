@@ -1,11 +1,23 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Literal
+
+# Validated categories lists of safety report types
+ReportCategory = Literal[
+    "Street Light Issue",
+    "Harassment",
+    "Stalking",
+    "Broken CCTV",
+    "Road Block",
+    "Poor Lighting",
+    "Suspicious Activity",
+    "Other"
+]
 
 class CommunityReportBase(BaseModel):
     lat: float
     lng: float
-    type: str
+    type: ReportCategory
     description: str
 
 class CommunityReportCreate(CommunityReportBase):
@@ -14,16 +26,16 @@ class CommunityReportCreate(CommunityReportBase):
 class CommunityReportUpdate(BaseModel):
     lat: Optional[float] = None
     lng: Optional[float] = None
-    type: Optional[str] = None
+    type: Optional[ReportCategory] = None
     description: Optional[str] = None
 
 class CommunityReportInDB(CommunityReportBase):
     id: int
     user_id: Optional[int] = None
     created_at: datetime
+    updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class CommunityReport(CommunityReportInDB):
     pass
