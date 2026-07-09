@@ -1,0 +1,275 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.topSection {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+@media (min-width: 1024px) {
+  .topSection {
+    grid-template-columns: 1.6fr 1fr;
+  }
+}
+
+.scoreWrapper {
+  width: 100%;
+}
+
+.actionsCard {
+  border: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  justify-content: center;
+}
+
+.actionsTitle {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.actionsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.actionBtn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px;
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-normal);
+}
+
+.actionBtn:hover {
+  background-color: rgba(255, 255, 255, 0.04);
+  border-color: var(--border-medium);
+}
+
+.actionIconWrapper {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--accent-blue);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.actionText {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.actionName {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.actionDesc {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.arrowIcon {
+  color: var(--text-muted);
+  transition: color var(--transition-fast);
+}
+
+.actionBtn:hover .arrowIcon {
+  color: var(--text-primary);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .statsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.statCard {
+  border: 1px solid var(--border-light);
+}
+
+.statHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.statTitle {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.statIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconBlue {
+  color: var(--accent-blue);
+}
+
+.iconEmerald {
+  color: var(--accent-emerald);
+}
+
+.iconAmber {
+  color: var(--status-warning);
+}
+
+.statValue {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+
+.statDesc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.recentSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.recentHeaderRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.recentHeading {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.viewAllLink {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.85rem;
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
+.viewAllLink:hover {
+  text-decoration: underline;
+}
+
+.tripsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tripItem {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border: 1px solid var(--border-light);
+}
+
+@media (min-width: 640px) {
+  .tripItem {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.tripInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tripDestRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pinIcon {
+  color: var(--accent-blue);
+}
+
+.tripDestName {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tripDate {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.tripMetrics {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  justify-content: space-between;
+}
+
+.tripScoreBox {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.scoreLabel {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.scoreNumber {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.score-success {
+  color: var(--status-success);
+}
+
+.score-warning {
+  color: var(--status-warning);
+}

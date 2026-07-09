@@ -1,0 +1,324 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  position: relative;
+  overflow: hidden;
+  transition: background-color var(--transition-slow);
+}
+
+.idle {
+  background-color: #060913;
+}
+
+.countdown {
+  background-color: #1a100f; /* Deep amber red tint */
+}
+
+.active {
+  background-color: #240c0c; /* Deep urgent red tint */
+}
+
+.bgGlow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.08) 0%, transparent 70%);
+  filter: blur(80px);
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-slow);
+}
+
+.countdown .bgGlow {
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, transparent 70%);
+}
+
+.active .bgGlow {
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.25) 0%, transparent 70%);
+  animation: bgPulse 2s infinite alternate;
+}
+
+@keyframes bgPulse {
+  0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.7; }
+  100% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+}
+
+.header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border-light);
+  z-index: 10;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  transition: color var(--transition-fast);
+}
+
+.backBtn:hover {
+  color: var(--text-primary);
+}
+
+.mainContent {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 5;
+}
+
+.stateWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  max-width: 440px;
+  width: 100%;
+  text-align: center;
+}
+
+.alertNotice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 48px;
+  text-align: left;
+}
+
+.alertNoticeIcon {
+  color: var(--status-warning);
+  flex-shrink: 0;
+}
+
+.sosTriggerBtn {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #EF4444 0%, #B91C1C 100%);
+  border: 8px solid rgba(239, 68, 68, 0.2);
+  cursor: pointer;
+  box-shadow: 0 0 40px rgba(239, 68, 68, 0.4), var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+  outline: none;
+  transition: all var(--transition-fast);
+}
+
+.sosTriggerBtn:hover {
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 0 50px rgba(239, 68, 68, 0.6), var(--shadow-lg);
+}
+
+.sosBtnInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-white);
+  gap: 12px;
+}
+
+.sosAlertLogo {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.sosBtnText {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+}
+
+.promptText {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* Countdown Styles */
+.countdownCircle {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 4px solid var(--status-warning);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32px;
+  box-shadow: 0 0 30px rgba(245, 158, 11, 0.2);
+}
+
+.countdownNumber {
+  font-family: var(--font-display);
+  font-size: 4.5rem;
+  font-weight: 800;
+  color: var(--status-warning);
+}
+
+.broadcastAlert {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.broadcastDesc {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 32px;
+}
+
+.cancelBtn {
+  width: 100%;
+  max-width: 240px;
+}
+
+/* Active SOS Styles */
+.broadcastingRing {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.broadcastLogoWrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background-color: var(--status-danger);
+  color: var(--accent-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  box-shadow: var(--shadow-glow-danger);
+}
+
+.pulse {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: rgba(239, 68, 68, 0.2);
+  z-index: 1;
+}
+
+.pulse1 {
+  animation: pulseRate 1.8s ease-out infinite;
+}
+
+.pulse2 {
+  animation: pulseRate 1.8s ease-out infinite 0.9s;
+}
+
+@keyframes pulseRate {
+  0% { transform: scale(0.6); opacity: 1; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.activeTitle {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--status-danger);
+  margin-bottom: 8px;
+}
+
+.activeSubtitle {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 28px;
+}
+
+.activeStatusCard {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  width: 100%;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+  margin-bottom: 32px;
+}
+
+.statusRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.statusIconBlue {
+  color: var(--accent-blue);
+  margin-top: 2px;
+}
+
+.statusIconEmerald {
+  color: var(--accent-emerald);
+  margin-top: 2px;
+}
+
+.statusLabel {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: block;
+}
+
+.statusValue {
+  font-family: var(--font-display);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.activeActionsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.resolvedBtn:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.footer {
+  border-top: 1px solid var(--border-light);
+  padding: 16px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  z-index: 10;
+}

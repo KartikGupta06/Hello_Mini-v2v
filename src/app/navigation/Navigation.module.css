@@ -1,0 +1,338 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: 380px 1fr;
+  }
+}
+
+.panelLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.panelTitle {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.searchCard {
+  border: 1px solid var(--border-light);
+}
+
+.inputsStack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.inputIconBlue {
+  color: var(--accent-blue);
+}
+
+.inputIconEmerald {
+  color: var(--accent-emerald);
+}
+
+.searchBtn {
+  width: 100%;
+}
+
+.routesWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.routesHeading {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  padding-left: 4px;
+}
+
+.routesStack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.routeItem {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.routeItem:hover {
+  border-color: var(--border-medium);
+  background-color: var(--bg-tertiary);
+}
+
+.routeActive {
+  border-color: var(--accent-blue);
+  background-color: rgba(59, 130, 246, 0.04);
+  box-shadow: var(--shadow-sm);
+}
+
+.routeHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.routeNameGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.routeName {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.aiBadge {
+  flex-shrink: 0;
+}
+
+.aiBadgeContent {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.scoreRow {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.scoreLabel {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.scoreVal {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 800;
+}
+
+.score-success {
+  color: var(--status-success);
+}
+
+.score-warning {
+  color: var(--status-warning);
+}
+
+.routeSpecs {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.spec {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.alertText {
+  color: var(--status-danger);
+  font-weight: 600;
+}
+
+.routeNotes {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--text-secondary);
+}
+
+.startBtn {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.panelRight {
+  flex: 1;
+}
+
+.mapContainer {
+  height: 500px;
+  background-color: #060913;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-medium);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+}
+
+@media (min-width: 1024px) {
+  .mapContainer {
+    height: 600px;
+  }
+}
+
+.mapGridLines {
+  position: absolute;
+  inset: 0;
+  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  z-index: 1;
+}
+
+.mapFloatingHeader {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 10;
+}
+
+.mapCoors {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-family: var(--font-display);
+  background-color: var(--bg-glass);
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+}
+
+.mapCenterMessage {
+  text-align: center;
+  max-width: 380px;
+  padding: 24px;
+  z-index: 10;
+  background-color: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.mapNavigationIcon {
+  color: var(--accent-blue);
+  filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.4));
+  margin-bottom: 16px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(4deg); }
+  100% { transform: translateY(0px) rotate(0deg); }
+}
+
+.mapMessageTitle {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.mapMessageDesc {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.simPinOrigin, .simPinDest {
+  position: absolute;
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 0.7rem;
+  font-weight: 700;
+  z-index: 5;
+}
+
+.simPinOrigin {
+  top: 30%;
+  left: 25%;
+  border-left: 3px solid var(--accent-blue);
+}
+
+.simPinDest {
+  bottom: 30%;
+  right: 25%;
+  border-left: 3px solid var(--accent-emerald);
+}
+
+.pinLabel {
+  color: var(--text-primary);
+}
+
+.mapZoomControls {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10;
+}
+
+.zoomBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background-color: var(--bg-glass);
+  border: 1px solid var(--border-light);
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.zoomBtn:hover {
+  background-color: var(--bg-tertiary);
+  border-color: var(--border-medium);
+}

@@ -1,0 +1,66 @@
+.form {
+  width: 100%;
+}
+
+.wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-medium);
+  background-color: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 4px 6px;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-normal);
+}
+
+.wrapper:focus-within {
+  border-color: var(--accent-blue);
+  box-shadow: var(--shadow-lg), 0 0 15px rgba(59, 130, 246, 0.15);
+}
+
+.searchIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  padding-left: 14px;
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.input::placeholder {
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+
+.locationBtn {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  transition: all var(--transition-fast);
+}
+
+.locationBtn:hover {
+  background-color: var(--bg-tertiary);
+  color: var(--accent-blue);
+}

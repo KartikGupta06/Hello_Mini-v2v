@@ -1,0 +1,25 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+.skeleton {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+}
+
+.text {
+  height: 16px;
+  border-radius: 4px;
+}
+
+.circle {
+  border-radius: 50%;
+}
+
+.rect {
+  border-radius: var(--radius-md);
+}
