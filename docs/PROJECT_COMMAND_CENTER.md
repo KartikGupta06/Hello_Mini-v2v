@@ -8,20 +8,20 @@
 *   **Hackathon Objective:** Deliver a fully functional web-based prototype featuring map navigation, safety route alternatives, safety score explanations, emergency SOS triggers, and live location updates.
 
 ## Overall Progress
-**Completion:** 87%
+**Completion:** 97%
 
 ```
-██████████████████░░ (87%)
+███████████████████░ (97%)
 ```
 
 ## Current Phase
-*   **Current Phase:** Phase 3: Safety Intelligence Data Layer (Completed)
-*   **Current Objective:** Stop after the Safety Intelligence Data Layer is complete. Transition to Phase 4 (AI Safety Engine).
-*   **Current Milestone:** Modular safety intelligence provider classes and aggregator endpoint operational with tests.
-*   **Current Priority:** Phase 4 Planning.
+*   **Current Phase:** Phase 4: Explainable Safety Intelligence Engine (Completed)
+*   **Current Objective:** Stop after Explainable AI Engine is complete. Transition to Phase 5 (Navigation & Routing).
+*   **Current Milestone:** Configurable weights risk modules and safety score REST API operational with unit tests.
+*   **Current Priority:** Phase 5 Planning.
 *   **Current Branch:** `main`
-*   **Current Focus:** Transition planning to Phase 4 (AI Safety Engine).
-*   **Last Updated:** 2026-07-09 21:28 (Local Time)
+*   **Current Focus:** Transition planning to Phase 5 (Navigation & Routing).
+*   **Last Updated:** 2026-07-09 21:40 (Local Time)
 
 ## Development Roadmap
 
@@ -53,12 +53,12 @@
 *   **Owner:** Antigravity (AI)
 *   **Notes:** Building a central SafetyAggregator collecting, validating, normalizing, and caching safety parameters (weather, crime, lighting, POIs).
 
-### Phase 4: AI Safety Engine
-*   **Status:** Not Started
-*   **Estimated Completion:** 2026-07-11
+### Phase 4: Explainable Safety Intelligence Engine
+*   **Status:** Completed
+*   **Estimated Completion:** 2026-07-09
 *   **Dependencies:** Phase 3
 *   **Owner:** Antigravity (AI)
-*   **Notes:** Safety Score calculation algorithm, confidence scoring, and AI explanation generation.
+*   **Notes:** Building the modular explainable safety scoring decision engine combining provider risk parameters.
 
 ### Phase 5: Navigation & Routing
 *   **Status:** Not Started
@@ -126,10 +126,11 @@
 - [x] Implement Caching Abstraction Layer with TTL limits
 - [x] Write integration checks ensuring graceful provider fallbacks
 
-### Phase 4: AI Safety Engine
-- [ ] Develop Safety Score calculation logic
-- [ ] Create AI explanation generator (Mock/OpenAI/Gemini API integration)
-- [ ] Build Confidence Score generator
+### Phase 4: Explainable Safety Intelligence Engine
+- [x] Implement independent Risk Modules (Crime, Lighting, Community, Weather, Time, POI, Event)
+- [x] Develop weighted decision combine engine with configurable parameters
+- [x] Build Confidence and explainable Reason generator from module metrics
+- [x] Create GET `/api/v1/ai/safety-score` endpoint exposing details
 
 ### Phase 5: Navigation & Map Routing
 - [ ] Set up interactive map component
@@ -179,6 +180,7 @@
 | Dynamic Queries | Reusable Pagination, Sorting, Search, and Filters | Completed | `backend/app/utils/query.py` | Antigravity | SQLAlchemy | 2026-07-09 |
 | Business Services | Encapsulated logic layers validating profiles & updates | Completed | `backend/app/services/` | Antigravity | Repositories | 2026-07-09 |
 | Safety Data Aggregator | Gathers coordinates parameters concurrently | Completed | `backend/app/safety/` | Antigravity | asyncio, cache | 2026-07-09 |
+| Safety Scoring AI Engine | Computes safety scoring breakdowns & explainable reasons | Completed | `backend/app/ai/` | Antigravity | config weights | 2026-07-09 |
 | Pytest Test Harness | Isolated SQLite database function rollbacks testing | Completed | `backend/tests/` | Antigravity | Pytest, TestClient | 2026-07-09 |
 
 ## API Registry
@@ -209,6 +211,7 @@
 | `DELETE /api/v1/reports/{id}` | Delete report alert from database | Completed | None (Signed JWT Header) | `{ id, user_id, lat, lng, type, ... }` | Frontend Feed |
 | `GET /api/v1/safety/aggregate` | Fetch concurrently aggregated safety metrics from active providers | Completed | `lat`, `lng` query parameters | `{ location, timestamp, crime, lighting, community, weather, poi, time, future_event, metadata }` | Frontend Map |
 | `GET /api/v1/safety/health` | Lists data providers latency, status, availability | Completed | None | `[{ name, status, availability, latency_ms, last_update }]` | Admin / Monitor |
+| `GET /api/v1/ai/safety-score` | Computes transit safety score, risk category, and explanations breakdown | Completed | `lat`, `lng` query parameters | `{ safety_score, confidence_level, confidence_percentage, risk_category, reasons, module_breakdown }` | Frontend Map Overlay |
 
 ## Database Registry
 ### Users Table
@@ -347,7 +350,8 @@ TrustRoute/
     │   │           ├── users.py
     │   │           ├── contacts.py
     │   │           ├── journeys.py
-    │   │           └── reports.py
+    │   │           ├── reports.py
+    │   │           └── safety.py
     │   ├── core/
     │   │   ├── config.py
     │   │   └── security.py
@@ -402,13 +406,41 @@ TrustRoute/
     │   │   │   └── future_event.py
     │   │   └── schemas/
     │   │       └── schemas.py
+    │   ├── ai/
+    │   │   ├── README.md
+    │   │   ├── aggregator/
+    │   │   ├── api/
+    │   │   │   └── router.py
+    │   │   ├── confidence/
+    │   │   │   └── engine.py
+    │   │   ├── engine/
+    │   │   │   └── decision.py
+    │   │   ├── reasoning/
+    │   │   │   └── generator.py
+    │   │   ├── risk_modules/
+    │   │   │   ├── __init__.py
+    │   │   │   ├── base.py
+    │   │   │   ├── crime.py
+    │   │   │   ├── lighting.py
+    │   │   │   ├── community.py
+    │   │   │   ├── weather.py
+    │   │   │   ├── time.py
+    │   │   │   ├── poi.py
+    │   │   │   └── event.py
+    │   │   ├── schemas/
+    │   │   │   └── schemas.py
+    │   │   ├── services/
+    │   │   │   └── ai_service.py
+    │   │   └── weights/
+    │   │       └── config.py
     │   └── utils/
     │       └── query.py
     └── tests/
         ├── conftest.py
         ├── test_health.py
         ├── test_business_crud.py
-        └── test_safety_intelligence.py
+        ├── test_safety_intelligence.py
+        └── test_explainable_ai.py
 ```
 
 ## File Registry
@@ -452,9 +484,26 @@ TrustRoute/
 | [aggregator.py (safety)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/safety/aggregator/aggregator.py) | Aggregation hub routing lookups concurrently with timeouts boundaries and fallback maps |
 | [router.py (safety)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/safety/api/router.py) | FastAPI endpoints exposing combined metrics queries and providers health indexes |
 | [test_safety_intelligence.py (tests)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/tests/test_safety_intelligence.py) | Integration checks verifying validation bounds, cache TTLs, provider failures, and timeouts fallbacks |
+| [README.md (ai)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/ai/README.md) | Technical description of configurable weights risk modules, confidence engines, and explainable summaries |
+| [schemas.py (ai)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/ai/schemas/schemas.py) | Pydantic structures mapping risk breakdowns and SafetyScoreResponse parameters |
+| [base.py (ai)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/ai/risk_modules/base.py) | Interface mapping score calculations and modular independence boundaries |
+| [crime.py (ai)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/ai/risk_modules/crime.py) | Evaluates crime risk metrics |
+| [lighting.py (ai)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/ai/risk_modules/lighting.py) | Evaluates street light coverage risk metrics |
+| [community.py (ai)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/ai/risk_modules/community.py) | Evaluates active safety reports risk metrics |
+| [weather.py (ai)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/ai/risk_modules/weather.py) | Evaluates transit visibility risk metrics |
+| [time.py (ai)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/ai/risk_modules/time.py) | Evaluates late night transit baseline risks |
+| [poi.py (ai)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/ai/risk_modules/poi.py) | Evaluates emergency infrastructure risk mitigation |
+| [event.py (ai)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/ai/risk_modules/event.py) | Evaluates public gatherings baseline risks |
+| [config.py (ai)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/ai/weights/config.py) | Risk parameter weights configuration |
+| [engine.py (ai)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/ai/confidence/engine.py) | Computes metadata freshness and provider health percentages |
+| [generator.py (ai)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/ai/reasoning/generator.py) | Translates risk scores into consolidated reasoning paragraphs |
+| [decision.py (ai)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/ai/engine/decision.py) | Computes safety scores, risk categories, and breakdowns maps |
+| [ai_service.py (ai)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/ai/services/ai_service.py) | Interfacing aggregator lookups with evaluation algorithms |
+| [router.py (ai)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/app/ai/api/router.py) | FastAPI endpoints exposing explainable safety scoring engine |
+| [test_explainable_ai.py (tests)](file:///c:/Users/KARTIK/Desktop/TrustRoute/backend/tests/test_explainable_ai.py) | Test cases checking risk parameters weights, mitigators, confidence engines, and API lookups |
 
 ## Git Progress
-*   **Latest Commit:** Phase 2 - Business Logic Layer: Implement complete CRUD APIs, service validations, query paginations, search, sorting filters, E.164 phone validators, category literals, and write integration Pytest CRUD checks
+*   **Latest Commit:** Phase 3 - Safety Intelligence Data Layer: Implement modular data aggregation providers (Crime, Lighting, Community, Weather, POIs, Context, Events), thread-safe TTL cache engine, SafetyAggregator with concurrent fetch limits, health trackers, and integration Pytest suites
 *   **Branch:** `main`
 *   **Major Changes:** Completed backend database tables mappings, security JWT codecs, logging interceptors, repository stubs, API versioning, health routers, and Pytest verification suites.
 *   **Pending Changes:** Scaffolding Phase 2 AI Safety Scoring and routing features.

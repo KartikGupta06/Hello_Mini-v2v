@@ -74,3 +74,9 @@ app.include_router(
     prefix=f"/api/{settings.API_VERSION}/safety", 
     tags=["Safety Intelligence Data"]
 )
+from app.ai.api.router import router as ai_router
+app.include_router(
+    ai_router, 
+    prefix=f"/api/{settings.API_VERSION}/ai", 
+    tags=["Explainable Safety Scoring Engine"]
+)
