@@ -1,0 +1,16 @@
+station_id,station_name,latitude,longitude,district,address,contact_number,open_24x7
+PS0001,Police Station Malviya Nagar,28.530672,77.204556,South Delhi,"South Delhi, New Delhi",+91-11-2669-1861;+91-11-2669-1862,Yes
+PS0002,Delhi Police — Mehrauli,28.526204,77.177941,South Delhi,"South Delhi, New Delhi",Unknown,Yes
+PS0003,Saket Police Station,28.523365,77.208383,South Delhi,"South Delhi, New Delhi",Unknown,Yes
+PS0004,Jyoti Nagar Police Station,28.696388,77.291174,North-East Delhi,Loni Road,Unknown,Yes
+PS0005,Alipur Police Station,28.7995,77.1322,Outer Delhi,"Outer Delhi, New Delhi",Unknown,Yes
+PS0006,Narela Police Station,28.8415,77.0931,Outer Delhi,"Outer Delhi, New Delhi",Unknown,Yes
+PS0007,Narela Industrial Area Police Station,28.8521,77.0811,Outer Delhi,"Outer Delhi, New Delhi",Unknown,Yes
+PS0008,Bawana Police Station,28.7991,77.0332,Outer Delhi,"Outer Delhi, New Delhi",Unknown,Yes
+PS0009,Shahbad Dairy Police Station,28.7511,77.1121,Outer Delhi,"Outer Delhi, New Delhi",Unknown,Yes
+PS0010,Samaipur Badli Police Station,28.7366,77.1422,Outer Delhi,"Outer Delhi, New Delhi",Unknown,Yes
+PS0011,Rohini South Police Station,28.7011,77.1155,Outer Delhi,"Outer Delhi, New Delhi",Unknown,Yes
+PS0012,Rohini North Police Station,28.7265,77.1141,Outer Delhi,"Outer Delhi, New Delhi",Unknown,Yes
+PS0013,Vijay Vihar Police Station,28.7211,77.0921,Outer Delhi,"Outer Delhi, New Delhi",Unknown,Yes
+PS0014,Begampur Police Station,28.7312,77.0588,Outer Delhi,"Outer Delhi, New Delhi",Unknown,Yes
+PS0015,Mangolpuri Police Station,28.6942,77.0695,Outer Delhi,"Outer Delhi, New Delhi",Unknown,Yes

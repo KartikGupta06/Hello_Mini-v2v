@@ -1,0 +1,74 @@
+hospital_id,hospital_name,latitude,longitude,district,address,emergency_available,contact_number,open_24x7
+H0001,Pushpawati Singhania Hospital and Research Institute,28.53312,77.225428,South Delhi,"South Delhi, New Delhi",Unknown,Unknown,Unknown
+H0002,Adiva Hospital,28.558399,77.206421,South Delhi,"South Delhi, New Delhi",Unknown,Unknown,Unknown
+H0003,Cygnus Orthocare Hospital,28.546082,77.197326,South Delhi,"South Delhi, New Delhi",Unknown,Unknown,Unknown
+H0004,Max Multi Speciality Centre,28.543457,77.214298,South Delhi,"South Delhi, New Delhi",Unknown,Unknown,Unknown
+H0005,Balhara's Le Cure Hospital,28.509768,77.201445,South Delhi,"South Delhi, New Delhi",Unknown,+91-011-3232-9996;+91-93109-40099,Unknown
+H0006,Rural Medical Centre,28.515897,77.196536,South Delhi,"South Delhi, New Delhi",Unknown,+91-11-2953-4031;+91-11-2953-6833,Unknown
+H0007,National Institute of TB and Respiratory Diseases,28.529118,77.190043,South Delhi,"NITRD, Sri Aurobindo Marg, Near Qutub minar",Unknown,1.13E+42,Unknown
+H0008,Manchanda Hospital,28.494367,77.183699,South Delhi,"South Delhi, New Delhi",Unknown,Unknown,Unknown
+H0009,Mehta Hospital,28.523344,77.231292,South Delhi,"South Delhi, New Delhi",Unknown,Unknown,Unknown
+H0010,Aakash Hospital,28.535036,77.214865,South Delhi,"South Delhi, New Delhi",Unknown,Unknown,Unknown
+H0011,Aman Medical Centre,28.52165,77.181293,South Delhi,"1061 /7, Dargah Street, Mehrauli, New Delhi",Unknown,011 2664 5113,Unknown
+H0012,Sukhmani Hospital,28.559723,77.2005,South Delhi,"B-7 Ext./126A, Safdarjung Enclave, Arjun Nagar, New Delhi, Delhi 110029",Unknown,011 2619 4000,Unknown
+H0013,Vardaan Hospital,28.537227,77.214945,South Delhi,"Near Post Office, 100, Malviya Nagar, Khirki Extension, Malviya Nagar",Unknown,26689911,Unknown
+H0014,Leekha Nursing Home,28.552028,77.208038,South Delhi,"Likhas Nursing Home,D-62, Hauz Khas, Delhi - 110016",Unknown,2659203,Unknown
+H0015,Bhagwati Hospital,28.524161,77.178865,South Delhi,"1/113, Desu Road, Near Dreamland School, Mehrauli, New Delhi",Unknown,011 2664 3304,Unknown
+H0016,Medeor Hospital,28.537456,77.181071,South Delhi,"B-33-34, Qutab Institutional Area, Katwaria Sarai",Unknown,47667100,Unknown
+H0017,Healing Touch Hospital,28.542771,77.207375,South Delhi,"Panchsheel Enclave, No. 7/5, Sarva Priya Vihar, New Delhi, Delhi 110016",Unknown,011 4727 2800,Unknown
+H0018,Sunil Hospital and Nursing Home,28.535872,77.209162,South Delhi,"15/199, Geetanjali Marg, Block E, Malviya Nagar, New Delhi",Unknown,1126680247,Unknown
+H0019,Vibhu Nursing Home,28.534758,77.208392,South Delhi,"11/137,138, Malviya Nagar, New Delhi",Unknown,2668 3681,Unknown
+H0020,Satyam Medical Centre,28.5413,77.186447,South Delhi,"Satyam Medical Centre, 115/1, Katwaria Sarai, New Delhi",Unknown,1141688372,Unknown
+H0021,NDMS Park,28.485107,77.193803,South Delhi,"South Delhi, New Delhi",Unknown,Unknown,Unknown
+H0022,Gendox Hospital,28.519682,77.1734,South Delhi,"602, Kishangarh - Mehrauli Road, Islam Colony, Mehrauli",Unknown,Unknown,Unknown
+H0023,Vashishta Clinics & Hospital,28.535244,77.207933,South Delhi,"B-35, Shivalik, Panchsheel Geetanjali Road, Opp. Malviya Nagar",Unknown,Unknown,Unknown
+H0024,K.R. Hospital,28.507468,77.184839,South Delhi,"100 Feet Road, Chhatarpur Hills, Dr Ambedkar Colony, Chhatarpur",Unknown,Unknown,Unknown
+H0025,Neptune Hospital,28.532426,77.202654,South Delhi,"1, Nav Jeevan Vihar, Shivalik, Geetanjali Marg, Adchini",Unknown,Unknown,Unknown
+H0026,Orthostar Hospital,28.508392,77.231415,South Delhi,"F-86-89, Pocket C, Jawahar Park, Khanpur",Unknown,Unknown,Unknown
+H0027,Yogmaya Multispeciality Hospital,28.494327,77.183309,South Delhi,"203/A, Chhattarpur Ext Road, Block F, Block G, Chhatarpur",Unknown,Unknown,Unknown
+H0028,BSF Hospital,28.51093,77.24078,South Delhi,"BSF campus, Tigri, Sangam Vihar",Unknown,Unknown,Unknown
+H0029,Bal Kishan Memorial Hospital,28.511829,77.234632,South Delhi,"IFFCO, Near Mother Dairy, Khanpur Extension, Sangam Vihar",Unknown,Unknown,Unknown
+H0030,Kunj Eye Hospital,28.500025,77.237142,South Delhi,"C1-270, Sangam Vihar, Near Holy Chowk, Devli High School Road",Unknown,Unknown,Unknown
+H0031,Sawan Neelu Angel's Multispeciality Hospital,28.522116,77.215201,South Delhi,"J-293, Saket Road, Block J, Saket",Unknown,Unknown,Unknown
+H0032,Arpan Hospital,28.510418,77.23741,South Delhi,"Tigri Road, Tigri Colony, Tigri, Sangam Vihar",Unknown,Unknown,Unknown
+H0033,Vikas Hospital,28.519361,77.174301,South Delhi,"173C, Kishangarh - Mehrauli Road, Islam Colony, Mehrauli",Unknown,Unknown,Unknown
+H0034,AIIMS Urban Health Centre,28.522187,77.242704,South Delhi,"Block 14, Dakshin Puri Extension, Dakshinpuri",Unknown,Unknown,Unknown
+H0035,Dr. Sunder Lal Memorial Hospital,28.506341,77.231747,South Delhi,"C-201, Devli Road, Jawahar Park, Khanpur",Unknown,Unknown,Unknown
+H0036,Adarsh Hospital,28.535139,77.222323,South Delhi,"B-81, Near A P J SCHOOL, Panchsheel Vihar, Sheikh Sarai",Unknown,Unknown,Unknown
+H0037,Dhan Devi Charitable Hospital,28.525337,77.23639,South Delhi,"8/217, Dakshin Puri Ext, Maharishi Balmiki Road",Unknown,Unknown,Unknown
+H0038,Apex Hospital,28.50018,77.184392,South Delhi,"Plot No, 8, Chattarpur Mandir Road, Dr Ambedkar Colony, Sat Bari",Unknown,Unknown,Unknown
+H0039,Balak Ram Hospital,28.511481,77.202496,South Delhi,"Block B, Bees Sutri Harijan Basti, Khanpur",Unknown,Unknown,Unknown
+H0040,Ambedkar Nagar Hospital,28.522396,77.23838,South Delhi,Maharishi Valmiki Marg,Unknown,Unknown,Unknown
+H0041,Fortis Hospital,28.519288,77.160342,South Delhi,Aruna Asif Ali Marg,Yes,Unknown,Unknown
+H0042,Shamsi Clinic,28.530325,77.214032,South Delhi,"South Delhi, New Delhi",Yes,Unknown,Unknown
+H0043,MAX Hospital,28.527351,77.211685,South Delhi,Press Enclave Marg,Yes,Unknown,Unknown
+H0044,Saket City Hospital,28.527407,77.214229,South Delhi,"Press Enclave Marg, Saket District Centre, Saket Institutional Area, Saket",Unknown,011 4069 9999,Unknown
+H0045,Holistic Skin Care,28.519277,77.214379,South Delhi,"1st Floor, Saket",Unknown,Unknown,Unknown
+H0046,Pt. Madan Mohan Malviya Hospital,28.535548,77.213896,South Delhi,"Malviya Nagar, New Delhi",Yes,1126689999,Unknown
+H0047,Madhukar Rainbow Children's Hospital,28.529308,77.204722,South Delhi,"South Delhi, New Delhi",Yes,Unknown,Unknown
+H0048,MCW Hauz Khas,28.54323,77.203212,South Delhi,"South Delhi, New Delhi",Unknown,Unknown,Unknown
+H0049,Jag Pravesh Chandra Hospital,28.676467,77.262937,North-East Delhi,"Shastri Park, Panduk Shila Marg, Shahdara",Unknown,22184453,Unknown
+H0050,Mohan Nursing Home & Hospital,28.702744,77.267766,North-East Delhi,"MCD Mty Home, B-2 Block, Yamuna Vihar, Near Petrol Pump",Unknown,22914478,Unknown
+H0051,Kamaal Nursing Home,28.6799,77.27186,North-East Delhi,"790, Indira Chowk, Shahdara, Jafrabad, Shahdara",Unknown,2219 8308,Unknown
+H0052,Luv Kush Hospital,28.724975,77.268762,North-East Delhi,"Gali Number 1, Main Road, Near Karawal Nagar Chowk, Karawal Nagar",Unknown,Unknown,Unknown
+H0053,Lal Hospital,28.702544,77.283298,North-East Delhi,"A-18, DL-94, Gokalpuri",Unknown,Unknown,Unknown
+H0054,Vasist Hospital,28.701646,77.280317,North-East Delhi,"C3/68A, Block C, Yamuna Vihar, Gokalpuri",Unknown,Unknown,Unknown
+H0055,Dr Chaudhry's Moral Hospital,28.702372,77.272441,North-East Delhi,"C - 1, Block C, Yamuna Vihar, Shalimar Garden",Unknown,Unknown,Unknown
+H0056,Panchsheel Hospital,28.7017,77.279607,North-East Delhi,"C-3/63A, 64A, Opp. Gokulpuri, Block C, Yamuna Vihar, Shahdara",Unknown,Unknown,Unknown
+H0057,Neha Hospital,28.719672,77.265801,North-East Delhi,"Shop No-K-45, Karanwal Nagar Road, Sadatpur",Unknown,Unknown,Unknown
+H0058,Triveni Hospital,28.720737,77.266695,North-East Delhi,"5A/19, Karawal Nagar-Bhajanpura Road, Block M, New Mustafabad",Unknown,Unknown,Unknown
+H0059,Vinod Karhana Hospital,28.712504,77.262686,North-East Delhi,"B-11, Karawal Nagar Main Road, Nehru Vihar, Old Mustafabad, Shalimar Garden",Unknown,Unknown,Unknown
+H0060,Muskan Hospital,28.691985,77.254837,North-East Delhi,"Pustha Road Number 4, South Gamri, Block C, Kartar Nagar, Shahdara",Unknown,Unknown,Unknown
+H0061,Asian Samra Multi Speciality Hospital,28.701808,77.278726,North-East Delhi,"C-3/53 A, Service Lane, Wazirabad Ghaziabad Road, Near Punjab National Bank",Unknown,Unknown,Unknown
+H0062,Kavita Poly Clinic & Hospital,28.726179,77.270421,North-East Delhi,"K-296, Bhagat Vihar, East Sadatpur Extension, Karawal Nagar",Unknown,Unknown,Unknown
+H0063,Mavi Hospital,28.713401,77.263533,North-East Delhi,"B- 2/11, Karawal Nagar, Main Road, Nehru Vihar, Mustafabad",Unknown,Unknown,Unknown
+H0064,White House Hospital,28.701833,77.278426,North-East Delhi,"C3/58A, Block C, Yamuna Vihar, Shahdara",Unknown,Unknown,Unknown
+H0065,INDIAN BAGHEERA VETERINARY HOSPITAL,28.694496,77.292126,North-East Delhi,"North-East Delhi, New Delhi",Unknown,Unknown,Unknown
+H0066,Satyawadi Raja Harish Chandra Hospital,28.8421,77.0911,Outer Delhi,"Outer Delhi, New Delhi",Yes,Unknown,Yes
+H0067,Maharishi Balmiki Hospital,28.7981,77.0321,Outer Delhi,"Outer Delhi, New Delhi",Yes,Unknown,Yes
+H0068,Dr. Baba Saheb Ambedkar Hospital,28.718,77.1085,Outer Delhi,"Outer Delhi, New Delhi",Yes,Unknown,Yes
+H0069,Jaipur Golden Hospital,28.7088,77.1211,Outer Delhi,"Outer Delhi, New Delhi",Yes,Unknown,Yes
+H0070,Bhagwati Hospital,28.7291,77.1285,Outer Delhi,"Outer Delhi, New Delhi",Yes,Unknown,Yes
+H0071,Siddharth Hospital Bawana,28.8021,77.0388,Outer Delhi,"Outer Delhi, New Delhi",Yes,Unknown,Yes
+H0072,Aryan Hospital Bawana,28.7965,77.0352,Outer Delhi,"Outer Delhi, New Delhi",Yes,Unknown,Yes
+H0073,Nirmal Hospital Alipur,28.8012,77.1295,Outer Delhi,"Outer Delhi, New Delhi",Yes,Unknown,Yes
