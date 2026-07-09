@@ -6,8 +6,8 @@ This document tracks the progress, roadmap, and tasks for the SafeRoute AI Pytho
 
 ## Current Status
 
-**Current Phase:** Phase 4.5 – Database Seeding
-**Next Planned Phase:** Phase 5 – FastAPI APIs
+**Current Phase:** Phase 5.1 – FastAPI Foundation & Core API Structure
+**Next Planned Phase:** Phase 5.2 – Core CRUD APIs
 
 ---
 
@@ -22,7 +22,8 @@ This document tracks the progress, roadmap, and tasks for the SafeRoute AI Pytho
 ☑ Phase 4.3 – SQLAlchemy Models
 ☑ Phase 4.4 – Alembic Initial Migration
 ☑ Phase 4.5 – Database Seeding
-☐ Phase 5 – FastAPI APIs
+☑ Phase 5.1 – FastAPI Foundation & Core API Structure
+☐ Phase 5.2 – Core CRUD APIs
 ☐ Phase 6 – AI Safety Engine
 ☐ Phase 7 – Route Recommendation Engine
 ☐ Phase 8 – Authentication
@@ -212,6 +213,45 @@ Initialized Alembic migrations manager in `backend/alembic/`. Configured metadat
 
 **Summary:**
 Implemented official database initialization script (`backend/app/database/seed.py`) to parse, validate, and safely import all frozen CSV datasets into PostgreSQL using batch SQLAlchemy transactions and UPSERT `on_conflict_do_nothing` protection. Successfully imported 35,088 combined records while retaining referential integrity across foreign key boundaries. Database layer is completely frozen.
+
+---
+
+**Date:** 10 July 2026
+
+**Phase:** Phase 5 – FastAPI APIs
+
+**Task:** Phase 5.1 FastAPI Foundation & Core API Structure
+
+**Status:** ✅ Completed
+
+**Summary:**
+Configured central metadata settings, CORS/logging middlewares, global exception handling, and routing architecture under `/api/v1`. Implemented modern `lifespan` context to verify DB connectivity on startup and close resources gracefully on shutdown. Rewrote `/api/v1/health` with detailed uptime, DB latency/version status, and env values. Verified FastAPI runs, registers endpoints, and loads OpenAPI/Swagger docs correctly.
+
+---
+
+**Date:** 10 July 2026
+
+**Phase:** Phase 5 – FastAPI APIs
+
+**Task:** Phase 5.2 Read APIs (GET Endpoints)
+
+**Status:** ✅ Completed
+
+**Summary:**
+Implemented highly performant, read-only GET REST APIs for the SafeRoute infrastructure datasets (Police Stations, Hospitals, CCTV, Street Lights, Crimes). APIs expose pagination and bounding-box style filtering (district, area_name) with clean Pydantic documentation via `/api/v1` routes.
+
+---
+
+**Date:** 10 July 2026
+
+**Phase:** Phase 5 – FastAPI APIs
+
+**Task:** Phase 5.2.1 Read API Standardization & Consistency Audit
+
+**Status:** ✅ Completed
+
+**Summary:**
+Standardized all newly implemented infrastructure APIs to follow a unified contract. Introduced generic `PaginatedResponse` and `SingleResponse` wrappers in `schemas/response.py`. Converted all collection parameters to strictly use `limit` and `offset` (removed `skip`). Validated centralized JSON error handling (`{"success": false, "error": ...}`). Maintained absolute backward compatibility by leaving legacy routes unchanged. The Read API layer is now officially Frozen.
 
 ---
 

@@ -3,6 +3,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from contextlib import asynccontextmanager
+from sqlalchemy import text
+from app.database.session import engine
+
 from app.core.config import settings
 from app.middleware.logging import LoggingMiddleware
 from app.middleware.errors import (
@@ -10,15 +14,36 @@ from app.middleware.errors import (
     validation_exception_handler,
     generic_exception_handler,
 )
-from app.api.v1.endpoints import health, auth, users, contacts, journeys, reports
+from app.api.v1.endpoints import health, auth, users, contacts, journeys, reports, police, hospitals, street_lights, cctv, crimes
 
-# Initialize application instance with custom OpenAPI configurations
+import time
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Verify database connectivity on startup
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+        print("Database connectivity verified successfully on startup.")
+    except Exception as e:
+        print(f"CRITICAL: Database connectivity failed on startup: {e}")
+    
+    yield
+    
+    # Gracefully close resources during shutdown
+    engine.dispose()
+    print("Database engine disposed successfully during shutdown.")
+
+# Initialize application instance with custom OpenAPI configurations and lifespan lifecycle
 app = FastAPI(
     title=settings.APP_NAME,
     openapi_url=f"/api/{settings.API_VERSION}/openapi.json",
     docs_url=f"/api/{settings.API_VERSION}/docs",
     redoc_url=f"/api/{settings.API_VERSION}/redoc",
+    lifespan=lifespan,
 )
+
+app.state.start_time = time.time()
 
 # Set CORS parameters
 app.add_middleware(
@@ -67,6 +92,31 @@ app.include_router(
     reports.router, 
     prefix=f"/api/{settings.API_VERSION}/reports", 
     tags=["Community Safety Reports"]
+)
+app.include_router(
+    police.router,
+    prefix=f"/api/{settings.API_VERSION}/police-stations",
+    tags=["Police Stations Infrastructure"]
+)
+app.include_router(
+    hospitals.router,
+    prefix=f"/api/{settings.API_VERSION}/hospitals",
+    tags=["Hospitals Infrastructure"]
+)
+app.include_router(
+    street_lights.router,
+    prefix=f"/api/{settings.API_VERSION}/street-lights",
+    tags=["Street Lights Infrastructure"]
+)
+app.include_router(
+    cctv.router,
+    prefix=f"/api/{settings.API_VERSION}/cctv-cameras",
+    tags=["CCTV Cameras Infrastructure"]
+)
+app.include_router(
+    crimes.router,
+    prefix=f"/api/{settings.API_VERSION}/crime-records",
+    tags=["Crime Records Incidents"]
 )
 from app.safety.api.router import router as safety_router
 app.include_router(

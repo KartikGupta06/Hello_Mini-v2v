@@ -6,6 +6,10 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = "postgres"
     POSTGRES_DB: str = "saferoute_ai"
     POSTGRES_PORT: int = 5432
+    APP_NAME: str = "SafeRoute AI"
+    API_VERSION: str = "v1"
+    ENVIRONMENT: str = "development"
+    APP_VERSION: str = "1.0.0"
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
