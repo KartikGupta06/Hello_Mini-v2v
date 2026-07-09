@@ -173,6 +173,7 @@
 ```
 TrustRoute/
 ├── .gitignore
+├── README.md
 └── docs/
     └── 01_Master_Taskboard.md
 ```
@@ -181,6 +182,7 @@ TrustRoute/
 | File | Description |
 |---|---|
 | [.gitignore](file:///c:/Users/KARTIK/Desktop/TrustRoute/.gitignore) | Git ignore configuration to prevent tracking build artifacts, node modules, and credentials |
+| [README.md](file:///c:/Users/KARTIK/Desktop/TrustRoute/README.md) | Default repository README file initialized on GitHub |
 | [01_Master_Taskboard.md](file:///c:/Users/KARTIK/Desktop/TrustRoute/docs/01_Master_Taskboard.md) | Single Source of Truth for project progress & documentation |
 
 ## Git Progress
