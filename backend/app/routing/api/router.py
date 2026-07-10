@@ -8,6 +8,14 @@ from app.routing.schemas.schemas import CandidateRouteInput, RouteRecommendation
 from app.routing.analysis.analyzer import RouteAnalyzer
 from app.routing.ranking.ranker import RouteRanker
 from app.routing.recommendation.recommendation import RecommendationEngine
+from app.routing.route_intelligence import route_intelligence_engine
+from pydantic import BaseModel
+
+class RouteIntelligenceRequest(BaseModel):
+    source_lat: float
+    source_lng: float
+    dest_lat: float
+    dest_lng: float
 
 router = APIRouter()
 
@@ -54,3 +62,24 @@ async def analyze_routes(
         rankings=rankings,
         detailed_analyses=list(analyses)
     )
+
+@router.post(
+    "/intelligence",
+    summary="Get intelligent route recommendations (Hackathon MVP)",
+    description="Fetches routes from OpenRouteService and evaluates them using the AI Safety Engine."
+)
+async def get_route_intelligence(
+    request: RouteIntelligenceRequest,
+    db: Session = Depends(get_db)
+):
+    try:
+        return await route_intelligence_engine.get_intelligent_routes(
+            db=db,
+            source_lat=request.source_lat,
+            source_lng=request.source_lng,
+            dest_lat=request.dest_lat,
+            dest_lng=request.dest_lng
+        )
+    except Exception as e:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=500, detail=str(e))

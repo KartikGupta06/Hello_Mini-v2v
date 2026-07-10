@@ -14,7 +14,7 @@ from app.middleware.errors import (
     validation_exception_handler,
     generic_exception_handler,
 )
-from app.api.v1.endpoints import health, auth, users, contacts, journeys, reports, police, hospitals, street_lights, cctv, crimes
+from app.api.v1.endpoints import health, auth, users, contacts, journeys, reports, police, hospitals, street_lights, cctv, crimes, sos
 
 import time
 
@@ -135,4 +135,9 @@ app.include_router(
     routing_router, 
     prefix=f"/api/{settings.API_VERSION}/routes", 
     tags=["Intelligent Route Analysis Engine"]
+)
+app.include_router(
+    sos.router, 
+    prefix=f"/api/{settings.API_VERSION}/sos", 
+    tags=["SOS Emergency Backend"]
 )
