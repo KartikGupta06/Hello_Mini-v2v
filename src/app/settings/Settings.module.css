@@ -180,3 +180,171 @@
   width: 100%;
   margin-top: 8px;
 }
+
+/* Emergency Contacts Styles */
+.contactsList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.contactCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.contactCard:hover {
+  background: var(--bg-glass-hover);
+  border-color: var(--border-medium);
+}
+
+.contactCardPrimary {
+  border-left: 3px solid var(--status-warning, #f59e0b);
+}
+
+.contactInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.contactAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-secondary));
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 750;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.contactDetails {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.contactNameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.contactName {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.relationshipBadge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--accent-blue);
+  background: rgba(92, 115, 134, 0.08);
+  padding: 2px 6px;
+  border-radius: 6px;
+}
+
+.contactPhone {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.contactActions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.contactBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.contactBtn:hover {
+  background: rgba(30, 42, 57, 0.04);
+  color: var(--text-primary);
+}
+
+.primaryStar {
+  color: var(--status-warning, #f59e0b) !important;
+}
+
+.deleteBtn {
+  color: var(--status-danger) !important;
+}
+
+.deleteBtn:hover {
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* Modal form inputs spacing */
+.modalFormGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.primaryCheckboxWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.primaryCheckboxLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* About Screen details */
+.aboutRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px dashed var(--border-light);
+  font-size: 0.82rem;
+}
+
+.aboutRow:last-child {
+  border-bottom: none;
+}
+
+.aboutLabel {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.aboutValue {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+

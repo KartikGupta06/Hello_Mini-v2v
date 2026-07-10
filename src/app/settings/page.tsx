@@ -1,11 +1,28 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Settings, Shield, Bell, User, Volume2, Save, Trash2, Key } from "lucide-react";
+import { 
+  Settings, 
+  Shield, 
+  Bell, 
+  User, 
+  Volume2, 
+  Save, 
+  Trash2, 
+  Plus, 
+  Star, 
+  Trash, 
+  Edit2, 
+  Lock, 
+  Info, 
+  HelpCircle,
+  Phone
+} from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Card, SectionHeader, Button, Input } from "@/components/ui";
+import { Card, SectionHeader, Button, Input, Modal } from "@/components/ui";
 import { AuthService } from "@/services/auth";
-import { User as UserType } from "@/types";
+import { ContactService } from "@/services/contacts";
+import { User as UserType, EmergencyContact } from "@/types";
 import styles from "./Settings.module.css";
 
 export default function SettingsPage() {
@@ -25,8 +42,23 @@ export default function SettingsPage() {
   const [smsAlerts, setSmsAlerts] = useState(true);
   const [pushAlerts, setPushAlerts] = useState(true);
 
+  // Emergency Contacts state
+  const [contacts, setContacts] = useState<EmergencyContact[]>([]);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [editingContact, setEditingContact] = useState<EmergencyContact | null>(null);
+  const [contactName, setContactName] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactRel, setContactRel] = useState("");
+  const [contactPrimary, setContactPrimary] = useState(false);
+
+  // Privacy & security settings
+  const [backgroundTracking, setBackgroundTracking] = useState(true);
+  const [diagnosticLogs, setDiagnosticLogs] = useState(true);
+  const [anonymousAnalytics, setAnonymousAnalytics] = useState(false);
+
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [savingContact, setSavingContact] = useState(false);
 
   useEffect(() => {
     const usr = AuthService.getSavedUser();
@@ -35,7 +67,18 @@ export default function SettingsPage() {
       setProfileName(usr.name);
       setProfileEmail(usr.email);
     }
+    loadContacts();
   }, []);
+
+  const loadContacts = async () => {
+    try {
+      const data = await ContactService.getContacts();
+      const sorted = data.sort((a, b) => (b.is_primary ? 1 : 0) - (a.is_primary ? 1 : 0));
+      setContacts(sorted);
+    } catch (e) {
+      console.error("Failed loading emergency contacts in settings:", e);
+    }
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -77,6 +120,77 @@ export default function SettingsPage() {
     }
   };
 
+  // Contact operations
+  const handleOpenAddModal = () => {
+    setEditingContact(null);
+    setContactName("");
+    setContactPhone("");
+    setContactRel("");
+    setContactPrimary(false);
+    setIsContactModalOpen(true);
+  };
+
+  const handleOpenEditModal = (contact: EmergencyContact) => {
+    setEditingContact(contact);
+    setContactName(contact.name);
+    setContactPhone(contact.phone);
+    setContactRel(contact.relationship_type || "");
+    setContactPrimary(contact.is_primary);
+    setIsContactModalOpen(true);
+  };
+
+  const handleSaveContact = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!contactName || !contactPhone || !currentUser) return;
+
+    setSavingContact(true);
+    try {
+      const formattedPhone = contactPhone.startsWith("+") ? contactPhone : `+${contactPhone.replace(/\D/g, "")}`;
+      
+      if (editingContact) {
+        await ContactService.updateContact(editingContact.id, {
+          name: contactName,
+          phone: formattedPhone,
+          relationship_type: contactRel || "Contact",
+          is_primary: contactPrimary
+        });
+      } else {
+        await ContactService.createContact({
+          name: contactName,
+          phone: formattedPhone,
+          relationship_type: contactRel || "Contact",
+          is_primary: contactPrimary,
+          user_id: currentUser.id
+        });
+      }
+      setIsContactModalOpen(false);
+      await loadContacts();
+    } catch (err: any) {
+      alert(err.message || "Failed to save contact.");
+    } finally {
+      setSavingContact(false);
+    }
+  };
+
+  const handleDeleteContact = async (id: number) => {
+    if (!confirm("Are you sure you want to remove this contact?")) return;
+    try {
+      await ContactService.deleteContact(id);
+      await loadContacts();
+    } catch (e) {
+      console.error("Failed to delete contact:", e);
+    }
+  };
+
+  const handleMarkPrimary = async (id: number) => {
+    try {
+      await ContactService.markPrimary(id);
+      await loadContacts();
+    } catch (e) {
+      console.error("Failed to mark primary contact:", e);
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className={styles.container}>
@@ -86,7 +200,7 @@ export default function SettingsPage() {
         />
 
         <form onSubmit={handleSave} className={styles.settingsGrid}>
-          {/* User Account Card */}
+          {/* 1. User Account Card */}
           <Card glass={true} padding="md" className={styles.sectionCard}>
             <div className={styles.sectionHeaderRow}>
               <User size={18} className={styles.blueIcon} />
@@ -121,7 +235,83 @@ export default function SettingsPage() {
             </div>
           </Card>
 
-          {/* SOS Trigger parameters */}
+          {/* 2. Emergency Contacts Section */}
+          <Card glass={true} padding="md" className={styles.sectionCard}>
+            <div className={styles.sectionHeaderRow} style={{ justifyContent: "space-between" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <Phone size={18} className={styles.blueIcon} style={{ color: "#3B82F6" }} />
+                <h3 className={styles.sectionTitle}>Emergency Contacts</h3>
+              </div>
+              <Button 
+                type="button" 
+                variant="secondary" 
+                size="sm" 
+                onClick={handleOpenAddModal}
+                leftIcon={<Plus size={14} />}
+              >
+                Add
+              </Button>
+            </div>
+            
+            {contacts.length > 0 ? (
+              <div className={styles.contactsList}>
+                {contacts.map((contact) => (
+                  <div 
+                    key={contact.id} 
+                    className={`${styles.contactCard} ${contact.is_primary ? styles.contactCardPrimary : ""}`}
+                  >
+                    <div className={styles.contactInfo}>
+                      <div className={styles.contactAvatar}>
+                        {contact.name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2)}
+                      </div>
+                      <div className={styles.contactDetails}>
+                        <div className={styles.contactNameRow}>
+                          <h4 className={styles.contactName}>{contact.name}</h4>
+                          {contact.relationship_type && (
+                            <span className={styles.relationshipBadge}>{contact.relationship_type}</span>
+                          )}
+                        </div>
+                        <span className={styles.contactPhone}>{contact.phone}</span>
+                      </div>
+                    </div>
+
+                    <div className={styles.contactActions}>
+                      <button 
+                        type="button" 
+                        onClick={() => handleMarkPrimary(contact.id)}
+                        className={`${styles.contactBtn} ${contact.is_primary ? styles.primaryStar : ""}`}
+                        title="Mark as Primary Contact"
+                      >
+                        <Star size={14} fill={contact.is_primary ? "currentColor" : "none"} />
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => handleOpenEditModal(contact)}
+                        className={styles.contactBtn}
+                        title="Edit Contact"
+                      >
+                        <Edit2 size={14} />
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={() => handleDeleteContact(contact.id)}
+                        className={`${styles.contactBtn} ${styles.deleteBtn}`}
+                        title="Delete Contact"
+                      >
+                        <Trash size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{ textAlign: "center", padding: "20px 0", color: "var(--text-muted)", fontSize: "0.85rem" }}>
+                No emergency contacts configured yet. Add members to your Safety Circle.
+              </div>
+            )}
+          </Card>
+
+          {/* 3. SOS Trigger parameters */}
           <Card glass={true} padding="md" className={styles.sectionCard}>
             <div className={styles.sectionHeaderRow}>
               <Settings size={18} className={styles.warningIcon} />
@@ -160,7 +350,7 @@ export default function SettingsPage() {
             </div>
           </Card>
 
-          {/* Notification Channels */}
+          {/* 4. Notification Channels */}
           <Card glass={true} padding="md" className={styles.sectionCard}>
             <div className={styles.sectionHeaderRow}>
               <Bell size={18} className={styles.blueIcon} />
@@ -196,7 +386,7 @@ export default function SettingsPage() {
             </div>
           </Card>
 
-          {/* Safety Routing Settings */}
+          {/* 5. Safety Routing Settings */}
           <Card glass={true} padding="md" className={styles.sectionCard}>
             <div className={styles.sectionHeaderRow}>
               <Shield size={18} className={styles.emeraldIcon} />
@@ -240,7 +430,80 @@ export default function SettingsPage() {
             </div>
           </Card>
 
-          {/* Danger Zone */}
+          {/* 6. Privacy & Security */}
+          <Card glass={true} padding="md" className={styles.sectionCard}>
+            <div className={styles.sectionHeaderRow}>
+              <Lock size={18} className={styles.blueIcon} style={{ color: "#3B82F6" }} />
+              <h3 className={styles.sectionTitle}>Privacy & Security</h3>
+            </div>
+            <div className={styles.togglesStack}>
+              <div className={styles.toggleRow}>
+                <div>
+                  <span className={styles.toggleLabel}>Background Location Monitoring</span>
+                  <p className={styles.toggleDesc}>Keep tracking location during walks when app is in background.</p>
+                </div>
+                <input 
+                  type="checkbox" 
+                  checked={backgroundTracking}
+                  onChange={(e) => setBackgroundTracking(e.target.checked)}
+                  className={styles.checkbox}
+                />
+              </div>
+
+              <div className={styles.toggleRow}>
+                <div>
+                  <span className={styles.toggleLabel}>Share Diagnostic Reports</span>
+                  <p className={styles.toggleDesc}>Submit crash reports and route deviation details to help improve AI.</p>
+                </div>
+                <input 
+                  type="checkbox" 
+                  checked={diagnosticLogs}
+                  onChange={(e) => setDiagnosticLogs(e.target.checked)}
+                  className={styles.checkbox}
+                />
+              </div>
+
+              <div className={styles.toggleRow}>
+                <div>
+                  <span className={styles.toggleLabel}>Anonymous Telemetry Data</span>
+                  <p className={styles.toggleDesc}>Contribute anonymous safety speed variables to the global pool.</p>
+                </div>
+                <input 
+                  type="checkbox" 
+                  checked={anonymousAnalytics}
+                  onChange={(e) => setAnonymousAnalytics(e.target.checked)}
+                  className={styles.checkbox}
+                />
+              </div>
+            </div>
+          </Card>
+
+          {/* 7. About SafeRoute Card */}
+          <Card glass={true} padding="md" className={styles.sectionCard}>
+            <div className={styles.sectionHeaderRow}>
+              <Info size={18} className={styles.blueIcon} style={{ color: "#5C7386" }} />
+              <h3 className={styles.sectionTitle}>About SafeRoute AI</h3>
+            </div>
+            
+            <div className={styles.aboutRow}>
+              <span className={styles.aboutLabel}>Version</span>
+              <span className={styles.aboutValue}>v2.4.1</span>
+            </div>
+            <div className={styles.aboutRow}>
+              <span className={styles.aboutLabel}>Data Center Location</span>
+              <span className={styles.aboutValue}>Asia Pacific (Mumbai)</span>
+            </div>
+            <div className={styles.aboutRow}>
+              <span className={styles.aboutLabel}>Algorithm Release</span>
+              <span className={styles.aboutValue}>Prestige-v2.0-SafePath</span>
+            </div>
+            <div className={styles.aboutRow}>
+              <span className={styles.aboutLabel}>Database Sync Status</span>
+              <span className={styles.aboutValue} style={{ color: "var(--status-success)" }}>Synchronized</span>
+            </div>
+          </Card>
+
+          {/* 8. Danger Zone */}
           <Card glass={true} padding="md" className={styles.sectionCard} style={{ border: "1px solid rgba(239, 68, 68, 0.25)" }}>
             <div className={styles.sectionHeaderRow}>
               <Trash2 size={18} style={{ color: "var(--status-danger)" }} />
@@ -273,6 +536,59 @@ export default function SettingsPage() {
           </Button>
         </form>
       </div>
+
+      {/* Emergency Contact Edit/Add Modal */}
+      <Modal 
+        isOpen={isContactModalOpen} 
+        onClose={() => setIsContactModalOpen(false)}
+        title={editingContact ? "Edit Emergency Contact" : "Add Emergency Contact"}
+        size="sm"
+      >
+        <form onSubmit={handleSaveContact} className={styles.modalFormGroup}>
+          <Input 
+            label="Full Name"
+            value={contactName}
+            onChange={(e) => setContactName(e.target.value)}
+            placeholder="Sarah Miller"
+            required
+          />
+          <Input 
+            label="Phone Number"
+            value={contactPhone}
+            onChange={(e) => setContactPhone(e.target.value)}
+            placeholder="+919876543210"
+            required
+          />
+          <Input 
+            label="Relationship Label"
+            value={contactRel}
+            onChange={(e) => setContactRel(e.target.value)}
+            placeholder="Spouse, Friend, Father, etc."
+          />
+          
+          <div className={styles.primaryCheckboxWrapper}>
+            <input 
+              type="checkbox" 
+              id="is_primary_checkbox"
+              checked={contactPrimary}
+              onChange={(e) => setContactPrimary(e.target.checked)}
+              className={styles.checkbox}
+            />
+            <label htmlFor="is_primary_checkbox" className={styles.primaryCheckboxLabel}>
+              Set as Primary Contact
+            </label>
+          </div>
+
+          <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end", marginTop: "10px" }}>
+            <Button type="button" variant="secondary" onClick={() => setIsContactModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="primary" isLoading={savingContact}>
+              Save Contact
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </DashboardLayout>
   );
 }
