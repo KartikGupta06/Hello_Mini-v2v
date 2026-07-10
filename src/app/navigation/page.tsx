@@ -164,12 +164,15 @@ export default function NavigationPage() {
     return () => clearInterval(interval);
   }, [activeWalkMode]);
 
-  const loadEmergencyData = async () => {
+  const loadEmergencyData = async (lat?: number, lng?: number) => {
     try {
       const contacts = await ContactService.getContacts();
       setEmergencyContacts(contacts);
       
-      const sosData = await SafetyService.triggerSOS({ latitude: originCoords[1], longitude: originCoords[0] });
+      const targetLat = lat !== undefined ? lat : originCoords[1];
+      const targetLng = lng !== undefined ? lng : originCoords[0];
+      
+      const sosData = await SafetyService.triggerSOS({ latitude: targetLat, longitude: targetLng });
       const dynamicSafePlaces = [];
       if (sosData.nearest_police) {
         dynamicSafePlaces.push({
@@ -347,6 +350,17 @@ export default function NavigationPage() {
   const activeRouteData = useMemo(() => {
     return dynamicRoutes.find((r) => r.id === selectedRoute) || dynamicRoutes[0];
   }, [selectedRoute, dynamicRoutes]);
+
+  useEffect(() => {
+    if (activeRouteData && activeRouteData.coordinates && activeRouteData.coordinates.length > 0) {
+      const coords = activeRouteData.coordinates;
+      const midIndex = Math.floor(coords.length / 2);
+      const midPt = coords[midIndex];
+      loadEmergencyData(midPt.lat, midPt.lng);
+    } else {
+      loadEmergencyData(originCoords[1], originCoords[0]);
+    }
+  }, [activeRouteData]);
 
   const getSafetyMarginPercent = () => {
     if (dynamicRoutes.length < 2) return 24;
