@@ -589,6 +589,12 @@
   --text-primary: #ffffff;
   --text-secondary: rgba(255, 255, 255, 0.85);
   --text-muted: rgba(255, 255, 255, 0.6);
+  
+  /* Override card backgrounds to be dark and visible */
+  --bg-secondary: rgba(255, 255, 255, 0.05);
+  --bg-glass: rgba(255, 255, 255, 0.08);
+  --bg-glass-hover: rgba(255, 255, 255, 0.12);
+  --border-light: rgba(255, 255, 255, 0.1);
 }
 
 .sheetExpandedM4 { height: 560px; }
