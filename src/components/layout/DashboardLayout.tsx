@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { MobileHeader, BottomNavigation, EmergencyOverlay } from "../ui";
 import { AuthService } from "@/services/auth";
 import { LoadingSkeleton } from "../ui/LoadingSkeleton";
@@ -9,6 +9,7 @@ import { EmergencyProvider, useEmergency } from "@/contexts/EmergencyContext";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { motion } from "framer-motion";
+import { Bot } from "lucide-react";
 import styles from "./DashboardLayout.module.css";
 
 interface DashboardLayoutProps {
@@ -30,6 +31,7 @@ const SOSTriggerHandler: React.FC = () => {
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -60,6 +62,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
     return null;
   }
 
+  const isDashboard = pathname === "/dashboard";
+
   return (
     <>
       <Suspense fallback={null}>
@@ -79,6 +83,23 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
               {children}
             </motion.div>
           </main>
+
+          {/* Floating AI Assistant (Only on Dashboard) */}
+          {isDashboard && (
+            <div className={styles.aiAssistantFloating}>
+              <div className={styles.aiBadgeLabel}>
+                <span className={styles.aiDot} />
+                <span>AI Assistant</span>
+              </div>
+              <button 
+                className={styles.aiFloatingBtn} 
+                onClick={() => router.push("/navigation")}
+                aria-label="Ask AI Assistant"
+              >
+                <img src="/ai_avatar.png" alt="AI Assistant" className={styles.aiAvatarImg} />
+              </button>
+            </div>
+          )}
 
           <BottomNavigation />
           <EmergencyOverlay />

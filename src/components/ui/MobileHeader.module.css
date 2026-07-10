@@ -29,24 +29,24 @@
 .pulseDot {
   width: 8px;
   height: 8px;
-  background-color: var(--accent-emerald, #10b981);
+  background-color: #FFB7C5; /* Baby Pink */
   border-radius: 50%;
-  box-shadow: 0 0 8px var(--accent-emerald, #10b981);
+  box-shadow: 0 0 8px #FFB7C5;
   animation: pulse 2s infinite;
 }
 
 @keyframes pulse {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    box-shadow: 0 0 0 0 rgba(255, 183, 197, 0.7);
   }
   70% {
     transform: scale(1);
-    box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 6px rgba(255, 183, 197, 0);
   }
   100% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    box-shadow: 0 0 0 0 rgba(255, 183, 197, 0);
   }
 }
 
@@ -110,7 +110,7 @@
 .avatarCircle {
   width: 32px;
   height: 32px;
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-secondary));
+  background: #1e2a39; /* Dark Slate background to match DU icon in mockup */
   color: #ffffff;
   border-radius: 50%;
   display: flex;
@@ -121,3 +121,60 @@
   letter-spacing: 0.05em;
   box-shadow: var(--shadow-sm);
 }
+
+.dashboardHeader {
+  background: #F7F9FC !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  height: 72px;
+}
+
+.menuContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.menuOnlineDot {
+  width: 8px;
+  height: 8px;
+  background-color: #FFB7C5; /* Baby Pink */
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 8px rgba(255, 183, 197, 0.4);
+}
+
+.menuIcon {
+  color: var(--text-primary);
+}
+
+.titleContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.subtitle {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  letter-spacing: 0.01em;
+}
+
+.avatarWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.avatarOnlineDot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 10px;
+  height: 10px;
+  background-color: var(--accent-emerald, #22c55e);
+  border: 1.5px solid #ffffff;
+  border-radius: 50%;
+}
+

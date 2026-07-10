@@ -13,15 +13,26 @@ import {
   CloudSun,
   AlertTriangle,
   Award,
-  ChevronRight
+  ChevronRight,
+  Sun,
+  Calendar,
+  Mic,
+  Send,
+  CheckCircle2,
+  HelpCircle,
+  Activity,
+  Eye,
+  Lightbulb,
+  Phone,
+  Shield,
+  MessageSquareWarning
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, Badge, LoadingSkeleton, SectionHeader, EmptyState } from "@/components/ui";
 import { JourneyService } from "@/services/journeys";
-import { ContactService } from "@/services/contacts";
 import { SafetyService } from "@/services/safety";
 import { AuthService } from "@/services/auth";
-import { JourneyHistory, EmergencyContact } from "@/types";
+import { JourneyHistory } from "@/types";
 import styles from "./Dashboard.module.css";
 
 export default function DashboardPage() {
@@ -31,7 +42,8 @@ export default function DashboardPage() {
   
   // Data counts & dynamic scores
   const [recentTrip, setRecentTrip] = useState<JourneyHistory | null>(null);
-  const [currentScore, setCurrentScore] = useState(92);
+  const [currentScore, setCurrentScore] = useState(75);
+  const [confidencePercentage, setConfidencePercentage] = useState(87);
   const [reasons, setReasons] = useState<string[]>([]);
   const [nearestPlaces, setNearestPlaces] = useState<any[]>([]);
 
@@ -75,6 +87,7 @@ export default function DashboardPage() {
           const scoreRes = await SafetyService.getSafetyScore(lat, lng);
           setCurrentScore(Math.round(scoreRes.safety_score));
           setReasons(scoreRes.reasons);
+          setConfidencePercentage(scoreRes.confidence_percentage || 87);
         } catch (err) {
           console.error("Score fetch failed:", err);
         }
@@ -120,6 +133,28 @@ export default function DashboardPage() {
     return "Alert: Elevated local hazards flagged. Consider sharing live coordinates.";
   };
 
+  const getRiskBadgeLabel = (score: number) => {
+    if (score >= 85) return "SAFE";
+    if (score >= 70) return "MODERATE";
+    return "ELEVATED RISK";
+  };
+
+  const formattedDate = () => {
+    const date = new Date();
+    const day = date.getDate();
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const dayOfWeek = days[date.getDay()];
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // 0 should be 12
+    return `${day} ${month} ${year} • ${dayOfWeek} • ${hours}:${minutes} ${ampm}`;
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -133,6 +168,12 @@ export default function DashboardPage() {
     );
   }
 
+  // Calculate circular stroke values
+  const radius = 38;
+  const strokeWidth = 8;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (currentScore / 100) * circumference;
+
   return (
     <DashboardLayout>
       <div className={styles.container}>
@@ -141,109 +182,280 @@ export default function DashboardPage() {
         <div className={styles.headerSection}>
           <div className={styles.greetingCol}>
             <span className={styles.greetingText}>{getGreeting()},</span>
-            <h2 className={styles.userName}>{user?.name || "User"}</h2>
+            <h2 className={styles.userName}>
+              {user && (user.email === "demo@saferoute.ai" || user.name === "Demo User") ? "Siddhi" : (user?.name || "Siddhi")} 👋
+            </h2>
+            <p className={styles.greetingSub}>Have a safe and secure day!</p>
           </div>
-          <div className={styles.weatherWidget}>
-            <CloudSun size={18} className={styles.weatherIcon} />
-            <span className={styles.weatherText}>New Delhi • 30°C</span>
+          
+          {/* Weather Widget */}
+          <div className={styles.weatherCard}>
+            <Sun className={styles.weatherSunIcon} size={28} />
+            <div className={styles.weatherInfo}>
+              <span className={styles.weatherTemp}>30°C</span>
+              <div className={styles.weatherLocRow}>
+                <MapPin size={10} className={styles.weatherPin} />
+                <span className={styles.weatherLoc}>New Delhi</span>
+              </div>
+              <div className={styles.weatherAqiRow}>
+                <span className={styles.aqiDot} />
+                <span className={styles.weatherAqi}>Haze • AQI 78</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Location & Date Badges Row */}
+        <div className={styles.metaBadgesRow}>
+          <div className={styles.locationBadge}>
+            <MapPin size={12} className={styles.metaIcon} />
+            <span className={styles.metaLabel}>Current Location</span>
+            <span className={styles.metaVal}>New Delhi, India</span>
+          </div>
+          <div className={styles.dateBadge}>
+            <Calendar size={12} className={styles.metaIcon} />
+            <span className={styles.dateText}>{formattedDate()}</span>
           </div>
         </div>
 
         {/* 2. Primary Action Hero: Floating Search Bar */}
-        <div className={styles.searchHero} onClick={() => router.push("/navigation")}>
-          <div className={styles.searchInputMock}>
+        <div className={styles.searchHero}>
+          <div className={styles.searchInputMock} onClick={() => router.push("/navigation")}>
             <Search size={20} className={styles.searchBarIcon} />
             <span className={styles.searchPlaceholder}>Where do you want to go?</span>
-            <div className={styles.searchGoBtn}>
-              <Navigation size={14} className={styles.navigationArrow} />
+            <div className={styles.searchRightActions}>
+              <button className={styles.micBtn} onClick={(e) => { e.stopPropagation(); }}>
+                <Mic size={18} />
+              </button>
+              <div className={styles.searchGoBtn}>
+                <Send size={16} className={styles.navigationArrow} />
+              </div>
             </div>
           </div>
         </div>
 
         {/* 3. Premium Safety Card */}
-        <Card glass={true} padding="md" className={styles.safetyScoreCard}>
-          <div className={styles.scoreTopRow}>
-            <div className={styles.scoreProgressCol}>
-              <span className={styles.scoreCardTitle}>AI Area Safety Rating</span>
-              <div className={styles.scoreRow}>
-                <span className={styles.scoreNum}>{currentScore}</span>
-                <span className={styles.scoreScale}>/100</span>
+        <div className={styles.safetyScoreCard}>
+          <div className={styles.scoreHeaderRow}>
+            <div className={styles.scoreTitleCol}>
+              <span className={styles.scoreCardTitle}>AI AREA SAFETY RATING</span>
+              <Shield size={14} className={styles.shieldTitleIcon} />
+            </div>
+            <div className={`${styles.riskBadge} ${styles[getRiskBadgeLabel(currentScore).replace(" ", "_")]}`}>
+              <span>{getRiskBadgeLabel(currentScore)}</span>
+              <AlertTriangle size={12} />
+            </div>
+          </div>
+          
+          <div className={styles.scoreContentGrid}>
+            {/* Circle Progress */}
+            <div className={styles.circularProgressContainer}>
+              <svg className={styles.circularSvg} viewBox="0 0 100 100">
+                <defs>
+                  <linearGradient id="safetyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#22C55E" />
+                    <stop offset="60%" stopColor="#F59E0B" />
+                    <stop offset="100%" stopColor="#EF4444" />
+                  </linearGradient>
+                </defs>
+                <circle 
+                  className={styles.circularBg} 
+                  cx="50" 
+                  cy="50" 
+                  r={radius} 
+                  strokeWidth={strokeWidth} 
+                />
+                <circle 
+                  className={styles.circularFg} 
+                  cx="50" 
+                  cy="50" 
+                  r={radius} 
+                  strokeWidth={strokeWidth} 
+                  strokeDasharray={circumference}
+                  strokeDashoffset={strokeDashoffset}
+                  stroke="url(#safetyGradient)"
+                  strokeLinecap="round"
+                />
+                {/* Marker Dot */}
+                {currentScore > 0 && currentScore < 100 && (
+                  <circle
+                    cx={50 + radius * Math.cos((currentScore / 100) * 2 * Math.PI - Math.PI / 2)}
+                    cy={50 + radius * Math.sin((currentScore / 100) * 2 * Math.PI - Math.PI / 2)}
+                    r="3.5"
+                    fill="#ffffff"
+                    stroke="#F59E0B"
+                    strokeWidth="1.5"
+                  />
+                )}
+              </svg>
+              <div className={styles.circularCenterText}>
+                <span className={styles.circularScore}>{currentScore}</span>
+                <span className={styles.circularScale}>/100</span>
+                <span className={styles.circularConfidenceLabel}>AI Confidence</span>
+                <span className={styles.circularConfidenceVal}>{confidencePercentage}%</span>
               </div>
             </div>
-            <Badge variant={currentScore >= 85 ? "success" : currentScore >= 70 ? "warning" : "danger"} glow={true}>
-              {currentScore >= 85 ? "High Safety" : currentScore >= 70 ? "Moderate" : "Low Safety"}
-            </Badge>
-          </div>
-          <p className={styles.scoreDescription}>
-            {getSafetySummary(currentScore)}
-          </p>
-          {reasons.length > 0 && (
-            <div className={styles.reasonBadgeRow}>
-              <span className={styles.reasonBadgeDot} />
-              <span className={styles.reasonText}>{reasons[0]}</span>
-            </div>
-          )}
-        </Card>
 
-        {/* 4. Mini Map Preview */}
-        <div className={styles.miniMapWrapper} onClick={() => router.push("/navigation")}>
-          <div className={styles.miniMapContent}>
-            {/* Simulated Vector Roads Map Overlay */}
-            <svg className={styles.mapSvg} viewBox="0 0 400 180" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M 0,90 Q 200,30 400,90" stroke="rgba(255,255,255,0.06)" strokeWidth="8" strokeLinecap="round" />
-              <path d="M 0,90 Q 200,150 400,90" stroke="rgba(16,185,129,0.3)" strokeWidth="5" strokeLinecap="round" strokeDasharray="3 3" />
-              <path d="M 0,90 Q 200,150 400,90" stroke="rgba(16,185,129,0.7)" strokeWidth="3" strokeLinecap="round" />
+            {/* Description & Insights */}
+            <div className={styles.scoreDetailsCol}>
+              <h4 className={styles.mainSafetyDesc}>{getSafetySummary(currentScore)}</h4>
               
-              <circle cx="200" cy="120" r="14" fill="rgba(59,130,246,0.15)" />
-              <circle cx="200" cy="120" r="6" fill="#3b82f6" />
-              <circle cx="200" cy="120" r="2" fill="#ffffff" />
-              
-              <text x="200" y="152" fill="var(--text-secondary)" fontSize="9" fontWeight="600" textAnchor="middle" fontFamily="var(--font-sans)">
-                Your Location
-              </text>
-            </svg>
-            <div className={styles.mapLabelCard}>
-              <Navigation size={12} className={styles.labelArrow} />
-              <span>Tap to preview safest route</span>
+              <div className={styles.crimeIncidentStatus}>
+                <CheckCircle2 size={16} className={styles.checkmarkIcon} />
+                <span className={styles.crimeStatusText}>
+                  {reasons.length > 0 ? reasons[0] : "No recent historical crime incidents detected."}
+                </span>
+              </div>
+
+              <button className={styles.whyScoreBtn} onClick={() => router.push("/navigation")}>
+                <Activity size={12} />
+                <span>Why this score?</span>
+                <ChevronRight size={12} className={styles.whyChevron} />
+              </button>
+            </div>
+          </div>
+
+          <div className={styles.scoreDivider} />
+
+          {/* Quick Stats Grid */}
+          <div className={styles.quickStatsRow}>
+            <div className={styles.statCol}>
+              <div className={styles.statIconWrapper}>
+                <Shield size={14} className={styles.statIconBlue} />
+              </div>
+              <div className={styles.statTextCol}>
+                <span className={styles.statLabel}>Crime Risk</span>
+                <span className={`${styles.statVal} ${styles.valGreen}`}>Low</span>
+              </div>
+            </div>
+
+            <div className={styles.statCol}>
+              <div className={styles.statIconWrapper}>
+                <Eye size={14} className={styles.statIconEmerald} />
+              </div>
+              <div className={styles.statTextCol}>
+                <span className={styles.statLabel}>CCTV Coverage</span>
+                <span className={`${styles.statVal} ${styles.valGreen}`}>Good</span>
+              </div>
+            </div>
+
+            <div className={styles.statCol}>
+              <div className={styles.statIconWrapper}>
+                <Lightbulb size={14} className={styles.statIconOrange} />
+              </div>
+              <div className={styles.statTextCol}>
+                <span className={styles.statLabel}>Street Lights</span>
+                <span className={`${styles.statVal} ${styles.valOrange}`}>72%</span>
+              </div>
+            </div>
+
+            <div className={styles.statCol}>
+              <div className={styles.statIconWrapper}>
+                <Building size={14} className={styles.statIconViolet} />
+              </div>
+              <div className={styles.statTextCol}>
+                <span className={styles.statLabel}>Hospitals Nearby</span>
+                <span className={`${styles.statVal} ${styles.valBlue}`}>1.2 km</span>
+              </div>
             </div>
           </div>
         </div>
 
-        {/* 5. Nearby Safety: Horizontal scroll list */}
-        <div className={styles.sectionBlock}>
-          <SectionHeader title="Nearby Safe Zones" />
-          <div className={styles.horizontalScroll}>
-            {nearestPlaces.length === 0 ? (
-              <div style={{ width: "100%" }}>
-                <EmptyState 
-                  title="Locating Safe Zones" 
-                  description="Locating nearby emergency support stations..." 
-                />
+        {/* 4. Route Recommendation Card */}
+        <div className={styles.routeRecommendCard} onClick={() => router.push("/navigation")}>
+          <div className={styles.routeCardInfoCol}>
+            <span className={styles.recommendLabel}>Recommended</span>
+            <h3 className={styles.recommendTitle}>Safest Route</h3>
+            
+            <div className={styles.aiBadge}>
+              <CheckCircle2 size={12} />
+              <span>AI Recommended</span>
+            </div>
+
+            <div className={styles.routeSpecs}>
+              <div className={styles.specItem}>
+                <Activity size={12} className={styles.specIcon} />
+                <span>18 min <span className={styles.specSub}>ETA</span></span>
               </div>
-            ) : (
-              nearestPlaces.map((place, idx) => (
-                <Card 
-                  key={idx} 
-                  glass={true} 
-                  padding="sm" 
-                  className={styles.scrollCard}
-                  onClick={() => router.push("/nearby")}
-                >
-                  <div className={styles.scrollCardHeader}>
-                    <div className={place.type === "police" ? styles.policeIconBg : styles.hospitalIconBg}>
-                      {place.type === "police" ? <Building size={16} /> : <Heart size={16} />}
-                    </div>
-                    <span className={styles.scrollCardDist}>
-                      {place.distance_meters ? `${(place.distance_meters / 1000).toFixed(1)} km` : "Nearby"}
-                    </span>
-                  </div>
-                  <h4 className={styles.scrollCardName}>{place.name}</h4>
-                  <span className={styles.scrollCardSub}>
-                    {place.type === "police" ? "Active Guard Post" : "24/7 Medical Care"}
-                  </span>
-                </Card>
-              ))
-            )}
+              <div className={styles.specItem}>
+                <Navigation size={12} className={styles.specIconRotated} />
+                <span>6.4 km <span className={styles.specSub}>Distance</span></span>
+              </div>
+              <div className={styles.specItem}>
+                <Shield size={12} className={styles.specIcon} />
+                <span>High <span className={styles.specSub}>Safety</span></span>
+              </div>
+            </div>
+          </div>
+
+          <div className={styles.mapSnippetWrapper}>
+            <svg className={styles.recommendMapSvg} viewBox="0 0 160 140" fill="none">
+              {/* Background grid */}
+              <path d="M0 20 H160 M0 60 H160 M0 100 H160 M30 0 V140 M70 0 V140 M110 0 V140" stroke="rgba(0,0,0,0.03)" strokeWidth="1" />
+              {/* Secondary path */}
+              <path d="M 20,110 L 60,90 L 100,100 L 140,40" stroke="rgba(0,0,0,0.06)" strokeWidth="4" strokeLinecap="round" />
+              {/* Safest route path */}
+              <path d="M 20,110 Q 50,70 80,90 T 140,40" stroke="#22C55E" strokeWidth="4" strokeLinecap="round" fill="none" />
+              
+              {/* Blue source dot */}
+              <circle cx="20" cy="110" r="8" fill="rgba(79, 124, 255, 0.2)" />
+              <circle cx="20" cy="110" r="4" fill="#4F7CFF" />
+              
+              {/* Red destination pin pin */}
+              <circle cx="140" cy="40" r="5" fill="#EF4444" />
+              <path d="M140 40 L140 33" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" />
+            </svg>
+            <div className={styles.expandMapIconBtn}>
+              <ArrowRight size={14} />
+            </div>
+          </div>
+        </div>
+
+        {/* 5. Quick Actions Section */}
+        <div className={styles.quickActionsSection}>
+          <SectionHeader title="Quick Actions" />
+          <div className={styles.actionsGrid}>
+            <div className={styles.actionItemCard} onClick={() => router.push("/nearby")}>
+              <div className={styles.actionIconOuterBlue}>
+                <Building size={20} />
+              </div>
+              <span className={styles.actionItemTitle}>Nearby Police</span>
+            </div>
+
+            <div className={styles.actionItemCard} onClick={() => router.push("/nearby")}>
+              <div className={styles.actionIconOuterRed}>
+                <Heart size={20} />
+              </div>
+              <span className={styles.actionItemTitle}>Nearby Hospitals</span>
+            </div>
+
+            <div className={styles.actionItemCard} onClick={() => router.push("/nearby")}>
+              <div className={styles.actionIconOuterOrange}>
+                <Lightbulb size={20} />
+              </div>
+              <span className={styles.actionItemTitle}>Street Lights</span>
+            </div>
+
+            <div className={styles.actionItemCard} onClick={() => router.push("/reports")}>
+              <div className={styles.actionIconOuterYellow}>
+                <AlertTriangle size={20} />
+              </div>
+              <span className={styles.actionItemTitle}>Report Incident</span>
+            </div>
+
+            <div className={styles.actionItemCard} onClick={() => router.push("/settings")}>
+              <div className={styles.actionIconOuterGreen}>
+                <Phone size={20} />
+              </div>
+              <span className={styles.actionItemTitle}>Emergency Contacts</span>
+            </div>
+
+            <div className={styles.actionItemCard} onClick={() => router.push("/settings")}>
+              <div className={styles.actionIconOuterViolet}>
+                <Activity size={20} />
+              </div>
+              <span className={styles.actionItemTitle}>My Journeys</span>
+            </div>
           </div>
         </div>
 
@@ -288,3 +500,4 @@ export default function DashboardPage() {
     </DashboardLayout>
   );
 }
+

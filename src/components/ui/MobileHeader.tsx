@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { ChevronLeft, Bell } from "lucide-react";
+import { ChevronLeft, Bell, Menu } from "lucide-react";
 import { AuthService } from "@/services/auth";
 import styles from "./MobileHeader.module.css";
 
@@ -16,6 +16,8 @@ export const MobileHeader: React.FC = () => {
   let showNotification = true;
   let showProfile = true;
   let hideHeader = false;
+
+  const isDashboard = pathname === "/dashboard";
 
   if (pathname === "/dashboard") {
     title = "SafeRoute AI";
@@ -49,21 +51,38 @@ export const MobileHeader: React.FC = () => {
   if (hideHeader) return null;
 
   const user = AuthService.getSavedUser();
-  const initials = user ? user.name.split(" ").map((n) => n[0]).join("") : "U";
+  let initials = user ? user.name.split(" ").map((n) => n[0]).join("") : "U";
+  if (user && (user.email === "demo@saferoute.ai" || user.name === "Demo User")) {
+    initials = "S";
+  } else if (!user) {
+    initials = "S"; // Fallback default to match Siddhi
+  }
 
   return (
-    <header className={styles.header}>
+    <header className={`${styles.header} ${isDashboard ? styles.dashboardHeader : ""}`}>
       <div className={styles.leftCol}>
         {showBack ? (
           <button onClick={() => router.back()} className={styles.iconBtn} aria-label="Go back">
             <ChevronLeft size={22} />
           </button>
+        ) : isDashboard ? (
+          <div className={styles.menuContainer}>
+            <button className={styles.iconBtn} aria-label="Open menu">
+              <Menu size={22} className={styles.menuIcon} />
+            </button>
+            <span className={styles.menuOnlineDot} />
+          </div>
         ) : (
           <div className={styles.logoIndicator}>
             <span className={styles.pulseDot} />
           </div>
         )}
-        <h1 className={styles.title}>{title}</h1>
+        <div className={styles.titleContainer}>
+          <h1 className={styles.title}>{title}</h1>
+          {isDashboard && (
+            <span className={styles.subtitle}>AI-Powered Safety Companion</span>
+          )}
+        </div>
       </div>
 
       <div className={styles.rightCol}>
@@ -75,7 +94,10 @@ export const MobileHeader: React.FC = () => {
         )}
         {showProfile && (
           <button className={styles.profileBtn} aria-label="Profile Settings" onClick={() => router.push("/settings")}>
-            <div className={styles.avatarCircle}>{initials}</div>
+            <div className={styles.avatarWrapper}>
+              <div className={styles.avatarCircle}>{initials}</div>
+              <span className={styles.avatarOnlineDot} />
+            </div>
           </button>
         )}
       </div>
