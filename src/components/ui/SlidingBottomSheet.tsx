@@ -41,7 +41,14 @@ export const SlidingBottomSheet: React.FC<SlidingBottomSheetProps> = ({
       </div>
 
       {/* Body content */}
-      <div className={styles.sheetBody}>
+      <div 
+        className={styles.sheetBody} 
+        style={{ 
+          opacity: isExpanded ? 1 : 0, 
+          pointerEvents: isExpanded ? "auto" : "none",
+          transition: "opacity 0.2s ease" 
+        }}
+      >
         {children}
       </div>
     </motion.div>

@@ -241,11 +241,11 @@ export default function NavigationPage() {
         const timeMins = Math.round(route.eta / 60);
         const distanceKm = (route.distance / 1000).toFixed(1);
 
-        let badgeVariant: "success" | "info" | "warning" | "destructive" = "success";
+        let badgeVariant: "success" | "info" | "warning" | "danger" = "success";
         const riskLvl = (route.risk_level || "Safe").toLowerCase();
         if (riskLvl === "very safe" || riskLvl === "safe") badgeVariant = "success";
         else if (riskLvl === "moderate") badgeVariant = "warning";
-        else if (riskLvl === "risky" || riskLvl === "dangerous") badgeVariant = "destructive";
+        else if (riskLvl === "risky" || riskLvl === "dangerous") badgeVariant = "danger";
 
         return {
           id: route.route_id,
@@ -697,7 +697,7 @@ export default function NavigationPage() {
                   </span>
                 </div>
                 <Badge variant={activeRouteData.badgeVariant} size="sm" glow={true}>
-                  🛡️ {activeRouteData.score}% Safety Index
+                  <span style={{ color: "#ffffff", fontWeight: "bold" }}>🛡️ {activeRouteData.score}% Safety Index</span>
                 </Badge>
               </>
             }
