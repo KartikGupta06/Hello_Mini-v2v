@@ -584,6 +584,11 @@
   box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.6);
   padding-bottom: 76px;
   overflow: hidden;
+  
+  /* Force light text on this strictly dark background */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.85);
+  --text-muted: rgba(255, 255, 255, 0.6);
 }
 
 .sheetExpandedM4 { height: 560px; }
