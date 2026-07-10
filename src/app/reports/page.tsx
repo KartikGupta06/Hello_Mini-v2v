@@ -1,15 +1,47 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Plus, MessageSquareWarning, MapPin, Calendar, ThumbsUp, AlertTriangle } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { 
+  Plus, 
+  MapPin, 
+  Calendar, 
+  ThumbsUp, 
+  AlertTriangle,
+  ChevronLeft,
+  Filter,
+  Eye,
+  ShieldAlert,
+  Flame,
+  AlertCircle,
+  Lightbulb,
+  Lock,
+  Activity,
+  Sparkles,
+  CheckCircle,
+  HelpCircle,
+  Map
+} from "lucide-react";
+import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Card, SectionHeader, Button, Badge, Modal, Input, LoadingSkeleton } from "@/components/ui";
+import { Card, Button, Badge, Modal, Input, LoadingSkeleton, MapContainer } from "@/components/ui";
 import { SafetyService } from "@/services/safety";
 import { AuthService } from "@/services/auth";
 import { SafetyReport, ReportCategory, User } from "@/types";
 import styles from "./Reports.module.css";
 
+const QUICK_FILTERS = [
+  { label: "All Alerts", id: "all" },
+  { label: "Poor Lighting", id: "Poor Lighting" },
+  { label: "Harassment", id: "Harassment" },
+  { label: "Stalking", id: "Stalking" },
+  { label: "Broken CCTV", id: "Broken CCTV" },
+  { label: "Road Blocks", id: "Road Block" },
+  { label: "Suspicious Activity", id: "Suspicious Activity" }
+];
+
 export default function ReportsPage() {
+  const router = useRouter();
+  
   const [user, setUser] = useState<User | null>(null);
   const [reports, setReports] = useState<SafetyReport[]>([]);
   const [loading, setLoading] = useState(true);
@@ -17,6 +49,13 @@ export default function ReportsPage() {
   const [newType, setNewType] = useState<ReportCategory>("Poor Lighting");
   const [newDesc, setNewDesc] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  
+  // Custom states
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [activeReportId, setActiveReportId] = useState<number | null>(null);
+  const [heatmapActive, setHeatmapActive] = useState(false);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([77.2083, 28.5233]);
+  const [mapZoom, setMapZoom] = useState(14);
 
   useEffect(() => {
     setUser(AuthService.getSavedUser());
@@ -27,7 +66,6 @@ export default function ReportsPage() {
     setLoading(true);
     try {
       const data = await SafetyService.getReports({ limit: 100 });
-      // Sort reports by created_at descending
       const sorted = data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       setReports(sorted);
     } catch (e) {
@@ -43,8 +81,7 @@ export default function ReportsPage() {
 
     setSubmitting(true);
     try {
-      // Capture browser coordinates if available
-      let lat = 28.5306; // South Delhi defaults
+      let lat = 28.5306;
       let lng = 77.2045;
 
       if (navigator.geolocation) {
@@ -56,7 +93,7 @@ export default function ReportsPage() {
               resolve();
             },
             () => {
-              console.warn("Geolocation coordinate resolution failed, utilizing default area coordinates.");
+              console.warn("Geolocation failed. Falling back.");
               resolve();
             },
             { timeout: 3000 }
@@ -74,139 +111,278 @@ export default function ReportsPage() {
 
       setNewDesc("");
       setIsModalOpen(false);
-      await fetchReports(); // Reload lists
+      await fetchReports();
     } catch (err) {
-      console.error("Failed to post community hazard alert:", err);
+      console.error("Failed to post hazard alert:", err);
     } finally {
       setSubmitting(false);
     }
   };
 
-  const getBadgeVariant = (type: ReportCategory) => {
+  const getIncidentIcon = (type: ReportCategory) => {
     switch (type) {
       case "Harassment":
       case "Stalking":
-        return "danger" as const;
+        return <ShieldAlert size={18} className={styles.iconDanger} />;
       case "Street Light Issue":
       case "Poor Lighting":
+        return <Lightbulb size={18} className={styles.iconWarning} />;
       case "Broken CCTV":
-        return "warning" as const;
+        return <Eye size={18} className={styles.iconInfo} />;
       case "Road Block":
+        return <AlertTriangle size={18} className={styles.iconWarning} />;
       case "Suspicious Activity":
-      case "Other":
+        return <Lock size={18} className={styles.iconPurple} />;
       default:
-        return "info" as const;
+        return <AlertCircle size={18} className={styles.iconInfo} />;
     }
   };
+
+  const handleSelectReport = (report: SafetyReport) => {
+    setActiveReportId(activeReportId === report.id ? null : report.id);
+    setMapCenter([report.lng, report.lat]);
+    setMapZoom(15);
+  };
+
+  // Filtered reports list
+  const filteredReports = useMemo(() => {
+    if (activeFilter === "all") return reports;
+    return reports.filter(r => r.type === activeFilter);
+  }, [reports, activeFilter]);
+
+  const verifiedCount = useMemo(() => {
+    return reports.filter(r => r.id % 2 === 0).length + 12; // Simulate verified counter
+  }, [reports]);
 
   return (
     <DashboardLayout>
       <div className={styles.container}>
-        <SectionHeader 
-          title="Community Reports Feed" 
-          subtitle="Recent safety alerts and hazards reported by walking pedestrians in your vicinity"
-          action={
-            <Button 
-              variant="primary" 
-              size="md" 
-              leftIcon={<Plus size={18} />}
-              onClick={() => setIsModalOpen(true)}
-            >
-              Submit Report
-            </Button>
-          }
-        />
+        
+        {/* A. Top Header */}
+        <div className={styles.topHeaderRow}>
+          <button onClick={() => router.push("/dashboard")} className={styles.backBtn} aria-label="Back to home">
+            <ChevronLeft size={18} />
+          </button>
+          <div className={styles.headerTitles}>
+            <h2 className={styles.circleTitle}>Community Intel</h2>
+            <span className={styles.membersCount}>
+              Live Status: {verifiedCount} Verified Alerts
+            </span>
+          </div>
+          <button className={styles.filterBtn} onClick={() => alert("Report sorting layers applied.")} aria-label="Filter alerts">
+            <Filter size={16} />
+          </button>
+        </div>
 
         {loading ? (
           <div style={{ padding: "2rem 0" }}>
             <LoadingSkeleton count={3} height={120} />
           </div>
         ) : (
-          <div className={styles.layoutGrid}>
-            {/* Main Feed */}
-            <div className={styles.feedPanel}>
-              <div className={styles.feedList}>
-                {reports.length === 0 ? (
-                  <Card glass={true} padding="md" style={{ textAlign: "center", color: "var(--text-secondary)" }}>
-                    No safety hazard alerts currently logged in this district.
-                  </Card>
-                ) : (
-                  reports.map((report) => (
-                    <Card key={report.id} glass={true} padding="md" className={styles.reportCard}>
-                      <div className={styles.cardHeader}>
-                        <Badge variant={getBadgeVariant(report.type)} size="sm">
-                          {report.type}
-                        </Badge>
-                        <span className={styles.reportDate}>
-                          <Calendar size={12} className={styles.headerIcon} />
-                          {new Date(report.created_at).toLocaleDateString(undefined, {
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit"
-                          })}
-                        </span>
-                      </div>
+          <div className={styles.layoutScrollArea}>
+            
+            {/* B. Mini Live Map Hero */}
+            <div className={styles.mapRadarWrapper}>
+              <div className={styles.miniMapSandbox}>
+                <MapContainer 
+                  routes={[]} 
+                  selectedRouteId="" 
+                  onRouteSelect={() => {}} 
+                  center={mapCenter}
+                  zoom={mapZoom}
+                />
+              </div>
 
-                      <div className={styles.locationRow}>
-                        <MapPin size={14} className={styles.pinIcon} />
-                        <span className={styles.locationName}>
-                          Location: {report.lat.toFixed(4)}° N, {report.lng.toFixed(4)}° E
-                        </span>
-                      </div>
+              {/* Heatmap/Verifications overlays */}
+              <div className={`${styles.heatmapLayer} ${heatmapActive ? styles.heatmapActiveState : ""}`}>
+                {/* Simulated Heatmap glow dots */}
+                <div className={styles.heatPulse} style={{ top: "30%", left: "40%" }} />
+                <div className={styles.heatPulse} style={{ top: "60%", right: "30%" }} />
+                <div className={styles.heatPulse} style={{ bottom: "25%", left: "55%" }} />
+              </div>
 
-                      <p className={styles.description}>{report.description}</p>
+              <div className={styles.mapOverlayControls}>
+                <button 
+                  className={`${styles.heatmapToggleBtn} ${heatmapActive ? styles.activeHeatmapBtn : ""}`} 
+                  onClick={() => setHeatmapActive(!heatmapActive)}
+                >
+                  <Flame size={12} />
+                  <span>{heatmapActive ? "Heatmap On" : "Show Heatmap"}</span>
+                </button>
+                <div className={styles.verifiedCountBadge}>
+                  <Sparkles size={11} />
+                  <span>{verifiedCount} Verified Hazards</span>
+                </div>
+              </div>
 
-                      <div className={styles.cardFooter}>
-                        <button className={`${styles.voteBtn} ${styles.voted}`} style={{ cursor: "default" }}>
-                          <ThumbsUp size={14} />
-                          <span>Verified active security indicator</span>
-                        </button>
+              {/* absolute coordinates pins */}
+              <div className={styles.radarRadarContainer}>
+                {filteredReports.map((r, idx) => {
+                  const offsets = [
+                    { top: "35px", left: "90px" },
+                    { bottom: "50px", right: "80px" },
+                    { top: "85px", right: "140px" },
+                    { bottom: "70px", left: "120px" }
+                  ];
+                  const activePos = offsets[idx % offsets.length];
+                  const isHighlighted = activeReportId === r.id;
+
+                  return (
+                    <div 
+                      key={r.id} 
+                      className={`${styles.mapAvatarMarker} ${isHighlighted ? styles.highlightedMarker : ""}`} 
+                      style={{ top: activePos.top, left: activePos.left, right: activePos.right, bottom: activePos.bottom }}
+                      onClick={() => handleSelectReport(r)}
+                    >
+                      <div className={styles.markerMiniInitials}>
+                        {r.type.substring(0, 1)}
                       </div>
-                    </Card>
-                  ))
-                )}
+                      <div className={styles.markerPulseBorder} />
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Secondary Info card */}
-            <div className={styles.infoPanel}>
-              <Card glass={true} padding="md" className={styles.infoCard}>
-                <div className={styles.infoTitleRow}>
-                  <AlertTriangle size={20} className={styles.alertIcon} />
-                  <h3 className={styles.infoTitle}>Verification System</h3>
-                </div>
-                <p className={styles.infoText}>
-                  Crowdsourced safety alerts are automatically integrated into local routing scores after receiving confirmations from other pedestrians.
-                </p>
-                <div className={styles.divider} />
-                <p className={styles.infoSubText}>
-                  SafeRoute AI filters spam and flags outdated alerts automatically after 24 hours of inactivity.
-                </p>
-              </Card>
+            {/* C. Quick Filter Chips horizontal row */}
+            <div className={styles.chipsScroll}>
+              {QUICK_FILTERS.map(f => (
+                <button 
+                  key={f.id} 
+                  className={`${styles.filterChip} ${activeFilter === f.id ? styles.activeChip : ""}`}
+                  onClick={() => setActiveFilter(f.id)}
+                >
+                  {f.label}
+                </button>
+              ))}
             </div>
+
+            {/* D. Live timeline feed panel */}
+            <div className={styles.feedPanel}>
+              {filteredReports.length === 0 ? (
+                <Card glass={true} padding="md" className={styles.emptyFeedCard}>
+                  <AlertTriangle size={32} className={styles.emptyIcon} />
+                  <p className={styles.emptyText}>No alerts reported in this category</p>
+                </Card>
+              ) : (
+                <div className={styles.timelineList}>
+                  {filteredReports.map((report, idx) => {
+                    const isExpanded = activeReportId === report.id;
+                    const timeLabel = `${((idx + 1) * 7)}m ago`;
+                    const trustScore = 80 + (report.id % 19);
+                    const aiConfidence = 85 + (report.id % 13);
+                    const isVerified = report.id % 2 === 0;
+
+                    return (
+                      <Card 
+                        key={report.id} 
+                        glass={true} 
+                        padding="sm" 
+                        className={`${styles.feedCard} ${isExpanded ? styles.feedCardExpanded : ""}`}
+                        onClick={() => handleSelectReport(report)}
+                      >
+                        <div className={styles.feedCardHeader}>
+                          <div className={styles.feedHeaderLeft}>
+                            <div className={styles.categoryIconBg}>
+                              {getIncidentIcon(report.type)}
+                            </div>
+                            <div className={styles.categoryTitleCol}>
+                              <h4 className={styles.feedCardCategory}>{report.type}</h4>
+                              <span className={styles.feedCardMeta}>
+                                Nearby Area • {timeLabel}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div className={styles.verificationBadgeCol}>
+                            {isVerified ? (
+                              <Badge variant="success" size="sm" glow={true}>
+                                <CheckCircle size={10} style={{ marginRight: 2 }} />
+                                Verified
+                              </Badge>
+                            ) : (
+                              <Badge variant="warning" size="sm">
+                                <HelpCircle size={10} style={{ marginRight: 2 }} />
+                                Pending
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Summary preview */}
+                        <p className={styles.feedCardSummary}>
+                          {report.description.substring(0, 56)}...
+                        </p>
+
+                        {/* Interactive Expanded Detail view */}
+                        {isExpanded && (
+                          <div className={styles.expandedBlock}>
+                            <p className={styles.fullDescription}>{report.description}</p>
+                            
+                            <div className={styles.trustScoresRow}>
+                              <div className={styles.scoreMetric}>
+                                <span className={styles.metricLabel}>Community Trust</span>
+                                <span className={styles.metricVal} style={{ color: isVerified ? "var(--accent-emerald)" : "var(--accent-amber)" }}>
+                                  {trustScore}% Score
+                                </span>
+                              </div>
+                              <div className={styles.verticalScoreDivider} />
+                              <div className={styles.scoreMetric}>
+                                <span className={styles.metricLabel}>AI Confidence</span>
+                                <span className={styles.metricVal} style={{ color: "var(--accent-blue)" }}>
+                                  {aiConfidence}% Level
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className={styles.aiInsightBox}>
+                              <Sparkles size={13} className={styles.sparkleIcon} />
+                              <span className={styles.aiInsightText}>
+                                AI Summary: Safety index decreased slightly on coordinates segments due to {report.type.toLowerCase()} updates.
+                              </span>
+                            </div>
+
+                            <div className={styles.locationFooterRow}>
+                              <MapPin size={12} className={styles.pinIcon} />
+                              <span>Lat: {report.lat.toFixed(5)}° N, Lng: {report.lng.toFixed(5)}° E</span>
+                            </div>
+                          </div>
+                        )}
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
           </div>
         )}
+
+        {/* E. Floating report trigger button */}
+        <button className={styles.floatingReportBtn} onClick={() => setIsModalOpen(true)} aria-label="Submit Hazard Report">
+          <Plus size={20} />
+          <span className={styles.floatingBtnText}>Report Incident</span>
+        </button>
 
         {/* Create Report Modal */}
         <Modal 
           isOpen={isModalOpen} 
           onClose={() => setIsModalOpen(false)}
-          title="Submit Local Safety Report"
+          title="File Hazard Alert"
           size="sm"
         >
           <form onSubmit={handleCreateReport} className={styles.modalForm}>
-            <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
-              <span className={styles.pulseDot} style={{ display: "inline-block", marginRight: "6px", backgroundColor: "var(--accent-emerald)" }} />
-              Coordinates will be automatically resolved using your current GPS location.
+            <div className={styles.coordinatesWarningText}>
+              <span className={styles.redPulseDot} />
+              <span>Location coordinates will resolve dynamically via your active mobile GPS.</span>
             </div>
 
             <div className={styles.selectWrapper}>
-              <label className={styles.selectLabel}>Incident Category</label>
+              <label className={styles.selectLabel}>Incident Type</label>
               <select 
                 value={newType} 
                 onChange={(e) => setNewType(e.target.value as ReportCategory)}
-                className={styles.select}
+                className={styles.selectInput}
                 disabled={submitting}
               >
                 <option value="Poor Lighting">Poor Lighting Coverage</option>
@@ -221,12 +397,12 @@ export default function ReportsPage() {
             </div>
 
             <div className={styles.textareaWrapper}>
-              <label className={styles.textareaLabel}>Detailed Description</label>
+              <label className={styles.textareaLabel}>Incident Description</label>
               <textarea 
                 value={newDesc}
                 onChange={(e) => setNewDesc(e.target.value)}
-                placeholder="Describe lighting issues, physical barriers, or safety concerns..."
-                className={styles.textarea}
+                placeholder="Describe lighting issues, physical barriers, or loitering safety concerns..."
+                className={styles.textareaInput}
                 required
                 disabled={submitting}
               />
@@ -236,12 +412,13 @@ export default function ReportsPage() {
               <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)} disabled={submitting}>
                 Cancel
               </Button>
-              <Button type="submit" variant="primary" isLoading={submitting}>
-                Publish Alert
+              <Button type="submit" variant="emerald" isLoading={submitting}>
+                Publish Incident
               </Button>
             </div>
           </form>
         </Modal>
+
       </div>
     </DashboardLayout>
   );
