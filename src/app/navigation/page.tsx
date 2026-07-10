@@ -37,6 +37,7 @@ import { SafetyService } from "@/services/safety";
 import { JourneyService } from "@/services/journeys";
 import { ContactService } from "@/services/contacts";
 import { AuthService } from "@/services/auth";
+import { useEmergency } from "@/contexts/EmergencyContext";
 import { User, EmergencyContact } from "@/types";
 import { calculateDistance } from "@/utils/helpers";
 import styles from "./Navigation.module.css";
@@ -67,6 +68,7 @@ const AI_INSIGHTS = [
 
 export default function NavigationPage() {
   const router = useRouter();
+  const { triggerEmergency } = useEmergency();
   
   const [user, setUser] = useState<User | null>(null);
   const [origin, setOrigin] = useState("Saket Metro District, South Delhi");
@@ -535,12 +537,16 @@ export default function NavigationPage() {
 
         {/* Bottom Right Floating Urgent SOS alert button */}
         {activeWalkMode && (
-          <Link href="/emergency" className={styles.floatingSosOverlayBtn} aria-label="Trigger SOS Broadcast">
+          <button 
+            className={styles.floatingSosOverlayBtn} 
+            onClick={triggerEmergency}
+            aria-label="Trigger SOS Broadcast"
+          >
             <div className={styles.floatingSosPulse} />
             <div className={styles.floatingSosCircle}>
               <ShieldAlert size={26} />
             </div>
-          </Link>
+          </button>
         )}
 
         {/* RESULTS: M4 Sliding Results Bottom Sheet */}

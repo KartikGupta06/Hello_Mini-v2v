@@ -4,11 +4,13 @@ import React from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Home, Map, ShieldAlert, MessageSquareWarning, User } from "lucide-react";
+import { useEmergency } from "@/contexts/EmergencyContext";
 import styles from "./BottomNavigation.module.css";
 
 export const BottomNavigation: React.FC = () => {
   const pathname = usePathname();
   const router = useRouter();
+  const { triggerEmergency } = useEmergency();
 
   const navItems = [
     {
@@ -47,7 +49,7 @@ export const BottomNavigation: React.FC = () => {
           return (
             <button
               key={item.href}
-              onClick={() => router.push(item.href)}
+              onClick={triggerEmergency}
               className={styles.sosButtonWrapper}
               aria-label="Trigger SOS Broadcast"
             >

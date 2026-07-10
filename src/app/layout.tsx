@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "../styles/globals.css";
 import { DevModeBadge } from "@/components/ui";
+import { EmergencyProvider } from "@/contexts/EmergencyContext";
 
 export const metadata: Metadata = {
   title: "SafeRoute AI | Premium Safety Companion",
@@ -15,8 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        {children}
-        <DevModeBadge />
+        <EmergencyProvider>
+          {children}
+          <DevModeBadge />
+        </EmergencyProvider>
       </body>
     </html>
   );
