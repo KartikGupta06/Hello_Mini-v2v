@@ -137,11 +137,16 @@
 }
 
 .headerLogo {
-  width: 28px;
-  height: 28px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
   display: inline-block;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.dashboardLogo {
+  width: 48px !important;
+  height: 48px !important;
 }
 
 .menuIcon {

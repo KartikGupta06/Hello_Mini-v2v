@@ -50,8 +50,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
     return (
       <div className={styles.desktopWrapper}>
         <div className={styles.phoneViewport} style={{ justifyContent: "center", alignItems: "center" }}>
-          <div style={{ width: "260px" }}>
-            <LoadingSkeleton count={3} height={40} />
+          <div className={styles.loadingScreenContainer}>
+            <img src="/logo.png" alt="SafeRoute AI" className={styles.loadingLogo} />
+            <div className={styles.loadingSpinnerRing} />
+            <p className={styles.loadingMessage}>Configuring safety shield...</p>
           </div>
         </div>
       </div>

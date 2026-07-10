@@ -52,7 +52,7 @@ function LoginForm() {
         <div className={styles.contentArea}>
           
           <div className={styles.logoContainer}>
-            <img src="/logo.png" alt="SafeRoute AI" width={80} height={80} style={{ display: "block", margin: "0 auto 8px" }} />
+            <img src="/logo.png" alt="SafeRoute AI" width={90} height={90} style={{ display: "block", margin: "0 auto 8px" }} />
             <p className={styles.logoTagline}>AI-Powered Pedestrian Safety Engine</p>
           </div>
 

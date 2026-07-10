@@ -22,9 +22,10 @@
   margin-bottom: 16px;
 }
 
-.shieldIcon {
-  color: var(--accent-emerald);
-  filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.4));
+.aboutLogo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
 }
 
 .heroTitle {

@@ -37,7 +37,7 @@ export default function AboutPage() {
           {/* Main Description */}
           <Card glass={true} padding="lg" className={styles.heroCard}>
             <div className={styles.heroTitleRow}>
-              <Shield className={styles.shieldIcon} size={28} />
+              <img src="/logo.png" alt="SafeRoute AI" className={styles.aboutLogo} />
               <h2 className={styles.heroTitle}>Our Mission: Democratize Safety</h2>
             </div>
             

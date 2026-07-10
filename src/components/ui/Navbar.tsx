@@ -41,7 +41,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </button>
         )}
         <Link href="/dashboard" className={styles.logoWrapper}>
-          <Shield className={styles.logoIcon} size={22} />
+          <img src="/logo.png" alt="SafeRoute AI" className={styles.logoImg} />
           <span className={styles.logoText}>{title}</span>
         </Link>
       </div>

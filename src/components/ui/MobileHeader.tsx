@@ -66,16 +66,16 @@ export const MobileHeader: React.FC = () => {
           <button onClick={() => router.back()} className={styles.iconBtn} aria-label="Go back">
             <ChevronLeft size={22} />
           </button>
-        ) : isDashboard ? (
+        ) : (
           <div className={styles.menuContainer}>
             <button className={styles.iconBtn} aria-label="Open menu">
               <Menu size={22} className={styles.menuIcon} />
             </button>
-            <img src="/logo.png" alt="SafeRoute AI" className={styles.headerLogo} />
-          </div>
-        ) : (
-          <div className={styles.logoIndicator}>
-            <span className={styles.pulseDot} />
+            <img 
+              src="/logo.png" 
+              alt="SafeRoute AI" 
+              className={`${styles.headerLogo} ${isDashboard ? styles.dashboardLogo : ""}`} 
+            />
           </div>
         )}
         <div className={styles.titleContainer}>

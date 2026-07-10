@@ -135,6 +135,11 @@ export default function LandingPage() {
           animate="visible"
           className={styles.heroContent}
         >
+          {/* Hero Brand Logo */}
+          <motion.div variants={itemVariants} className={styles.heroLogoWrapper}>
+            <img src="/logo.png" alt="SafeRoute AI Brand Logo" className={styles.heroLogoImg} />
+          </motion.div>
+
           {/* Badge */}
           <motion.div variants={itemVariants} className={styles.badgeWrapper}>
             <span className={styles.heroBadge}>
