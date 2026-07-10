@@ -1,214 +1,482 @@
 .container {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.layoutGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-  align-items: start;
-}
-
-@media (min-width: 1024px) {
-  .layoutGrid {
-    grid-template-columns: 1.6fr 1fr;
-  }
-}
-
-.mainPanel {
+  position: relative;
   width: 100%;
-}
-
-.contactsGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
-
-@media (min-width: 640px) {
-  .contactsGrid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.contactCard {
-  border: 1px solid var(--border-light);
+  height: 100%;
+  background-color: #060913;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  overflow: hidden;
 }
 
-.cardHeader {
+/* A. Top Header */
+.topHeaderRow {
   display: flex;
   align-items: center;
-  gap: 12px;
-  position: relative;
+  justify-content: space-between;
+  padding: 16px;
+  background: rgba(10, 15, 30, 0.4);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.avatarCircle {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--bg-tertiary) 0%, rgba(59, 130, 246, 0.15) 100%);
-  border: 1px solid var(--border-medium);
+.backBtn, .addGuardianBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--text-primary);
-  flex-shrink: 0;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.headerText {
+.backBtn:hover, .addGuardianBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.headerTitles {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
   flex: 1;
 }
 
-.contactName {
-  font-family: var(--font-display);
-  font-size: 0.95rem;
-  font-weight: 700;
+.circleTitle {
+  font-size: 1rem;
+  font-weight: 800;
   color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
 }
 
-.relationship {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.badge {
-  position: absolute;
-  top: 0;
-  right: 0;
-}
-
-.infoList {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  border-bottom: 1px solid var(--border-light);
-  padding-bottom: 14px;
-}
-
-.infoRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.infoIcon {
+.membersCount {
+  font-size: 0.7rem;
   color: var(--text-muted);
-}
-
-.infoText {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.cardActions {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.actionBtn {
-  background: transparent;
-  border: none;
-  color: var(--text-secondary);
-  font-size: 0.8rem;
   font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: color var(--transition-fast);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.actionBtn:hover {
-  color: var(--text-primary);
-}
-
-.deleteBtn:hover {
-  color: var(--status-danger);
-}
-
-.sidePanel {
-  width: 100%;
-}
-
-.infoCard {
-  border: 1px solid var(--border-light);
-}
-
-.infoCardTitleRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 20px;
-}
-
-.shieldIcon {
-  color: var(--accent-emerald);
-}
-
-.infoCardTitle {
-  font-family: var(--font-display);
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.protocolList {
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.protocolItem {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.protocolBullet {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background-color: var(--accent-emerald);
-  box-shadow: 0 0 6px var(--accent-emerald);
-  margin-top: 8px;
-  flex-shrink: 0;
-}
-
-.protocolHeader {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  display: block;
-  margin-bottom: 4px;
-}
-
-.protocolDesc {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  line-height: 1.4;
-}
-
-.modalForm {
+/* Scroll area */
+.layoutScrollArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  padding-bottom: 92px; /* space above navigation tab bar */
+  
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.layoutScrollArea::-webkit-scrollbar {
+  display: none;
+}
+
+/* B. Hero Avatar list Grid */
+.heroGrid {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 8px 4px;
+  scrollbar-width: none;
+}
+
+.heroGrid::-webkit-scrollbar {
+  display: none;
+}
+
+.heroAvatarCard {
+  flex-shrink: 0;
+  width: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.heroAvatarActive .avatarInitialsCircle {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+}
+
+.avatarGlowWrapper {
+  position: relative;
+  margin-bottom: 8px;
+}
+
+.avatarInitialsCircle {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  font-size: 0.9rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  transition: all 0.25s ease;
+}
+
+.primaryBorder {
+  border-color: #f59e0b; /* Golden border for primary */
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+}
+
+.onlinePulseDot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 10px;
+  height: 10px;
+  background-color: var(--accent-emerald, #10b981);
+  border-radius: 50%;
+  border: 2px solid #060913;
+  box-shadow: 0 0 6px var(--accent-emerald);
+}
+
+.heroAvatarInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 2px;
+}
+
+.heroNameRow {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.primaryCrownIcon {
+  color: #f59e0b;
+}
+
+.heroNameText {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 72px;
+}
+
+.heroRelText {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.heroDistText {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--accent-emerald);
+}
+
+/* Empty circle placeholder */
+.emptyCircleCard {
+  text-align: center;
+  padding: 32px 16px !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px dashed rgba(255, 255, 255, 0.1) !important;
+  border-radius: 20px !important;
+}
+
+.emptyCircleIcon {
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.emptyCircleText {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  margin-bottom: 16px;
+}
+
+/* C. Mini Radar Map */
+.mapRadarWrapper {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+}
+
+.miniMapSandbox {
+  width: 100%;
+  height: 100%;
+  opacity: 0.65;
+}
+
+.radarRadarContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.radarRadarContainer * {
+  pointer-events: auto;
+}
+
+/* User center pulsing target */
+.userCenterMarker {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.userDot {
+  width: 10px;
+  height: 10px;
+  background-color: var(--accent-blue, #3b82f6);
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 10px var(--accent-blue);
+  z-index: 2;
+}
+
+.userRadarPulse {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: rgba(59, 130, 246, 0.3);
+  animation: radarEcho 2.5s infinite linear;
+  z-index: 1;
+}
+
+@keyframes radarEcho {
+  0% { transform: scale(0.6); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+/* Guardian absolute positioning map pins */
+.mapAvatarMarker {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.markerMiniInitials {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-emerald), var(--accent-blue));
+  color: #ffffff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  z-index: 2;
+}
+
+.markerPulseBorder {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-color: rgba(16, 185, 129, 0.25);
+  z-index: 1;
+  animation: radarEcho 2s infinite linear;
+}
+
+.radarLabel {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(10, 15, 30, 0.75);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.06);
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.58rem;
+  color: var(--text-secondary);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  z-index: 15;
+}
+
+.radarCompassIcon {
+  color: var(--accent-emerald);
+}
+
+/* D. Detailed Guardian cards stack */
+.guardianListPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.guardianCard {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border: 1px solid rgba(255, 255, 255, 0.04) !important;
+  border-radius: 16px !important;
+  transition: all 0.2s ease !important;
+}
+
+.guardianCard:hover {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(255, 255, 255, 0.06) !important;
+}
+
+.guardianCardBody {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.guardianLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.avatarIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatarPrimaryGold {
+  border-color: #f59e0b;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.04);
+}
+
+.guardianMetaCol {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.guardianNameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.guardianName {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 110px;
+}
+
+.guardianStatusSub {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+}
+
+.guardianActionsCol {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.roundActionBtn, .roundDeleteBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.roundActionBtn:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
+}
+
+.roundDeleteBtn {
+  color: var(--status-danger);
+}
+
+.roundDeleteBtn:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.primaryHighlightBadge {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* E. Bottom actions panel */
+.bottomActionsCol {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* Modal Form styling */
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .formActions {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 8px;
+  gap: 8px;
+  margin-top: 14px;
 }
