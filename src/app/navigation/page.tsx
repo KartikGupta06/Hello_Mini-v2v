@@ -710,7 +710,7 @@ export default function NavigationPage() {
                   Route Summary
                 </span>
                 <p style={{ fontSize: "0.82rem", color: "var(--text-primary)", fontWeight: "600", margin: 0 }}>
-                  Walkway via Press Enclave Marg Corridor.
+                  Walk via {activeRouteData.name} · {activeRouteData.distance} · {activeRouteData.time}
                 </p>
               </div>
 
