@@ -62,7 +62,7 @@ export default function LandingPage() {
       {/* Header Navbar */}
       <nav className={styles.navHeader}>
         <div className={styles.logoRow}>
-          <Shield className={styles.logoIcon} size={24} />
+          <img src="/logo.png" alt="SafeRoute AI" width={36} height={36} style={{ borderRadius: "50%" }} />
           <span className={styles.logoText}>SafeRoute AI</span>
         </div>
         <div className={styles.navLinks}>

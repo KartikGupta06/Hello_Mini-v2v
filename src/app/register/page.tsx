@@ -51,10 +51,7 @@ export default function RegisterPage() {
         <div className={styles.contentArea}>
           
           <div className={styles.logoContainer}>
-            <div className={styles.logoRow}>
-              <Shield className={styles.logoIcon} size={32} />
-              <span className={styles.logoText}>SafeRoute AI</span>
-            </div>
+            <img src="/logo.png" alt="SafeRoute AI" width={80} height={80} style={{ display: "block", margin: "0 auto 8px" }} />
             <p className={styles.logoTagline}>AI-Powered Pedestrian Safety Engine</p>
           </div>
 

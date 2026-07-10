@@ -1,8 +1,12 @@
 <div align="center">
 
+<img src="public/logo.png" width="160" alt="SafeRoute AI Logo" />
+
+<br/>
+
 <img src="https://img.shields.io/badge/SafeRoute_AI-v1.0.0-FF3B30?style=for-the-badge&logo=shield&logoColor=white" />
 
-# 🛡️ SafeRoute AI
+# SafeRoute AI
 
 ### **AI-Powered Pedestrian Safety Intelligence Platform**
 
@@ -843,6 +847,10 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
 ---
 
 <div align="center">
+
+<img src="public/logo.png" width="80" alt="SafeRoute AI" />
+
+<br/>
 
 **Built with purpose. Designed for safety. Open to everyone.**
 
