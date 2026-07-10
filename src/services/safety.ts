@@ -76,5 +76,20 @@ export const SafetyService = {
         phone: item.contact_number
       }))
     };
+  },
+
+  // Trigger SOS Emergency
+  triggerSOS: async (payload: { latitude: number; longitude: number }): Promise<any> => {
+    return apiClient.post("/sos/trigger", payload);
+  },
+
+  // Update incident report
+  updateReport: async (id: number, updates: { type?: ReportCategory; description?: string; lat?: number; lng?: number }): Promise<SafetyReport> => {
+    return apiClient.put<SafetyReport>(`/reports/${id}`, updates);
+  },
+
+  // Delete incident report
+  deleteReport: async (id: number): Promise<SafetyReport> => {
+    return apiClient.delete<SafetyReport>(`/reports/${id}`);
   }
 };

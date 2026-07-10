@@ -4,10 +4,10 @@ import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import { Layers, ZoomIn, ZoomOut } from "lucide-react";
 import styles from "./MapContainer.module.css";
-import type { MapRoute, MapHotspot } from "./LeafletMap";
+import type { MapRoute, MapHotspot, MapPinProp } from "./LeafletMap";
 
 // Re-export types so callers can import from this file as before
-export type { MapRoute, MapHotspot };
+export type { MapRoute, MapHotspot, MapPinProp };
 
 // ── Dynamic import — Leaflet is browser-only, no SSR ─────────────────────────
 const LeafletMap = dynamic(() => import("./LeafletMap"), {
@@ -24,6 +24,8 @@ interface MapContainerProps {
   zoom?: number;
   /** @deprecated — Mapbox token no longer required. Kept for interface compatibility. */
   accessToken?: string;
+  pins?: MapPinProp[];
+  onPinSelect?: (id: string | number) => void;
 }
 
 // ── Minimal loading placeholder ───────────────────────────────────────────────
@@ -46,6 +48,8 @@ export const MapContainer: React.FC<MapContainerProps> = ({
   onRouteSelect,
   center = [77.2045, 28.5306], // Default: South Delhi (matches demo origin)
   zoom = 14,
+  pins = [],
+  onPinSelect,
 }) => {
   const [currentZoom, setCurrentZoom] = useState(zoom);
 
@@ -64,6 +68,8 @@ export const MapContainer: React.FC<MapContainerProps> = ({
           onRouteSelect={onRouteSelect}
           center={center}
           zoom={currentZoom}
+          pins={pins}
+          onPinSelect={onPinSelect}
         />
       </div>
 

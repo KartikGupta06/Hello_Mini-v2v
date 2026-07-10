@@ -12,12 +12,14 @@ import {
   X, 
   Check, 
   Flame,
-  Radio
+  Radio,
+  AlertTriangle
 } from "lucide-react";
 import { useEmergency } from "@/contexts/EmergencyContext";
 import { SafetyService } from "@/services/safety";
 import { Button } from "./Button";
 import styles from "./EmergencyOverlay.module.css";
+import { Badge } from "./Badge";
 
 export const EmergencyOverlay: React.FC = () => {
   const { 
@@ -44,6 +46,12 @@ export const EmergencyOverlay: React.FC = () => {
   const [lng, setLng] = useState(77.2045);
   const [closestPost, setClosestPost] = useState("Malviya Nagar Post");
   const [closestHospital, setClosestHospital] = useState("Max Super Speciality");
+  
+  // Real SOS API States
+  const [sosResponse, setSosResponse] = useState<any>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [apiLoading, setApiLoading] = useState(false);
+  const [triggerTime, setTriggerTime] = useState<string | null>(null);
 
   // Geolocation and Safe Places stream
   useEffect(() => {
@@ -104,23 +112,76 @@ export const EmergencyOverlay: React.FC = () => {
     return () => clearInterval(interval);
   }, [isHolding, sosStage]);
 
-  // Stage 2: Broadcasting checkmark animations
+  // Stage 2: Real SOS trigger on broadcasting
   useEffect(() => {
     if (sosStage !== "broadcasting") return;
 
-    setBroadcastStep(0);
-    const interval = setInterval(() => {
-      setBroadcastStep((prev) => {
-        if (prev >= 4) {
-          clearInterval(interval);
-          setTimeout(() => setSosStage("live"), 600);
-          return 4;
-        }
-        return prev + 1;
-      });
-    }, 900);
+    setApiLoading(true);
+    setApiError(null);
+    setSosResponse(null);
 
-    return () => clearInterval(interval);
+    let active = true;
+
+    const triggerSOSCall = async () => {
+      if (!navigator.geolocation) {
+        if (active) {
+          setApiError("GPS Unavailable: Geolocation is not supported by your browser.");
+          setSosStage("hold");
+          setApiLoading(false);
+        }
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          if (!active) return;
+          const currentLat = position.coords.latitude;
+          const currentLng = position.coords.longitude;
+          setLat(currentLat);
+          setLng(currentLng);
+
+          try {
+            const res = await SafetyService.triggerSOS({
+              latitude: currentLat,
+              longitude: currentLng
+            });
+            if (!active) return;
+            setSosResponse(res);
+            setTriggerTime(new Date().toLocaleTimeString() + " " + new Date().toLocaleDateString());
+            setSosStage("live");
+          } catch (error: any) {
+            if (!active) return;
+            setApiError(error.message || "Backend Failure: Unable to connect to SafeRoute SOS server.");
+            setSosStage("hold");
+          } finally {
+            if (active) {
+              setApiLoading(false);
+            }
+          }
+        },
+        (error) => {
+          if (!active) return;
+          let errorMsg = "GPS Coordinates Unavailable.";
+          if (error.code === error.PERMISSION_DENIED) {
+            errorMsg = "Location Permission Denied: Please enable browser GPS permissions to trigger SOS.";
+          } else if (error.code === error.POSITION_UNAVAILABLE) {
+            errorMsg = "GPS Unavailable: SafeRoute is unable to establish contact with satellite location providers.";
+          } else if (error.code === error.TIMEOUT) {
+            errorMsg = "Timeout: Geolocation query took too long to resolve.";
+          }
+          setApiError(errorMsg);
+          setSosStage("hold");
+          setApiLoading(false);
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    };
+
+    triggerSOSCall();
+
+    return () => {
+      active = false;
+    };
   }, [sosStage]);
 
   // Stage 3: Live Active Timer
@@ -143,6 +204,9 @@ export const EmergencyOverlay: React.FC = () => {
       setIsHolding(false);
       setBroadcastStep(0);
       setLiveSeconds(0);
+      setSosResponse(null);
+      setApiError(null);
+      setApiLoading(false);
     }
   }, [isEmergencyActive]);
 
@@ -162,9 +226,27 @@ export const EmergencyOverlay: React.FC = () => {
 
   const handleCallGuardian = () => {
     if (primaryContact) {
-      alert(`Dialing Primary Guardian: ${primaryContact.name} (${primaryContact.phone})...`);
+      window.location.href = `tel:${primaryContact.phone}`;
     } else {
-      alert("No emergency contacts setup. Calling default emergency services...");
+      window.location.href = "tel:112";
+    }
+  };
+
+  const handleCallPolice = () => {
+    const policePhone = sosResponse?.nearest_police?.contact_number;
+    if (policePhone) {
+      window.location.href = `tel:${policePhone}`;
+    } else {
+      window.location.href = "tel:100";
+    }
+  };
+
+  const handleCallAmbulance = () => {
+    const hospitalPhone = sosResponse?.nearest_hospital?.contact_number;
+    if (hospitalPhone) {
+      window.location.href = `tel:${hospitalPhone}`;
+    } else {
+      window.location.href = "tel:102";
     }
   };
 
@@ -196,6 +278,19 @@ export const EmergencyOverlay: React.FC = () => {
       {/* STAGE 1: HOLD TO TRIGGER */}
       {sosStage === "hold" && (
         <div className={styles.stageContainer}>
+          {apiError && (
+            <div className={styles.errorAlertBlock}>
+              <AlertTriangle size={18} className={styles.errorAlertIcon} />
+              <div className={styles.errorAlertContent}>
+                <h4 className={styles.errorAlertTitle}>Emergency Dispatch Failed</h4>
+                <p className={styles.errorAlertMessage}>{apiError}</p>
+              </div>
+              <button onClick={() => setApiError(null)} className={styles.errorAlertDismissBtn} aria-label="Dismiss error">
+                <X size={14} />
+              </button>
+            </div>
+          )}
+
           <div className={styles.centerHeroSection}>
             <div className={styles.countdownWrapper}>
               <div 
@@ -237,43 +332,14 @@ export const EmergencyOverlay: React.FC = () => {
               <div className={styles.broadcastRingAnimation}>
                 <Radio size={40} className={styles.pulseRadioIcon} />
               </div>
-              <h3 className={styles.broadcastingTitle}>Broadcasting Emergency Signals...</h3>
-              <p className={styles.broadcastingSubtitle}>Please stay calm. Dispatching aids immediately.</p>
-            </div>
-          </div>
-
-          {/* Verification checklist stack */}
-          <div className={styles.statusCard}>
-            <div className={styles.statusListStack}>
-              <div className={`${styles.statusCheckItem} ${broadcastStep >= 1 ? styles.itemChecked : ""}`}>
-                <div className={styles.circleBox}>
-                  {broadcastStep >= 1 ? <Check size={12} /> : <span className={styles.dotCheck} />}
-                </div>
-                <span>Guardian Notified</span>
-              </div>
-              <div className={`${styles.statusCheckItem} ${broadcastStep >= 2 ? styles.itemChecked : ""}`}>
-                <div className={styles.circleBox}>
-                  {broadcastStep >= 2 ? <Check size={12} /> : <span className={styles.dotCheck} />}
-                </div>
-                <span>Police Dispatch Alerted</span>
-              </div>
-              <div className={`${styles.statusCheckItem} ${broadcastStep >= 3 ? styles.itemChecked : ""}`}>
-                <div className={styles.circleBox}>
-                  {broadcastStep >= 3 ? <Check size={12} /> : <span className={styles.dotCheck} />}
-                </div>
-                <span>Live Location Stream Shared</span>
-              </div>
-              <div className={`${styles.statusCheckItem} ${broadcastStep >= 4 ? styles.itemChecked : ""}`}>
-                <div className={styles.circleBox}>
-                  {broadcastStep >= 4 ? <Check size={12} /> : <span className={styles.dotCheck} />}
-                </div>
-                <span>Ambulance Unit Alerted</span>
+              <h3 className={styles.broadcastingTitle}>Sending Emergency Request...</h3>
+              <p className={styles.broadcastingSubtitle}>SafeRoute is contacting local emergency responders and notifying your guardians. Please stand by.</p>
+              
+              {/* Loading Spinner */}
+              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "24px" }}>
+                <div className={styles.spinner}></div>
               </div>
             </div>
-          </div>
-
-          <div style={{ textAlign: "center", color: "var(--status-warning)", fontSize: "0.85rem", fontWeight: "bold" }}>
-            ETA Police: 4 min
           </div>
         </div>
       )}
@@ -281,13 +347,20 @@ export const EmergencyOverlay: React.FC = () => {
       {/* STAGE 3: EMERGENCY LIVE PANEL */}
       {sosStage === "live" && (
         <div className={styles.stageContainer}>
+          {/* Main Emergency Active Banner */}
+          <div style={{ display: "flex", justifyContent: "center", padding: "8px 0", textTransform: "uppercase", fontWeight: "900", letterSpacing: "0.1em", fontSize: "0.9rem" }}>
+            <Badge variant="danger" size="md" glow={true}>
+              🚨 Emergency Active 🚨
+            </Badge>
+          </div>
+
           {/* Location Area Card */}
           <div className={styles.statusCard}>
-            <span className={styles.locationTitleLabel}>YOUR CURRENT LOCATION</span>
+            <span className={styles.locationTitleLabel}>YOUR RESOLVED LOCATION</span>
             <div className={styles.locationAddressRow}>
               <MapPin size={16} className={styles.emeraldIcon} />
               <p className={styles.addressText}>
-                23, Main Road, Malviya Nagar, New Delhi, 110017
+                {sosResponse?.nearest_police?.address || sosResponse?.nearest_hospital?.address || "Address resolving near south district coordinates"}
               </p>
             </div>
           </div>
@@ -295,28 +368,60 @@ export const EmergencyOverlay: React.FC = () => {
           {/* ETA / Dispatch Metrics Card */}
           <div className={styles.etaContainerGrid}>
             <div className={styles.etaSubBox}>
-              <span className={styles.etaBoxLabel}>Police ETA</span>
-              <span className={styles.etaBoxValue}>4 min</span>
+              <span className={styles.etaBoxLabel}>Emergency Session</span>
+              <span className={styles.etaBoxValue} style={{ color: "var(--status-danger)", textTransform: "capitalize" }}>
+                {sosResponse?.sos_status || "Active"}
+              </span>
             </div>
             <div className={styles.etaSubBox}>
-              <span className={styles.etaBoxLabel}>Guardian ETA</span>
-              <span className={styles.etaBoxValue}>2 min</span>
+              <span className={styles.etaBoxLabel}>Trigger Time</span>
+              <span className={styles.etaBoxValue} style={{ fontSize: "0.78rem" }}>
+                {triggerTime || "Unspecified"}
+              </span>
             </div>
+            
             <div className={styles.etaSubBox} style={{ gridColumn: "span 2" }}>
-              <span className={styles.etaBoxLabel}>Live Coordinates Broadcast</span>
-              <span className={styles.etaBoxValue} style={{ color: "var(--status-success)" }}>
-                Streaming Live to {contactsCount} Contacts
+              <span className={styles.etaBoxLabel}>Current Coordinates</span>
+              <span className={styles.etaBoxValue} style={{ fontSize: "0.85rem" }}>
+                {lat.toFixed(6)}° N, {lng.toFixed(6)}° E
+              </span>
+            </div>
+
+            <div className={styles.etaSubBox} style={{ gridColumn: "span 2" }}>
+              <span className={styles.etaBoxLabel}>Guardian Notification Status</span>
+              <span className={styles.etaBoxValue} style={{ fontSize: "0.82rem", color: "var(--text-primary)" }}>
+                {contactsCount > 0 ? `Notified (${contactsCount} Guardians via SMS Broadcast)` : "No Emergency Contacts configured"}
+              </span>
+            </div>
+
+            <div className={styles.etaSubBox} style={{ gridColumn: "span 2" }}>
+              <span className={styles.etaBoxLabel}>Police Notification Status</span>
+              <span className={styles.etaBoxValue} style={{ fontSize: "0.82rem", color: "var(--text-primary)" }}>
+                {sosResponse?.nearest_police 
+                  ? `Dispatched to ${sosResponse.nearest_police.name} (${(sosResponse.nearest_police.distance_m / 1000).toFixed(2)} km away)` 
+                  : "Searching nearby police post..."}
+              </span>
+            </div>
+
+            <div className={styles.etaSubBox} style={{ gridColumn: "span 2" }}>
+              <span className={styles.etaBoxLabel}>Hospital Notification Status</span>
+              <span className={styles.etaBoxValue} style={{ fontSize: "0.82rem", color: "var(--text-primary)" }}>
+                {sosResponse?.nearest_hospital 
+                  ? `Dispatched to ${sosResponse.nearest_hospital.name} (${(sosResponse.nearest_hospital.distance_m / 1000).toFixed(2)} km away)` 
+                  : "Searching nearest trauma center..."}
               </span>
             </div>
           </div>
 
           {/* Touch actions tiles */}
           <div className={styles.actionsGrid}>
-            <button className={`${styles.actionTile} ${styles.tileDanger}`} onClick={() => alert("Calling local police dispatch...")}>
+            <button className={`${styles.actionTile} ${styles.tileDanger}`} onClick={handleCallPolice}>
               <PhoneCall size={18} />
               <div className={styles.tileTextCol}>
                 <span className={styles.tileTitle}>Call Police</span>
-                <span className={styles.tileDesc}>Direct police emergency hotline</span>
+                <span className={styles.tileDesc}>
+                  {sosResponse?.nearest_police ? `Direct: ${sosResponse.nearest_police.name}` : "Direct police emergency hotline"}
+                </span>
               </div>
             </button>
 
@@ -330,11 +435,13 @@ export const EmergencyOverlay: React.FC = () => {
               </div>
             </button>
 
-            <button className={styles.actionTile} onClick={() => alert("Dialing default medical responders...")}>
+            <button className={styles.actionTile} onClick={handleCallAmbulance}>
               <Heart size={18} className={styles.redIcon} />
               <div className={styles.tileTextCol}>
                 <span className={styles.tileTitle}>Call Ambulance</span>
-                <span className={styles.tileDesc}>Direct hospital response desk</span>
+                <span className={styles.tileDesc}>
+                  {sosResponse?.nearest_hospital ? `Direct: ${sosResponse.nearest_hospital.name}` : "Direct hospital response desk"}
+                </span>
               </div>
             </button>
           </div>

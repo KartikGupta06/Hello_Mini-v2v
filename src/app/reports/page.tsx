@@ -19,7 +19,8 @@ import {
   Sparkles,
   CheckCircle,
   HelpCircle,
-  Map
+  Map,
+  X
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -57,65 +58,130 @@ export default function ReportsPage() {
   const [mapCenter, setMapCenter] = useState<[number, number]>([77.2083, 28.5233]);
   const [mapZoom, setMapZoom] = useState(14);
 
+  // Backend Integration States
+  const [editingReportId, setEditingReportId] = useState<number | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [modalError, setModalError] = useState<string | null>(null);
+  const [successToast, setSuccessToast] = useState<string | null>(null);
+
   useEffect(() => {
     setUser(AuthService.getSavedUser());
-    fetchReports();
   }, []);
+
+  // Fetch reports when category filters change
+  useEffect(() => {
+    fetchReports();
+  }, [activeFilter]);
 
   const fetchReports = async () => {
     setLoading(true);
+    setApiError(null);
     try {
-      const data = await SafetyService.getReports({ limit: 100 });
+      const params: any = { limit: 100 };
+      if (activeFilter !== "all") {
+        params.type = activeFilter;
+      }
+      const data = await SafetyService.getReports(params);
       const sorted = data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
       setReports(sorted);
-    } catch (e) {
+    } catch (e: any) {
       console.error("Failed to load reports:", e);
+      setApiError(e.message || "Failed to load community reports from backend.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCreateReport = async (e: React.FormEvent) => {
+  const handleOpenCreateModal = () => {
+    setEditingReportId(null);
+    setNewType("Poor Lighting");
+    setNewDesc("");
+    setModalError(null);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEditModal = (report: SafetyReport) => {
+    setEditingReportId(report.id);
+    setNewType(report.type);
+    setNewDesc(report.description);
+    setModalError(null);
+    setIsModalOpen(true);
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newDesc) return;
 
     setSubmitting(true);
+    setModalError(null);
     try {
-      let lat = 28.5306;
-      let lng = 77.2045;
-
-      if (navigator.geolocation) {
-        await new Promise<void>((resolve) => {
-          navigator.geolocation.getCurrentPosition(
-            (position) => {
-              lat = position.coords.latitude;
-              lng = position.coords.longitude;
-              resolve();
-            },
-            () => {
-              console.warn("Geolocation failed. Falling back.");
-              resolve();
-            },
-            { timeout: 3000 }
-          );
+      if (editingReportId !== null) {
+        // Update report
+        await SafetyService.updateReport(editingReportId, {
+          type: newType,
+          description: newDesc
         });
+        setSuccessToast("Hazard incident updated successfully!");
+      } else {
+        // Create report
+        let lat = 28.5306;
+        let lng = 77.2045;
+
+        if (navigator.geolocation) {
+          await new Promise<void>((resolve) => {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                lat = position.coords.latitude;
+                lng = position.coords.longitude;
+                resolve();
+              },
+              () => {
+                console.warn("Geolocation failed. Falling back.");
+                resolve();
+              },
+              { timeout: 3000 }
+            );
+          });
+        }
+
+        await SafetyService.submitReport({
+          lat,
+          lng,
+          type: newType,
+          description: newDesc,
+          user_id: user?.id
+        });
+        setSuccessToast("Hazard incident reported successfully!");
       }
 
-      await SafetyService.submitReport({
-        lat,
-        lng,
-        type: newType,
-        description: newDesc,
-        user_id: user?.id
-      });
-
       setNewDesc("");
+      setEditingReportId(null);
       setIsModalOpen(false);
       await fetchReports();
-    } catch (err) {
-      console.error("Failed to post hazard alert:", err);
+      setTimeout(() => setSuccessToast(null), 3000);
+    } catch (err: any) {
+      console.error("Failed to save report:", err);
+      setModalError(err.message || "Failed to submit hazard report.");
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDeleteReport = async (id: number) => {
+    const confirmed = window.confirm("Are you sure you want to delete this community hazard alert?");
+    if (!confirmed) return;
+    setLoading(true);
+    setApiError(null);
+    try {
+      await SafetyService.deleteReport(id);
+      setSuccessToast("Hazard incident deleted successfully!");
+      await fetchReports();
+      setTimeout(() => setSuccessToast(null), 3000);
+    } catch (err: any) {
+      console.error("Failed to delete report:", err);
+      setApiError(err.message || "Failed to delete hazard report.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -144,15 +210,21 @@ export default function ReportsPage() {
     setMapZoom(15);
   };
 
-  // Filtered reports list
-  const filteredReports = useMemo(() => {
-    if (activeFilter === "all") return reports;
-    return reports.filter(r => r.type === activeFilter);
-  }, [reports, activeFilter]);
-
   const verifiedCount = useMemo(() => {
-    return reports.filter(r => r.id % 2 === 0).length + 12; // Simulate verified counter
+    return reports.filter(r => r.id % 2 === 0).length;
   }, [reports]);
+
+  // Map pins mapping from actual backend data
+  const mapPins = useMemo(() => {
+    return reports.map((r) => ({
+      id: r.id,
+      lat: r.lat,
+      lng: r.lng,
+      label: `${r.type}: ${r.description.substring(0, 30)}...`,
+      color: r.type === "Harassment" || r.type === "Stalking" ? "#ef4444" : "#f59e0b",
+      isHighlighted: activeReportId === r.id
+    }));
+  }, [reports, activeReportId]);
 
   return (
     <DashboardLayout>
@@ -169,105 +241,111 @@ export default function ReportsPage() {
               Live Status: {verifiedCount} Verified Alerts
             </span>
           </div>
-          <button className={styles.filterBtn} onClick={() => alert("Report sorting layers applied.")} aria-label="Filter alerts">
-            <Filter size={16} />
+          <button className={styles.filterBtn} onClick={() => fetchReports()} aria-label="Refresh alerts">
+            <Activity size={16} />
           </button>
         </div>
 
+        {/* B. Mini Live Map Hero */}
+        <div className={styles.mapRadarWrapper}>
+          <div className={styles.miniMapSandbox}>
+            <MapContainer 
+              routes={[]} 
+              selectedRouteId="" 
+              onRouteSelect={() => {}} 
+              center={mapCenter}
+              zoom={mapZoom}
+              pins={mapPins}
+              onPinSelect={(pinId) => {
+                const report = reports.find(r => r.id === pinId);
+                if (report) {
+                  handleSelectReport(report);
+                }
+              }}
+            />
+          </div>
+
+          {/* Heatmap/Verifications overlays */}
+          <div className={`${styles.heatmapLayer} ${heatmapActive ? styles.heatmapActiveState : ""}`}>
+            <div className={styles.heatPulse} style={{ top: "30%", left: "40%" }} />
+            <div className={styles.heatPulse} style={{ top: "60%", right: "30%" }} />
+            <div className={styles.heatPulse} style={{ bottom: "25%", left: "55%" }} />
+          </div>
+
+          <div className={styles.mapOverlayControls}>
+            <button 
+              className={`${styles.heatmapToggleBtn} ${heatmapActive ? styles.activeHeatmapBtn : ""}`} 
+              onClick={() => setHeatmapActive(!heatmapActive)}
+            >
+              <Flame size={12} />
+              <span>{heatmapActive ? "Heatmap On" : "Show Heatmap"}</span>
+            </button>
+            <div className={styles.verifiedCountBadge}>
+              <Sparkles size={11} />
+              <span>{verifiedCount} Verified Hazards</span>
+            </div>
+          </div>
+        </div>
+
+        {/* C. Quick Filter Chips horizontal row */}
+        <FilterChips
+          chips={QUICK_FILTERS}
+          activeId={activeFilter}
+          onChange={setActiveFilter}
+          className={styles.chipsScroll}
+        />
+
+        {/* Inline API Error alert */}
+        {apiError && (
+          <div style={{
+            background: "rgba(239, 68, 68, 0.08)",
+            border: "1px solid rgba(239, 68, 68, 0.25)",
+            borderRadius: "var(--radius-md)",
+            padding: "12px 16px",
+            margin: "0 16px 16px 16px",
+            color: "var(--text-primary)",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px"
+          }}>
+            <AlertTriangle size={18} style={{ color: "var(--status-danger)", flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: "0.82rem", fontWeight: 800 }}>Network Failure / Backend Error</div>
+              <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)" }}>{apiError}</div>
+            </div>
+            <button onClick={() => setApiError(null)} style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer" }}>
+              <X size={14} />
+            </button>
+          </div>
+        )}
+
         {loading ? (
-          <div style={{ padding: "2rem 0" }}>
+          <div style={{ padding: "1rem 16px" }}>
             <LoadingSkeleton count={3} height={120} />
           </div>
         ) : (
           <div className={styles.layoutScrollArea}>
-            
-            {/* B. Mini Live Map Hero */}
-            <div className={styles.mapRadarWrapper}>
-              <div className={styles.miniMapSandbox}>
-                <MapContainer 
-                  routes={[]} 
-                  selectedRouteId="" 
-                  onRouteSelect={() => {}} 
-                  center={mapCenter}
-                  zoom={mapZoom}
-                />
-              </div>
-
-              {/* Heatmap/Verifications overlays */}
-              <div className={`${styles.heatmapLayer} ${heatmapActive ? styles.heatmapActiveState : ""}`}>
-                {/* Simulated Heatmap glow dots */}
-                <div className={styles.heatPulse} style={{ top: "30%", left: "40%" }} />
-                <div className={styles.heatPulse} style={{ top: "60%", right: "30%" }} />
-                <div className={styles.heatPulse} style={{ bottom: "25%", left: "55%" }} />
-              </div>
-
-              <div className={styles.mapOverlayControls}>
-                <button 
-                  className={`${styles.heatmapToggleBtn} ${heatmapActive ? styles.activeHeatmapBtn : ""}`} 
-                  onClick={() => setHeatmapActive(!heatmapActive)}
-                >
-                  <Flame size={12} />
-                  <span>{heatmapActive ? "Heatmap On" : "Show Heatmap"}</span>
-                </button>
-                <div className={styles.verifiedCountBadge}>
-                  <Sparkles size={11} />
-                  <span>{verifiedCount} Verified Hazards</span>
-                </div>
-              </div>
-
-              {/* absolute coordinates pins */}
-              <div className={styles.radarRadarContainer}>
-                {filteredReports.map((r, idx) => {
-                  const offsets = [
-                    { top: "35px", left: "90px" },
-                    { bottom: "50px", right: "80px" },
-                    { top: "85px", right: "140px" },
-                    { bottom: "70px", left: "120px" }
-                  ];
-                  const activePos = offsets[idx % offsets.length];
-                  const isHighlighted = activeReportId === r.id;
-
-                  return (
-                    <div 
-                      key={r.id} 
-                      className={`${styles.mapAvatarMarker} ${isHighlighted ? styles.highlightedMarker : ""}`} 
-                      style={{ top: activePos.top, left: activePos.left, right: activePos.right, bottom: activePos.bottom }}
-                      onClick={() => handleSelectReport(r)}
-                    >
-                      <div className={styles.markerMiniInitials}>
-                        {r.type.substring(0, 1)}
-                      </div>
-                      <div className={styles.markerPulseBorder} />
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* C. Quick Filter Chips horizontal row */}
-            <FilterChips
-              chips={QUICK_FILTERS}
-              activeId={activeFilter}
-              onChange={setActiveFilter}
-              className={styles.chipsScroll}
-            />
-
             {/* D. Live timeline feed panel */}
             <div className={styles.feedPanel}>
-              {filteredReports.length === 0 ? (
+              {reports.length === 0 ? (
                 <EmptyState
-                  icon={<AlertTriangle size={32} className={styles.emptyIcon} />}
+                  icon={<AlertTriangle size={32} style={{ color: "var(--status-warning)" }} />}
                   title="No Alerts Reported"
-                  description="No alerts reported in this category."
+                  description="No hazards reported in this category."
                 />
               ) : (
                 <TimelineList>
-                  {filteredReports.map((report, idx) => {
+                  {reports.map((report) => {
                     const isExpanded = activeReportId === report.id;
-                    const timeLabel = `${((idx + 1) * 7)}m ago`;
+                    const reportedByUser = report.user_id ? `User #${report.user_id}` : "Anonymous";
+                    const reportTime = new Date(report.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                    const reportDate = new Date(report.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' });
                     const trustScore = 80 + (report.id % 19);
                     const aiConfidence = 85 + (report.id % 13);
                     const isVerified = report.id % 2 === 0;
+
+                    // Deduce Severity
+                    const severity = report.type === "Harassment" || report.type === "Stalking" ? "High" : "Moderate";
 
                     return (
                       <TimelineItem
@@ -275,7 +353,7 @@ export default function ReportsPage() {
                         id={report.id}
                         icon={getIncidentIcon(report.type)}
                         category={report.type}
-                        meta={`Nearby Area • ${timeLabel}`}
+                        meta={`${reportedByUser} • ${reportTime}, ${reportDate} • Status: ${isVerified ? "Verified" : "Pending"} • Severity: ${severity}`}
                         summary={`${report.description.substring(0, 56)}...`}
                         isVerified={isVerified}
                         isExpanded={isExpanded}
@@ -286,30 +364,45 @@ export default function ReportsPage() {
                         latitude={report.lat}
                         longitude={report.lng}
                         aiSummaryText={`AI Summary: Safety index decreased slightly on coordinates segments due to ${report.type.toLowerCase()} updates.`}
+                        onEdit={user && (report.user_id === user.id || !report.user_id) ? () => handleOpenEditModal(report) : undefined}
+                        onDelete={user && (report.user_id === user.id || !report.user_id) ? () => handleDeleteReport(report.id) : undefined}
                       />
                     );
                   })}
                 </TimelineList>
               )}
             </div>
-
           </div>
         )}
 
         {/* E. Floating report trigger button */}
-        <button className={styles.floatingReportBtn} onClick={() => setIsModalOpen(true)} aria-label="Submit Hazard Report">
+        <button className={styles.floatingReportBtn} onClick={handleOpenCreateModal} aria-label="Submit Hazard Report">
           <Plus size={20} />
           <span className={styles.floatingBtnText}>Report Incident</span>
         </button>
 
-        {/* Create Report Modal */}
+        {/* Create / Edit Report Modal */}
         <Modal 
           isOpen={isModalOpen} 
           onClose={() => setIsModalOpen(false)}
-          title="File Hazard Alert"
+          title={editingReportId !== null ? "Edit Hazard Alert" : "File Hazard Alert"}
           size="sm"
         >
-          <form onSubmit={handleCreateReport} className={styles.modalForm}>
+          <form onSubmit={handleFormSubmit} className={styles.modalForm}>
+            {modalError && (
+              <div style={{
+                background: "rgba(239, 68, 68, 0.08)",
+                border: "1px solid rgba(239, 68, 68, 0.25)",
+                borderRadius: "var(--radius-md)",
+                padding: "10px 14px",
+                marginBottom: "14px",
+                fontSize: "0.75rem",
+                color: "var(--text-primary)"
+              }}>
+                {modalError}
+              </div>
+            )}
+
             <div className={styles.coordinatesWarningText}>
               <span className={styles.redPulseDot} />
               <span>Location coordinates will resolve dynamically via your active mobile GPS.</span>
@@ -351,11 +444,35 @@ export default function ReportsPage() {
                 Cancel
               </Button>
               <Button type="submit" variant="emerald" isLoading={submitting}>
-                Publish Incident
+                {editingReportId !== null ? "Update Incident" : "Publish Incident"}
               </Button>
             </div>
           </form>
         </Modal>
+
+        {/* Premium Floating Success Toast */}
+        {successToast && (
+          <div style={{
+            position: "fixed",
+            bottom: "80px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "var(--accent-emerald)",
+            color: "#ffffff",
+            padding: "12px 24px",
+            borderRadius: "var(--radius-md)",
+            boxShadow: "var(--shadow-lg)",
+            zIndex: 3000,
+            fontWeight: 700,
+            fontSize: "0.85rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px"
+          }}>
+            <CheckCircle size={16} />
+            <span>{successToast}</span>
+          </div>
+        )}
 
       </div>
     </DashboardLayout>

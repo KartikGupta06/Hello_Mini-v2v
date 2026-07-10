@@ -24,12 +24,23 @@ export interface MapRoute {
   hotspots?: MapHotspot[];
 }
 
+export interface MapPinProp {
+  id: string | number;
+  lat: number;
+  lng: number;
+  label: string;
+  color: string;
+  isHighlighted?: boolean;
+}
+
 interface LeafletMapProps {
   routes: MapRoute[];
   selectedRouteId: string;
   onRouteSelect: (id: string) => void;
   center?: [number, number]; // [lng, lat]
   zoom?: number;
+  pins?: MapPinProp[];
+  onPinSelect?: (id: string | number) => void;
 }
 
 // ─── Internal map state refs (not React state to avoid re-renders) ────────────
@@ -92,6 +103,8 @@ const LeafletMapComponent: React.FC<LeafletMapProps> = ({
   onRouteSelect,
   center = [-73.9857, 40.7484],
   zoom = 14,
+  pins = [],
+  onPinSelect,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const refs = useRef<MapRefs>({
@@ -175,24 +188,6 @@ const LeafletMapComponent: React.FC<LeafletMapProps> = ({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // ── Re-render routes when data or selection changes ──────────────────────
-  useEffect(() => {
-    if (!refs.current.map) return;
-
-    const routesChanged = JSON.stringify(routes.map(r => r.id)) !== JSON.stringify(prevRoutesRef.current.map(r => r.id));
-    const selectionChanged = selectedRouteId !== prevSelectedRef.current;
-
-    if (!routesChanged && !selectionChanged) return;
-
-    import("leaflet").then((L) => {
-      if (!refs.current.map) return;
-      renderRoutes(L, refs.current.map);
-    });
-
-    prevRoutesRef.current = routes;
-    prevSelectedRef.current = selectedRouteId;
-  }, [routes, selectedRouteId]);
 
   // ── Core render function (pure side-effects on Leaflet) ──────────────────
   const renderRoutes = useCallback(
@@ -293,25 +288,62 @@ const LeafletMapComponent: React.FC<LeafletMapProps> = ({
             refs.current.markers.push(hsMarker);
           });
         }
+      }
 
-        // 4. Fit bounds to selected route
-        if (boundsCoords.length >= 2) {
-          try {
-            map.fitBounds(boundsCoords, {
-              padding: [60, 60],
-              animate: true,
-              duration: 0.8,
-              maxZoom: 16,
-            });
-          } catch {
-            // Bounds may fail if coords are invalid — silently ignore
+      // Render custom pins if provided
+      if (pins && pins.length > 0) {
+        pins.forEach((pin) => {
+          const pinMarker = L.marker([pin.lat, pin.lng], {
+            icon: createPulseIcon(L, pin.color, pin.isHighlighted ? 18 : 12),
+            zIndexOffset: pin.isHighlighted ? 2000 : 1000,
+          })
+            .addTo(map)
+            .bindTooltip(pin.label, { direction: "top", offset: [0, -10] });
+
+          if (onPinSelect) {
+            pinMarker.on("click", () => onPinSelect(pin.id));
           }
+
+          refs.current.markers.push(pinMarker);
+        });
+      }
+
+      // 4. Fit bounds to selected route or pins
+      if (boundsCoords.length >= 2) {
+        try {
+          map.fitBounds(boundsCoords, {
+            padding: [60, 60],
+            animate: true,
+            duration: 0.8,
+            maxZoom: 16,
+          });
+        } catch {
+          // Bounds may fail if coords are invalid — silently ignore
         }
+      } else if (pins && pins.length > 0 && map) {
+        // Fit map bounds to encompass all pins
+        try {
+          const pinCoords = pins.map(p => [p.lat, p.lng] as [number, number]);
+          map.fitBounds(pinCoords, { padding: [50, 50], maxZoom: 15 });
+        } catch {}
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [routes, selectedRouteId, onRouteSelect]
+    [routes, selectedRouteId, onRouteSelect, pins, onPinSelect]
   );
+
+  // ── Re-render routes when data, selection, or pins change ────────────────
+  useEffect(() => {
+    if (!refs.current.map) return;
+
+    import("leaflet").then((L) => {
+      if (!refs.current.map) return;
+      renderRoutes(L, refs.current.map);
+    });
+
+    prevRoutesRef.current = routes;
+    prevSelectedRef.current = selectedRouteId;
+  }, [routes, selectedRouteId, pins, renderRoutes]);
 
   return (
     <div

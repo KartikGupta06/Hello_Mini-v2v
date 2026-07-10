@@ -23,6 +23,8 @@ export interface TimelineItemProps {
   longitude: number;
   aiSummaryText?: string;
   className?: string;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
 export const TimelineItem: React.FC<TimelineItemProps> = ({
@@ -39,7 +41,9 @@ export const TimelineItem: React.FC<TimelineItemProps> = ({
   latitude,
   longitude,
   aiSummaryText,
-  className = ""
+  className = "",
+  onEdit,
+  onDelete
 }) => {
   return (
     <Card
@@ -123,6 +127,57 @@ export const TimelineItem: React.FC<TimelineItemProps> = ({
                   Lat: {latitude.toFixed(5)}° N, Lng: {longitude.toFixed(5)}° E
                 </span>
               </div>
+
+              {(onEdit || onDelete) && (
+                <div style={{ display: "flex", gap: "10px", marginTop: "14px", borderTop: "1px solid var(--border-light)", paddingTop: "10px", justifyContent: "flex-end" }}>
+                  {onEdit && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit();
+                      }}
+                      style={{
+                        background: "rgba(59, 130, 246, 0.08)",
+                        border: "1px solid rgba(59, 130, 246, 0.2)",
+                        color: "var(--accent-blue)",
+                        padding: "6px 12px",
+                        borderRadius: "var(--radius-sm)",
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px"
+                      }}
+                    >
+                      Edit Alert
+                    </button>
+                  )}
+                  {onDelete && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDelete();
+                      }}
+                      style={{
+                        background: "rgba(239, 68, 68, 0.08)",
+                        border: "1px solid rgba(239, 68, 68, 0.2)",
+                        color: "var(--status-danger)",
+                        padding: "6px 12px",
+                        borderRadius: "var(--radius-sm)",
+                        fontSize: "0.75rem",
+                        fontWeight: 700,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "4px"
+                      }}
+                    >
+                      Delete
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </motion.div>
         )}

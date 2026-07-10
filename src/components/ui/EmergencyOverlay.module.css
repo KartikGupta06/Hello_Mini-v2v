@@ -417,3 +417,69 @@
 .bottomBarActions {
   width: 100%;
 }
+
+.spinner {
+  animation: spin 1s linear infinite;
+  width: 32px;
+  height: 32px;
+  color: var(--status-danger);
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.errorAlertBlock {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  position: relative;
+  margin-top: 10px;
+}
+
+.errorAlertIcon {
+  color: var(--status-danger);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.errorAlertContent {
+  flex: 1;
+}
+
+.errorAlertTitle {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0 0 2px 0;
+}
+
+.errorAlertMessage {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.errorAlertDismissBtn {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.errorAlertDismissBtn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+}
