@@ -1,7 +1,13 @@
 import { fetchJson } from "../lib/api";
 import { User } from "../types";
 
+const DEV_MODE = true;
+
 export const AuthService = {
+  isDevMode: (): boolean => {
+    return DEV_MODE;
+  },
+
   login: async (email: string, password: string): Promise<User> => {
     // FastAPI OAuth2 expects form url-encoded data for username & password
     const body = new URLSearchParams();
@@ -39,10 +45,40 @@ export const AuthService = {
   },
 
   getCurrentUser: async (): Promise<User> => {
+    if (DEV_MODE) {
+      return {
+        id: 9999,
+        name: "Demo User",
+        email: "demo@saferoute.ai",
+        role: "user",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+    }
     return fetchJson<User>("/users/me");
   },
 
   updateUser: async (updates: { name?: string; email?: string; password?: string }): Promise<User> => {
+    if (DEV_MODE) {
+      const currentUser = AuthService.getSavedUser() || {
+        id: 9999,
+        name: "Demo User",
+        email: "demo@saferoute.ai",
+        role: "user",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      const updated = {
+        ...currentUser,
+        name: updates.name || currentUser.name,
+        email: updates.email || currentUser.email,
+        updated_at: new Date().toISOString()
+      };
+      if (typeof window !== "undefined") {
+        localStorage.setItem("user", JSON.stringify(updated));
+      }
+      return updated;
+    }
     const updatedUser = await fetchJson<User>("/users/me", {
       method: "PUT",
       body: JSON.stringify(updates),
@@ -54,6 +90,18 @@ export const AuthService = {
   },
 
   deleteUser: async (): Promise<User> => {
+    if (DEV_MODE) {
+      const currentUser = AuthService.getSavedUser() || {
+        id: 9999,
+        name: "Demo User",
+        email: "demo@saferoute.ai",
+        role: "user",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      AuthService.logout();
+      return currentUser;
+    }
     const response = await fetchJson<User>("/users/me", {
       method: "DELETE",
     });
@@ -70,6 +118,7 @@ export const AuthService = {
   },
 
   isAuthenticated: (): boolean => {
+    if (DEV_MODE) return true;
     if (typeof window !== "undefined") {
       return !!localStorage.getItem("token");
     }
@@ -86,6 +135,16 @@ export const AuthService = {
           return null;
         }
       }
+    }
+    if (DEV_MODE) {
+      return {
+        id: 9999,
+        name: "Demo User",
+        email: "demo@saferoute.ai",
+        role: "user",
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
     }
     return null;
   }

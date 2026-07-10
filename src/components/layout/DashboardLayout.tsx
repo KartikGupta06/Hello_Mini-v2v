@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Navbar, Sidebar } from "../ui";
+import { MobileHeader, BottomNavigation } from "../ui";
 import { AuthService } from "@/services/auth";
 import { LoadingSkeleton } from "../ui/LoadingSkeleton";
+import { motion } from "framer-motion";
 import styles from "./DashboardLayout.module.css";
 
 interface DashboardLayoutProps {
@@ -13,7 +14,6 @@ interface DashboardLayoutProps {
 
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const router = useRouter();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [authorized, setAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -28,19 +28,13 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
     setLoading(false);
   }, [router]);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  const closeSidebar = () => {
-    setIsSidebarOpen(false);
-  };
-
   if (loading) {
     return (
-      <div style={{ display: "flex", height: "100vh", alignItems: "center", justifyContent: "center", backgroundColor: "var(--bg-primary)" }}>
-        <div style={{ width: "300px" }}>
-          <LoadingSkeleton count={3} height={40} />
+      <div className={styles.desktopWrapper}>
+        <div className={styles.phoneViewport} style={{ justifyContent: "center", alignItems: "center" }}>
+          <div style={{ width: "260px" }}>
+            <LoadingSkeleton count={3} height={40} />
+          </div>
         </div>
       </div>
     );
@@ -51,15 +45,22 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   }
 
   return (
-    <div className={styles.container}>
-      <Navbar onMenuToggle={toggleSidebar} />
-      
-      <div className={styles.mainWrapper}>
-        <Sidebar isOpen={isSidebarOpen} onClose={closeSidebar} />
+    <div className={styles.desktopWrapper}>
+      <div className={styles.phoneViewport}>
+        <MobileHeader />
         
-        <main className={styles.content}>
-          <div className={styles.innerContent}>{children}</div>
+        <main className={styles.contentArea}>
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            style={{ height: "100%" }}
+          >
+            {children}
+          </motion.div>
         </main>
+
+        <BottomNavigation />
       </div>
     </div>
   );

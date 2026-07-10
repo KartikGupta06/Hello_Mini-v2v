@@ -1,134 +1,133 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { 
   ShieldAlert, 
   MapPin, 
-  Users, 
-  MessageSquareWarning, 
-  ArrowUpRight, 
-  TrendingUp, 
-  CheckCircle,
-  Eye,
-  AlertTriangle
+  Search, 
+  Building, 
+  Heart, 
+  Navigation,
+  ArrowRight,
+  CloudSun,
+  AlertTriangle,
+  Award,
+  ChevronRight
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Card, SectionHeader, SafetyScoreCard, Button, Badge, LoadingSkeleton } from "@/components/ui";
+import { Card, Badge, LoadingSkeleton } from "@/components/ui";
 import { JourneyService } from "@/services/journeys";
 import { ContactService } from "@/services/contacts";
 import { SafetyService } from "@/services/safety";
-import { JourneyHistory, EmergencyContact, SafetyReport } from "@/types";
+import { AuthService } from "@/services/auth";
+import { JourneyHistory, EmergencyContact } from "@/types";
 import styles from "./Dashboard.module.css";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const [trips, setTrips] = useState<JourneyHistory[]>([]);
-  const [contactsCount, setContactsCount] = useState(0);
-  const [alertsCount, setAlertsCount] = useState(0);
-  const [avgSafetyScore, setAvgSafetyScore] = useState(90);
+  const [user, setUser] = useState<any>(null);
   
-  // Geolocation & Safety score states
-  const [locationName, setLocationName] = useState("Current Location (Midtown Manhattan)");
-  const [currentScore, setCurrentScore] = useState(85);
-  const [confidence, setConfidence] = useState(95);
-  const [reasons, setReasons] = useState<string[]>([
-    "Area is highly illuminated by public street lights.",
-    "No historical crime incidents recorded within 200m.",
-    "Nearest police station is 300m away."
-  ]);
+  // Data counts & dynamic scores
+  const [recentTrip, setRecentTrip] = useState<JourneyHistory | null>(null);
+  const [currentScore, setCurrentScore] = useState(92);
+  const [reasons, setReasons] = useState<string[]>([]);
+  const [nearestPlaces, setNearestPlaces] = useState<any[]>([]);
 
   useEffect(() => {
-    async function loadDashboardData() {
+    async function loadHomeData() {
       setLoading(true);
       try {
-        // 1. Fetch historical journeys
-        const fetchedTrips = await JourneyService.getJourneys({ limit: 5 });
-        setTrips(fetchedTrips);
+        // Load authenticated profile
+        const activeUser = AuthService.getSavedUser();
+        setUser(activeUser);
 
-        // Calculate average safety score from history if available
-        const scoredTrips = fetchedTrips.filter(t => t.safety_score !== null && t.safety_score !== undefined);
-        if (scoredTrips.length > 0) {
-          const sum = scoredTrips.reduce((acc, t) => acc + (t.safety_score || 0), 0);
-          setAvgSafetyScore(Math.round(sum / scoredTrips.length));
+        // Fetch recent trip
+        const fetchedTrips = await JourneyService.getJourneys({ limit: 1 });
+        if (fetchedTrips && fetchedTrips.length > 0) {
+          setRecentTrip(fetchedTrips[0]);
         }
 
-        // 2. Fetch emergency contacts count
-        const fetchedContacts = await ContactService.getContacts();
-        setContactsCount(fetchedContacts.length);
+        // Fetch browser GPS and safety details
+        let lat = 28.5306; // South Delhi Saket default
+        let lng = 77.2045;
 
-        // 3. Fetch community hazards count
-        const fetchedReports = await SafetyService.getReports({ limit: 50 });
-        setAlertsCount(fetchedReports.length);
-
-        // 4. Fetch dynamic safety score for current coordinates
         if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(
-            async (position) => {
-              const { latitude, longitude } = position.coords;
-              setLocationName(`Current Location (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`);
-              try {
-                const scoreRes = await SafetyService.getSafetyScore(latitude, longitude);
-                setCurrentScore(Math.round(scoreRes.safety_score));
-                setConfidence(Math.round(scoreRes.confidence_percentage));
-                setReasons(scoreRes.reasons);
-              } catch (e) {
-                console.error("Failed to query geolocation safety score:", e);
-              }
-            },
-            async (err) => {
-              // Fallback to Midtown Manhattan default coordinates
-              console.warn("Geolocation permission denied, using default coordinates.", err);
-              const defLat = 40.7484;
-              const defLng = -73.9857;
-              try {
-                const scoreRes = await SafetyService.getSafetyScore(defLat, defLng);
-                setCurrentScore(Math.round(scoreRes.safety_score));
-                setConfidence(Math.round(scoreRes.confidence_percentage));
-                setReasons(scoreRes.reasons);
-              } catch (e) {
-                console.error("Failed to query default location safety score:", e);
-              }
-            }
-          );
+          await new Promise<void>((resolve) => {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                lat = pos.coords.latitude;
+                lng = pos.coords.longitude;
+                resolve();
+              },
+              () => {
+                console.warn("Using default coordinates for South Delhi");
+                resolve();
+              },
+              { timeout: 3000 }
+            );
+          });
         }
+
+        // Fetch score index
+        try {
+          const scoreRes = await SafetyService.getSafetyScore(lat, lng);
+          setCurrentScore(Math.round(scoreRes.safety_score));
+          setReasons(scoreRes.reasons);
+        } catch (err) {
+          console.error("Score fetch failed:", err);
+        }
+
+        // Fetch nearest police and hospitals
+        try {
+          const stationsRes = await SafetyService.getPoliceStations("South Delhi");
+          const hospitalsRes = await SafetyService.getHospitals("South Delhi");
+          
+          const stations = stationsRes.data || [];
+          const hospitals = hospitalsRes.data || [];
+          
+          const combined = [
+            ...stations.map(s => ({ ...s, type: "police" })),
+            ...hospitals.map(h => ({ ...h, type: "hospital" }))
+          ].slice(0, 3);
+          
+          setNearestPlaces(combined);
+        } catch (err) {
+          console.error("Safe zones query failed:", err);
+        }
+
       } catch (err) {
-        console.error("Failed to load dashboard parameters:", err);
+        console.error("Failed to load home page requirements:", err);
       } finally {
         setLoading(false);
       }
     }
 
-    loadDashboardData();
+    loadHomeData();
   }, []);
 
-  const stats = [
-    {
-      title: "Average Safety Index",
-      value: `${avgSafetyScore}/100`,
-      description: trips.length > 0 ? "Computed from your travel history" : "Default base safety rating",
-      icon: <TrendingUp size={20} className={styles.iconBlue} />
-    },
-    {
-      title: "Guardian Network",
-      value: `${contactsCount} ${contactsCount === 1 ? "Contact" : "Contacts"}`,
-      description: "Registered emergency recipients",
-      icon: <Users size={20} className={styles.iconEmerald} />
-    },
-    {
-      title: "Active Area Alerts",
-      value: `${alertsCount} Safety ${alertsCount === 1 ? "Report" : "Reports"}`,
-      description: "Hazard logs flagged by community",
-      icon: <MessageSquareWarning size={20} className={styles.iconAmber} />
-    }
-  ];
+  const getGreeting = () => {
+    const hr = new Date().getHours();
+    if (hr < 12) return "Good morning";
+    if (hr < 17) return "Good afternoon";
+    return "Good evening";
+  };
+
+  const getSafetySummary = (score: number) => {
+    if (score >= 85) return "Your current area is well-lit and considered safe for walking.";
+    if (score >= 70) return "Moderately safe area. Walk on main thoroughfares where possible.";
+    return "Alert: Elevated local hazards flagged. Consider sharing live coordinates.";
+  };
 
   if (loading) {
     return (
       <DashboardLayout>
-        <div style={{ padding: "2rem" }}>
-          <SectionHeader title="Safety Dashboard" subtitle="Loading secure environment parameters..." />
-          <LoadingSkeleton count={4} height={100} />
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", padding: "8px 0" }}>
+          <LoadingSkeleton count={1} height={60} />
+          <LoadingSkeleton count={1} height={180} />
+          <LoadingSkeleton count={1} height={56} />
+          <LoadingSkeleton count={1} height={160} />
         </div>
       </DashboardLayout>
     );
@@ -137,130 +136,149 @@ export default function DashboardPage() {
   return (
     <DashboardLayout>
       <div className={styles.container}>
-        {/* Title */}
-        <SectionHeader 
-          title="Safety Dashboard" 
-          subtitle="Real-time security analytics and safety scoring index"
-          action={
-            <Link href="/emergency">
-              <Button variant="danger" size="md" leftIcon={<ShieldAlert size={18} />}>
-                Trigger Emergency SOS
-              </Button>
-            </Link>
-          }
-        />
-
-        {/* Safety Score Card Section */}
-        <div className={styles.topSection}>
-          <div className={styles.scoreWrapper}>
-            <SafetyScoreCard 
-              score={currentScore} 
-              locationName={locationName}
-              explanations={reasons}
-              confidenceScore={confidence}
-            />
+        
+        {/* 1. Top Greeting Header */}
+        <div className={styles.headerSection}>
+          <div className={styles.greetingCol}>
+            <span className={styles.greetingText}>{getGreeting()},</span>
+            <h2 className={styles.userName}>{user?.name || "User"}</h2>
           </div>
+          <div className={styles.weatherWidget}>
+            <CloudSun size={18} className={styles.weatherIcon} />
+            <span className={styles.weatherText}>New Delhi • 30°C</span>
+          </div>
+        </div>
 
-          {/* Quick Actions Card */}
-          <Card className={styles.actionsCard} glass={true}>
-            <h3 className={styles.actionsTitle}>Quick Navigation Actions</h3>
-            <div className={styles.actionsGrid}>
-              <Link href="/navigation" className={styles.actionBtn}>
-                <div className={styles.actionIconWrapper}>
-                  <MapPin size={18} />
-                </div>
-                <div className={styles.actionText}>
-                  <span className={styles.actionName}>New Safety Trip</span>
-                  <span className={styles.actionDesc}>Calculate secure pathways</span>
-                </div>
-                <ArrowUpRight size={16} className={styles.arrowIcon} />
-              </Link>
-
-              <Link href="/reports" className={styles.actionBtn}>
-                <div className={styles.actionIconWrapper}>
-                  <MessageSquareWarning size={18} />
-                </div>
-                <div className={styles.actionText}>
-                  <span className={styles.actionName}>File Incident Report</span>
-                  <span className={styles.actionDesc}>Crowdsource local risk alert</span>
-                </div>
-                <ArrowUpRight size={16} className={styles.arrowIcon} />
-              </Link>
+        {/* 2. Primary Action Hero: Floating Search Bar */}
+        <div className={styles.searchHero} onClick={() => router.push("/navigation")}>
+          <div className={styles.searchInputMock}>
+            <Search size={20} className={styles.searchBarIcon} />
+            <span className={styles.searchPlaceholder}>Where do you want to go?</span>
+            <div className={styles.searchGoBtn}>
+              <Navigation size={14} className={styles.navigationArrow} />
             </div>
-          </Card>
-        </div>
-
-        {/* Stats Grid */}
-        <div className={styles.statsGrid}>
-          {stats.map((stat, index) => (
-            <Card key={index} glass={true} padding="md" className={styles.statCard}>
-              <div className={styles.statHeader}>
-                <span className={styles.statTitle}>{stat.title}</span>
-                <div className={styles.statIcon}>{stat.icon}</div>
-              </div>
-              <div className={styles.statValue}>{stat.value}</div>
-              <p className={styles.statDesc}>{stat.description}</p>
-            </Card>
-          ))}
-        </div>
-
-        {/* Recent Trips Section */}
-        <div className={styles.recentSection}>
-          <div className={styles.recentHeaderRow}>
-            <h3 className={styles.recentHeading}>Recent Safely Navigated Trips</h3>
-            <Link href="/navigation" className={styles.viewAllLink}>
-              <span>Plan new route</span>
-              <ArrowUpRight size={14} />
-            </Link>
           </div>
+        </div>
 
-          {trips.length === 0 ? (
-            <Card glass={true} padding="md" className={styles.tripItem} style={{ justifyContent: "center", color: "var(--text-secondary)" }}>
-              No recent trips logged. Start navigating to record paths.
-            </Card>
-          ) : (
-            <div className={styles.tripsList}>
-              {trips.map((trip, idx) => {
-                const isSafe = (trip.safety_score || 0) >= 80;
-                const badgeVariant = isSafe ? ("success" as const) : ("warning" as const);
-                const scoreClass = isSafe ? styles["score-success"] : styles["score-warning"];
-                
-                return (
-                  <Card key={idx} glass={true} padding="sm" className={styles.tripItem}>
-                    <div className={styles.tripInfo}>
-                      <div className={styles.tripDestRow}>
-                        <MapPin size={16} className={styles.pinIcon} />
-                        <span className={styles.tripDestName}>{trip.destination}</span>
-                      </div>
-                      <span className={styles.tripDate}>
-                        {new Date(trip.created_at).toLocaleDateString(undefined, {
-                          month: "short",
-                          day: "numeric",
-                          hour: "2-digit",
-                          minute: "2-digit"
-                        })}
-                      </span>
-                    </div>
-
-                    <div className={styles.tripMetrics}>
-                      <Badge variant={badgeVariant} glow={true}>
-                        {trip.status === "completed" ? "Completed Walk" : "Active Navigation"}
-                      </Badge>
-                      <div className={styles.tripScoreBox}>
-                        <span className={scoreClass} style={{ fontSize: "1.25rem", fontWeight: "bold" }}>
-                          {trip.safety_score || "--"}
-                        </span>
-                        <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", marginLeft: "4px" }}>
-                          Score
-                        </span>
-                      </div>
-                    </div>
-                  </Card>
-                );
-              })}
+        {/* 3. Premium Safety Card */}
+        <Card glass={true} padding="md" className={styles.safetyScoreCard}>
+          <div className={styles.scoreTopRow}>
+            <div className={styles.scoreProgressCol}>
+              <span className={styles.scoreCardTitle}>AI Area Safety Rating</span>
+              <div className={styles.scoreRow}>
+                <span className={styles.scoreNum}>{currentScore}</span>
+                <span className={styles.scoreScale}>/100</span>
+              </div>
+            </div>
+            <Badge variant={currentScore >= 85 ? "success" : currentScore >= 70 ? "warning" : "danger"} glow={true}>
+              {currentScore >= 85 ? "High Safety" : currentScore >= 70 ? "Moderate" : "Low Safety"}
+            </Badge>
+          </div>
+          <p className={styles.scoreDescription}>
+            {getSafetySummary(currentScore)}
+          </p>
+          {reasons.length > 0 && (
+            <div className={styles.reasonBadgeRow}>
+              <span className={styles.reasonBadgeDot} />
+              <span className={styles.reasonText}>{reasons[0]}</span>
             </div>
           )}
+        </Card>
+
+        {/* 4. Mini Map Preview */}
+        <div className={styles.miniMapWrapper} onClick={() => router.push("/navigation")}>
+          <div className={styles.miniMapContent}>
+            {/* Simulated Vector Roads Map Overlay */}
+            <svg className={styles.mapSvg} viewBox="0 0 400 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 0,90 Q 200,30 400,90" stroke="rgba(255,255,255,0.06)" strokeWidth="8" strokeLinecap="round" />
+              <path d="M 0,90 Q 200,150 400,90" stroke="rgba(16,185,129,0.3)" strokeWidth="5" strokeLinecap="round" strokeDasharray="3 3" />
+              <path d="M 0,90 Q 200,150 400,90" stroke="rgba(16,185,129,0.7)" strokeWidth="3" strokeLinecap="round" />
+              
+              <circle cx="200" cy="120" r="14" fill="rgba(59,130,246,0.15)" />
+              <circle cx="200" cy="120" r="6" fill="#3b82f6" />
+              <circle cx="200" cy="120" r="2" fill="#ffffff" />
+              
+              <text x="200" y="152" fill="var(--text-secondary)" fontSize="9" fontWeight="600" textAnchor="middle" fontFamily="var(--font-sans)">
+                Your Location
+              </text>
+            </svg>
+            <div className={styles.mapLabelCard}>
+              <Navigation size={12} className={styles.labelArrow} />
+              <span>Tap to preview safest route</span>
+            </div>
+          </div>
         </div>
+
+        {/* 5. Nearby Safety: Horizontal scroll list */}
+        <div className={styles.sectionBlock}>
+          <h3 className={styles.sectionTitle}>Nearby Safe Zones</h3>
+          <div className={styles.horizontalScroll}>
+            {nearestPlaces.length === 0 ? (
+              <div className={styles.emptyScrollCard}>
+                Locating nearby emergency support stations...
+              </div>
+            ) : (
+              nearestPlaces.map((place, idx) => (
+                <Card 
+                  key={idx} 
+                  glass={true} 
+                  padding="sm" 
+                  className={styles.scrollCard}
+                  onClick={() => router.push("/nearby")}
+                >
+                  <div className={styles.scrollCardHeader}>
+                    <div className={place.type === "police" ? styles.policeIconBg : styles.hospitalIconBg}>
+                      {place.type === "police" ? <Building size={16} /> : <Heart size={16} />}
+                    </div>
+                    <span className={styles.scrollCardDist}>
+                      {place.distance_meters ? `${(place.distance_meters / 1000).toFixed(1)} km` : "Nearby"}
+                    </span>
+                  </div>
+                  <h4 className={styles.scrollCardName}>{place.name}</h4>
+                  <span className={styles.scrollCardSub}>
+                    {place.type === "police" ? "Active Guard Post" : "24/7 Medical Care"}
+                  </span>
+                </Card>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* 6. Recent Activity Section */}
+        {recentTrip && (
+          <div className={styles.sectionBlock} style={{ marginBottom: "20px" }}>
+            <div className={styles.recentHeaderRow}>
+              <h3 className={styles.sectionTitle}>Recent Walk Activity</h3>
+              <button className={styles.viewAllBtn} onClick={() => router.push("/settings")}>
+                History <ChevronRight size={14} />
+              </button>
+            </div>
+            
+            <Card 
+              glass={true} 
+              padding="sm" 
+              className={styles.compactTripCard}
+              onClick={() => router.push("/navigation")}
+            >
+              <div className={styles.compactTripLeft}>
+                <div className={styles.tripBadgeCircle}>
+                  <Award size={16} className={styles.tripIconEmerald} />
+                </div>
+                <div className={styles.tripInfoCol}>
+                  <span className={styles.tripDestText}>{recentTrip.destination}</span>
+                  <span className={styles.tripTimeText}>
+                    {new Date(recentTrip.created_at).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric"
+                    })} • Safety Score: {recentTrip.safety_score}%
+                  </span>
+                </div>
+              </div>
+              <ArrowRight size={16} className={styles.tripChevron} />
+            </Card>
+          </div>
+        )}
+
       </div>
     </DashboardLayout>
   );

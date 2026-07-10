@@ -1,275 +1,442 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 24px;
-}
-
-.topSection {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-}
-
-@media (min-width: 1024px) {
-  .topSection {
-    grid-template-columns: 1.6fr 1fr;
-  }
-}
-
-.scoreWrapper {
-  width: 100%;
-}
-
-.actionsCard {
-  border: 1px solid var(--border-light);
-  display: flex;
-  flex-direction: column;
   gap: 16px;
-  justify-content: center;
+  padding: 4px 0 16px 0;
+  font-family: var(--font-sans);
 }
 
-.actionsTitle {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.actionsGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.actionBtn {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 14px;
-  background-color: var(--bg-tertiary);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  transition: all var(--transition-normal);
-}
-
-.actionBtn:hover {
-  background-color: rgba(255, 255, 255, 0.04);
-  border-color: var(--border-medium);
-}
-
-.actionIconWrapper {
-  background-color: rgba(59, 130, 246, 0.1);
-  color: var(--accent-blue);
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.actionText {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
-
-.actionName {
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.actionDesc {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.arrowIcon {
-  color: var(--text-muted);
-  transition: color var(--transition-fast);
-}
-
-.actionBtn:hover .arrowIcon {
-  color: var(--text-primary);
-}
-
-.statsGrid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 16px;
-}
-
-@media (min-width: 640px) {
-  .statsGrid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-.statCard {
-  border: 1px solid var(--border-light);
-}
-
-.statHeader {
+/* 1. Header Greeting section */
+.headerSection {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-top: 4px;
 }
 
-.statTitle {
-  font-size: 0.8rem;
-  font-weight: 700;
+.greetingCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.greetingText {
+  font-size: 0.85rem;
   color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.userName {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  margin: 0;
+  background: linear-gradient(to right, var(--text-primary), rgba(255,255,255,0.7));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.weatherWidget {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 6px 12px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.weatherIcon {
+  color: var(--status-warning, #f59e0b);
+}
+
+.weatherText {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+
+/* 2. Primary Search Hero CTA */
+.searchHero {
+  cursor: pointer;
+  width: 100%;
+}
+
+.searchInputMock {
+  display: flex;
+  align-items: center;
+  padding: 0 8px 0 16px;
+  height: 54px;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  box-shadow: 
+    0 10px 25px -5px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255,255,255,0.02);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.searchInputMock:hover {
+  background: rgba(15, 23, 42, 0.85);
+  border-color: rgba(59, 130, 246, 0.35);
+  transform: translateY(-1px);
+}
+
+.searchBarIcon {
+  color: var(--text-secondary);
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.searchPlaceholder {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  flex: 1;
+}
+
+.searchGoBtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.35);
+}
+
+.navigationArrow {
+  transform: rotate(45deg);
+}
+
+/* 3. Safety Score Card */
+.safetyScoreCard {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.04), rgba(59, 130, 246, 0.02));
+  border: 1px solid rgba(16, 185, 129, 0.15) !important;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.safetyScoreCard:active {
+  transform: scale(0.99);
+}
+
+.scoreTopRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.scoreProgressCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.scoreCardTitle {
+  font-size: 0.75rem;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  color: var(--accent-emerald, #10b981);
 }
 
-.statIcon {
+.scoreRow {
+  display: flex;
+  align-items: baseline;
+  margin-top: 4px;
+}
+
+.scoreNum {
+  font-size: 2.5rem;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  background: linear-gradient(to right, #ffffff, #10b981);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.scoreScale {
+  font-size: 1rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-left: 2px;
+}
+
+.scoreDescription {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin: 12px 0 0 0;
+  font-weight: 500;
+}
+
+.reasonBadgeRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.reasonBadgeDot {
+  width: 6px;
+  height: 6px;
+  background-color: var(--accent-emerald);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.reasonText {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* 4. Mini Map Preview */
+.miniMapWrapper {
+  cursor: pointer;
+  width: 100%;
+}
+
+.miniMapContent {
+  position: relative;
+  height: 120px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(15, 23, 42, 0.4);
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.iconBlue {
-  color: var(--accent-blue);
+.mapSvg {
+  width: 100%;
+  height: 100%;
 }
 
-.iconEmerald {
-  color: var(--accent-emerald);
-}
-
-.iconAmber {
-  color: var(--status-warning);
-}
-
-.statValue {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 800;
+.mapLabelCard {
+  position: absolute;
+  bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(9, 13, 22, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
   color: var(--text-primary);
-  line-height: 1.1;
-  margin-bottom: 4px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
-.statDesc {
-  font-size: 0.75rem;
+.labelArrow {
+  color: var(--accent-emerald);
+  animation: bounceRight 1.5s infinite;
+}
+
+@keyframes bounceRight {
+  0%, 100% {
+    transform: translateX(0) rotate(45deg);
+  }
+  50% {
+    transform: translateX(3px) rotate(45deg);
+  }
+}
+
+/* 5. Generic Section structures */
+.sectionBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sectionTitle {
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Horizontal scroll collection alignment */
+.horizontalScroll {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.horizontalScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.emptyScrollCard {
+  width: 100%;
+  padding: 20px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+}
+
+.scrollCard {
+  flex: 0 0 160px;
+  scroll-snap-align: start;
+  background: rgba(15, 23, 42, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.scrollCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.scrollCardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.policeIconBg {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(59, 130, 246, 0.12);
+  color: var(--accent-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hospitalIconBg {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--status-danger);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.scrollCardDist {
+  font-size: 0.72rem;
+  font-weight: 700;
   color: var(--text-muted);
 }
 
-.recentSection {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.scrollCardName {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 10px 0 2px 0;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+.scrollCardSub {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* 6. Recent Activity */
 .recentHeaderRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.recentHeading {
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.viewAllLink {
+.viewAllBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--accent-blue);
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.85rem;
-  color: var(--accent-blue);
-  font-weight: 600;
+  gap: 2px;
 }
 
-.viewAllLink:hover {
-  text-decoration: underline;
-}
-
-.tripsList {
+.compactTripCard {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.compactTripCard:hover {
+  background: rgba(15, 23, 42, 0.6) !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.compactTripLeft {
+  display: flex;
+  align-items: center;
   gap: 12px;
 }
 
-.tripItem {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  border: 1px solid var(--border-light);
-}
-
-@media (min-width: 640px) {
-  .tripItem {
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-  }
-}
-
-.tripInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.tripDestRow {
+.tripBadgeCircle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(16, 185, 129, 0.1);
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
 }
 
-.pinIcon {
-  color: var(--accent-blue);
+.tripIconEmerald {
+  color: var(--accent-emerald);
 }
 
-.tripDestName {
-  font-size: 0.95rem;
+.tripInfoCol {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tripDestText {
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--text-primary);
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.tripDate {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-}
-
-.tripMetrics {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  justify-content: space-between;
-}
-
-.tripScoreBox {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.scoreLabel {
-  font-size: 0.65rem;
+.tripTimeText {
+  font-size: 0.7rem;
   color: var(--text-muted);
-  text-transform: uppercase;
+  font-weight: 500;
 }
 
-.scoreNumber {
-  font-family: var(--font-display);
-  font-size: 1.1rem;
-  font-weight: 800;
-}
-
-.score-success {
-  color: var(--status-success);
-}
-
-.score-warning {
-  color: var(--status-warning);
+.tripChevron {
+  color: var(--text-muted);
 }

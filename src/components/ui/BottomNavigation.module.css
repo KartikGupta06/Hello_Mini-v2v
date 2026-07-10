@@ -1,0 +1,136 @@
+.bottomNav {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 76px;
+  background: rgba(9, 13, 22, 0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 1000;
+  padding-bottom: env(safe-area-inset-bottom, 8px);
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.6);
+}
+
+.navItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.7rem;
+  font-weight: 500;
+  height: 100%;
+  transition: all 0.2s ease;
+  font-family: var(--font-sans);
+}
+
+.navItem:hover {
+  color: var(--text-primary);
+}
+
+.active {
+  color: var(--accent-blue);
+  font-weight: 600;
+}
+
+.iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s ease;
+}
+
+.navItem:active .iconWrapper {
+  transform: scale(0.9);
+}
+
+.label {
+  letter-spacing: 0.01em;
+}
+
+.sosButtonWrapper {
+  position: relative;
+  bottom: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  z-index: 1010;
+  width: 68px;
+  height: 68px;
+}
+
+.sosButton {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ef4444, #b91c1c);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 4px 15px rgba(239, 68, 68, 0.4),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.sosButtonWrapper:hover .sosButton {
+  transform: scale(1.05);
+  box-shadow: 
+    0 6px 20px rgba(239, 68, 68, 0.6),
+    inset 0 2px 4px rgba(255, 255, 255, 0.3);
+}
+
+.sosButtonWrapper:active .sosButton {
+  transform: scale(0.95);
+}
+
+.sosLabel {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #ef4444;
+  margin-top: 4px;
+  letter-spacing: 0.02em;
+  font-family: var(--font-sans);
+}
+
+.sosPulse {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background-color: rgba(239, 68, 68, 0.4);
+  z-index: 1;
+  animation: sosGlowPulse 2.5s infinite;
+  pointer-events: none;
+}
+
+@keyframes sosGlowPulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+}

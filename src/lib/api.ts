@@ -37,7 +37,9 @@ export async function fetchJson<T>(endpoint: string, options?: RequestInit): Pro
     headers: mergedHeaders,
   });
 
-  if (response.status === 401) {
+  const DEV_MODE = true;
+
+  if (response.status === 401 && !DEV_MODE) {
     // Session token expired or invalid, trigger logout redirect
     if (typeof window !== "undefined") {
       localStorage.removeItem("token");
