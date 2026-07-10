@@ -29,13 +29,7 @@ import { User, EmergencyContact } from "@/types";
 import styles from "./Navigation.module.css";
 
 
-const MOCK_SUGGESTIONS = [
-  { name: "Malviya Nagar Police Station Area, South Delhi", coords: [77.2045, 28.5306] },
-  { name: "Saket Metro District, South Delhi", coords: [77.2083, 28.5233] },
-  { name: "Delhi Police - Mehrauli Area, South Delhi", coords: [77.1779, 28.5262] },
-  { name: "Times Square Broadway District, NYC", coords: [-73.9851, 40.7580] },
-  { name: "Union Square Park District, NYC", coords: [-73.9911, 40.7359] }
-];
+
 
 const QUICK_FILTERS = [
   { label: "Safest", id: "safest" },
@@ -71,6 +65,10 @@ export default function NavigationPage() {
   const [destFocused, setDestFocused] = useState(false);
   const [sheetExpanded, setSheetExpanded] = useState(false);
   const [activeFilter, setActiveFilter] = useState("safest");
+  const [originSuggestions, setOriginSuggestions] = useState<{name: string, coords: [number, number]}[]>([]);
+  const [destSuggestions, setDestSuggestions] = useState<{name: string, coords: [number, number]}[]>([]);
+  const [isSearchingOrigin, setIsSearchingOrigin] = useState(false);
+  const [isSearchingDest, setIsSearchingDest] = useState(false);
 
   // Active Walk States
   const [activeJourneyId, setActiveJourneyId] = useState<number | null>(null);
@@ -94,6 +92,48 @@ export default function NavigationPage() {
     loadEmergencyData();
   }, []);
 
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (!originFocused || origin.length < 3) {
+        setOriginSuggestions([]);
+        setIsSearchingOrigin(false);
+        return;
+      }
+      setIsSearchingOrigin(true);
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(origin)}&limit=5&countrycodes=in`);
+        const data = await res.json();
+        setOriginSuggestions(data.map((d: any) => ({ name: d.display_name, coords: [parseFloat(d.lon), parseFloat(d.lat)] })));
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsSearchingOrigin(false);
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [origin, originFocused]);
+
+  useEffect(() => {
+    const timer = setTimeout(async () => {
+      if (!destFocused || destination.length < 3) {
+        setDestSuggestions([]);
+        setIsSearchingDest(false);
+        return;
+      }
+      setIsSearchingDest(true);
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(destination)}&limit=5&countrycodes=in`);
+        const data = await res.json();
+        setDestSuggestions(data.map((d: any) => ({ name: d.display_name, coords: [parseFloat(d.lon), parseFloat(d.lat)] })));
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setIsSearchingDest(false);
+      }
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [destination, destFocused]);
+
   // Rotate AI Insights during walk navigation
   useEffect(() => {
     if (!activeWalkMode) return;
@@ -106,10 +146,29 @@ export default function NavigationPage() {
   const loadEmergencyData = async () => {
     try {
       const contacts = await ContactService.getContacts();
-      setEmergencyContacts(contacts.slice(0, 2));
+      setEmergencyContacts(contacts);
       
-      const stations = await SafetyService.getPoliceStations("South Delhi");
-      setSafePlaces(stations.data.slice(0, 2));
+      const sosData = await SafetyService.triggerSOS({ latitude: originCoords[1], longitude: originCoords[0] });
+      const dynamicSafePlaces = [];
+      if (sosData.nearest_police) {
+        dynamicSafePlaces.push({
+          id: 'police_1',
+          name: sosData.nearest_police.name,
+          address: sosData.nearest_police.address || `${sosData.nearest_police.distance_m}m away`,
+          phone: sosData.nearest_police.contact_number,
+          type: 'police_station'
+        });
+      }
+      if (sosData.nearest_hospital) {
+        dynamicSafePlaces.push({
+          id: 'hospital_1',
+          name: sosData.nearest_hospital.name,
+          address: sosData.nearest_hospital.address || `${sosData.nearest_hospital.distance_m}m away`,
+          phone: sosData.nearest_hospital.contact_number,
+          type: 'hospital'
+        });
+      }
+      setSafePlaces(dynamicSafePlaces);
     } catch (e) {
       console.error("Failed to load emergency overlay details:", e);
     }
@@ -309,18 +368,22 @@ export default function NavigationPage() {
                       className={styles.premiumInput}
                     />
                     <Mic size={14} className={styles.micIcon} />
-                    {originFocused && (
+                    {originFocused && (originSuggestions.length > 0 || isSearchingOrigin) && (
                       <div className={styles.suggestionsList}>
-                        {MOCK_SUGGESTIONS.map((s, idx) => (
-                          <div 
-                            key={idx} 
-                            onMouseDown={() => handleSuggestClick(s.name, s.coords, "origin")} 
-                            className={styles.suggestPill}
-                          >
-                            <MapPin size={12} />
-                            <span>{s.name}</span>
-                          </div>
-                        ))}
+                        {isSearchingOrigin ? (
+                          <div className={styles.suggestPill} style={{ color: "var(--text-muted)" }}>Searching...</div>
+                        ) : (
+                          originSuggestions.map((s, idx) => (
+                            <div 
+                              key={idx} 
+                              onMouseDown={() => handleSuggestClick(s.name, s.coords, "origin")} 
+                              className={styles.suggestPill}
+                            >
+                              <MapPin size={12} />
+                              <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.name}</span>
+                            </div>
+                          ))
+                        )}
                       </div>
                     )}
                   </div>
@@ -337,18 +400,22 @@ export default function NavigationPage() {
                       className={styles.premiumInput}
                     />
                     <Mic size={14} className={styles.micIcon} />
-                    {destFocused && (
+                    {destFocused && (destSuggestions.length > 0 || isSearchingDest) && (
                       <div className={styles.suggestionsList}>
-                        {MOCK_SUGGESTIONS.map((s, idx) => (
-                          <div 
-                            key={idx} 
-                            onMouseDown={() => handleSuggestClick(s.name, s.coords, "dest")} 
-                            className={styles.suggestPill}
-                          >
-                            <MapPin size={12} />
-                            <span>{s.name}</span>
-                          </div>
-                        ))}
+                        {isSearchingDest ? (
+                          <div className={styles.suggestPill} style={{ color: "var(--text-muted)" }}>Searching...</div>
+                        ) : (
+                          destSuggestions.map((s, idx) => (
+                            <div 
+                              key={idx} 
+                              onMouseDown={() => handleSuggestClick(s.name, s.coords, "dest")} 
+                              className={styles.suggestPill}
+                            >
+                              <MapPin size={12} />
+                              <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.name}</span>
+                            </div>
+                          ))
+                        )}
                       </div>
                     )}
                   </div>
@@ -417,12 +484,12 @@ export default function NavigationPage() {
               <div className={styles.verticalSafetyDivider} />
               <div className={styles.safetyBarMetric}>
                 <span className={styles.safetyBarLabel}>Risk Profile</span>
-                <span className={styles.safetyBarRiskText}>Low Risk</span>
+                <span className={styles.safetyBarRiskText}>{activeRouteData.riskLevel}</span>
               </div>
               <div className={styles.verticalSafetyDivider} />
               <div className={styles.safetyBarMetric}>
-                <span className={styles.safetyBarLabel}>AI Channel</span>
-                <span className={styles.safetyBarShield}>🛡️ Enforced</span>
+                <span className={styles.safetyBarLabel}>AI Confidence</span>
+                <span className={styles.safetyBarShield}>🛡️ {activeRouteData.confidence}%</span>
               </div>
             </div>
 
@@ -637,15 +704,21 @@ export default function NavigationPage() {
                 <h4 className={styles.resultsSubtitle}>Quick Call Guardians</h4>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
                   {emergencyContacts.length === 0 ? (
-                    <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
-                      No guardians configured. Go to Profile Settings page to add.
-                    </span>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "10px", marginTop: "4px", padding: "12px", background: "rgba(255, 255, 255, 0.05)", borderRadius: "var(--radius-md)", border: "1px dashed var(--border)" }}>
+                      <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", lineHeight: 1.4 }}>
+                        No guardians configured.<br/>
+                        Add trusted contacts from the Profile/Guardian section to enable one-tap emergency calling during unsafe situations.
+                      </span>
+                      <Button variant="outline" size="sm" onClick={() => router.push("/guardian")} style={{ width: "fit-content", fontSize: "0.75rem", padding: "6px 12px" }}>
+                        + Add Guardian
+                      </Button>
+                    </div>
                   ) : (
                     emergencyContacts.map(c => (
                       <div key={c.id} className={styles.shortcutContactRow}>
                         <div style={{ display: "flex", flexDirection: "column" }}>
                           <span style={{ fontSize: "0.8rem", fontWeight: "700", color: "var(--text-primary)" }}>{c.name}</span>
-                          <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>{c.relationship_type || "Guardian"}</span>
+                          <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>{c.relationship_type || "Guardian"} • {c.phone}</span>
                         </div>
                         <button onClick={() => window.location.href = `tel:${c.phone}`} className={styles.callShortcutBtn} aria-label={`Call ${c.name}`}>
                           <Phone size={14} />
@@ -658,32 +731,50 @@ export default function NavigationPage() {
 
               {/* C. Safe Havens nearby list */}
               <div className={styles.havensShortcutSection}>
-                <h4 className={styles.resultsSubtitle}>Emergency Safe places</h4>
+                <h4 className={styles.resultsSubtitle}>🚨 Emergency Safe Places</h4>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
-                  {safePlaces.map(s => (
-                    <div key={s.id} className={styles.shortcutContactRow}>
-                      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                        <div className={styles.smallHavenIconBg}>
-                          <Building size={14} />
+                  {safePlaces.length === 0 ? (
+                    <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                      No nearby emergency services found. Please call 112 directly.
+                    </span>
+                  ) : (
+                    safePlaces.map(s => (
+                      <div key={s.id} className={styles.shortcutContactRow}>
+                        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                          <div className={styles.smallHavenIconBg}>
+                            {s.type === 'hospital' ? <Building size={14} color="#ef4444" /> : <Building size={14} color="#3b82f6" />}
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column" }}>
+                            <span style={{ fontSize: "0.75rem", fontWeight: "700", color: "var(--text-primary)" }}>{s.name}</span>
+                            <span style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>{s.address}</span>
+                          </div>
                         </div>
-                        <div style={{ display: "flex", flexDirection: "column" }}>
-                          <span style={{ fontSize: "0.75rem", fontWeight: "700", color: "var(--text-primary)" }}>{s.name}</span>
-                          <span style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>{s.address}</span>
+                        <div style={{ display: "flex", gap: "6px" }}>
+                          {s.phone && (
+                            <button 
+                              onClick={() => window.location.href = `tel:${s.phone}`}
+                              className={styles.callShortcutBtn}
+                              aria-label={`Call ${s.name}`}
+                              style={{ width: "32px", height: "32px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--border)", background: "transparent", color: "var(--text-primary)" }}
+                            >
+                              <Phone size={14} />
+                            </button>
+                          )}
+                          <button 
+                            onClick={() => {
+                              setDestination(s.name);
+                              setSuccessToast(`Routing path to shelter: ${s.name}`);
+                              setTimeout(() => setSuccessToast(null), 3000);
+                            }} 
+                            className={styles.directHavenBtn}
+                            aria-label={`Route to shelter ${s.name}`}
+                          >
+                            <NavIcon size={12} style={{ transform: "rotate(45deg)" }} />
+                          </button>
                         </div>
                       </div>
-                      <button 
-                        onClick={() => {
-                          setDestination(s.name);
-                          setSuccessToast(`Routing path to shelter: ${s.name}`);
-                          setTimeout(() => setSuccessToast(null), 3000);
-                        }} 
-                        className={styles.directHavenBtn}
-                        aria-label={`Route to shelter ${s.name}`}
-                      >
-                        <NavIcon size={12} style={{ transform: "rotate(45deg)" }} />
-                      </button>
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
 
