@@ -136,13 +136,12 @@
   gap: 6px;
 }
 
-.menuOnlineDot {
-  width: 8px;
-  height: 8px;
-  background-color: #FFB7C5; /* Baby Pink */
+.headerLogo {
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: inline-block;
-  box-shadow: 0 0 8px rgba(255, 183, 197, 0.4);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .menuIcon {

@@ -71,7 +71,7 @@ export const MobileHeader: React.FC = () => {
             <button className={styles.iconBtn} aria-label="Open menu">
               <Menu size={22} className={styles.menuIcon} />
             </button>
-            <span className={styles.menuOnlineDot} />
+            <img src="/logo.png" alt="SafeRoute AI" className={styles.headerLogo} />
           </div>
         ) : (
           <div className={styles.logoIndicator}>
