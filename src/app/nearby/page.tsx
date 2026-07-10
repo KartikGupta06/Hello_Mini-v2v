@@ -16,7 +16,9 @@ import {
   AlertTriangle,
   Lightbulb,
   Compass,
-  Sparkles
+  Sparkles,
+  CheckCircle,
+  X
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -87,6 +89,10 @@ export default function NearbyPage() {
   
   const [mapCenter, setMapCenter] = useState<[number, number]>([77.2083, 28.5233]);
   const [mapZoom, setMapZoom] = useState(14);
+
+  // Polish States
+  const [successToast, setSuccessToast] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
 
   useEffect(() => {
     loadHavens();
@@ -161,7 +167,8 @@ export default function NearbyPage() {
       const nearest = displayedPlaces[0];
       router.push(`/navigation?dest=${encodeURIComponent(nearest.name)}`);
     } else {
-      alert("No safe places discovered nearby.");
+      setApiError("No safe places discovered nearby.");
+      setTimeout(() => setApiError(null), 4000);
     }
   };
 
@@ -346,11 +353,19 @@ export default function NearbyPage() {
                               Navigate
                             </Button>
                             
-                            <button onClick={() => alert(`Calling haven desk: ${place.name}...`)} className={styles.roundActionBtn}>
+                            <button onClick={() => window.location.href = `tel:${place.phone || "112"}`} className={styles.roundActionBtn} aria-label={`Call ${place.name}`}>
                               <Phone size={12} />
                             </button>
                             
-                            <button onClick={() => alert("Haven sharing link copied.")} className={styles.roundActionBtn}>
+                            <button 
+                              onClick={() => {
+                                navigator.clipboard.writeText(window.location.origin + `/nearby?id=${place.id}`);
+                                setSuccessToast("Safe haven sharing link copied!");
+                                setTimeout(() => setSuccessToast(null), 3000);
+                              }} 
+                              className={styles.roundActionBtn}
+                              aria-label="Share Haven Location"
+                            >
                               <Share2 size={12} />
                             </button>
                           </div>
@@ -375,6 +390,58 @@ export default function NearbyPage() {
           </div>
         )}
 
+        {/* Floating Success Toast */}
+        {successToast && (
+          <div style={{
+            position: "fixed",
+            bottom: "90px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "var(--accent-emerald)",
+            color: "#ffffff",
+            padding: "12px 24px",
+            borderRadius: "var(--radius-md)",
+            boxShadow: "var(--shadow-lg)",
+            zIndex: 3000,
+            fontWeight: 700,
+            fontSize: "0.85rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px"
+          }}>
+            <CheckCircle size={16} />
+            <span>{successToast}</span>
+          </div>
+        )}
+
+        {/* Inline API Error Alert Overlay */}
+        {apiError && (
+          <div style={{
+            position: "fixed",
+            top: "80px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "rgba(239, 68, 68, 0.95)",
+            backdropFilter: "blur(12px)",
+            border: "1px solid rgba(255, 255, 255, 0.15)",
+            color: "#ffffff",
+            padding: "10px 20px",
+            borderRadius: "var(--radius-md)",
+            boxShadow: "var(--shadow-md)",
+            zIndex: 3000,
+            fontSize: "0.8rem",
+            fontWeight: 700,
+            display: "flex",
+            alignItems: "center",
+            gap: "10px"
+          }}>
+            <AlertTriangle size={14} />
+            <span>{apiError}</span>
+            <button onClick={() => setApiError(null)} style={{ background: "none", border: "none", color: "#ffffff", cursor: "pointer", marginLeft: "10px", padding: 0 }}>
+              <X size={12} />
+            </button>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );

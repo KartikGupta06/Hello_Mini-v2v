@@ -50,6 +50,18 @@
   transition: transform 0.2s ease;
 }
 
+.activeCapsule {
+  background: rgba(59, 130, 246, 0.08);
+  border-radius: 12px;
+  padding: 4px 14px;
+  color: var(--accent-blue);
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
 .navItem:active .iconWrapper {
   transform: scale(0.9);
 }

@@ -68,7 +68,7 @@ export const BottomNavigation: React.FC = () => {
             href={item.href}
             className={`${styles.navItem} ${isActive ? styles.active : ""}`}
           >
-            <div className={styles.iconWrapper}>{item.icon}</div>
+            <div className={`${styles.iconWrapper} ${isActive ? styles.activeCapsule : ""}`}>{item.icon}</div>
             <span className={styles.label}>{item.label}</span>
           </Link>
         );

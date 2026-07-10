@@ -19,13 +19,13 @@ interface MapFloatingControlsProps {
 
 export const MapFloatingControls: React.FC<MapFloatingControlsProps> = ({
   bottom = "120px",
-  onRecenter = () => alert("Recentering map view..."),
-  onToggleLayers = () => alert("Layer options toggled."),
+  onRecenter = () => {},
+  onToggleLayers = () => {},
   onToggleMute,
   isMuted = false,
   showMute = false,
-  onLocate = () => alert("GPS verification active."),
-  onCompass = () => alert("Compass orientation active."),
+  onLocate = () => {},
+  onCompass = () => {},
   className = ""
 }) => {
   return (

@@ -16,7 +16,10 @@ import {
   MessageSquare,
   Compass,
   MapPin,
-  Sparkles
+  Sparkles,
+  CheckCircle,
+  AlertTriangle,
+  X
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -49,6 +52,12 @@ export default function GuardianPage() {
   // Keep track of currently selected guardian in Hero
   const [selectedIdx, setSelectedIdx] = useState(0);
 
+  // Polish state variables
+  const [successToast, setSuccessToast] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [modalError, setModalError] = useState<string | null>(null);
+  const [deleteContactId, setDeleteContactId] = useState<number | null>(null);
+
   useEffect(() => {
     setUser(AuthService.getSavedUser());
     fetchContacts();
@@ -67,11 +76,21 @@ export default function GuardianPage() {
     }
   };
 
+  const handleOpenAddModal = () => {
+    setNewName("");
+    setNewPhone("");
+    setNewRelationship("");
+    setIsPrimary(false);
+    setModalError(null);
+    setIsModalOpen(true);
+  };
+
   const handleAddContact = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newName || !newPhone || !user) return;
     
     setSubmitting(true);
+    setModalError(null);
     try {
       const formattedPhone = newPhone.startsWith("+") ? newPhone : `+${newPhone.replace(/\D/g, "")}`;
       
@@ -89,9 +108,11 @@ export default function GuardianPage() {
       setNewPhone("");
       setNewRelationship("");
       setIsPrimary(false);
+      setSuccessToast("Contact added to safety circle!");
       await fetchContacts();
+      setTimeout(() => setSuccessToast(null), 3000);
     } catch (err: any) {
-      alert(err.message || "Failed to save contact.");
+      setModalError(err.message || "Failed to save contact.");
     } finally {
       setSubmitting(false);
     }
@@ -106,18 +127,25 @@ export default function GuardianPage() {
     }
   };
 
-  const handleDeleteContact = async (id: number) => {
-    if (!confirm("Are you sure you want to remove this contact from your circle?")) return;
+  const executeDeleteContact = async (id: number) => {
     try {
       await ContactService.deleteContact(id);
+      setSuccessToast("Contact removed from safety circle.");
       await fetchContacts();
-    } catch (e) {
+      setTimeout(() => setSuccessToast(null), 3000);
+    } catch (e: any) {
       console.error("Failed to delete contact:", e);
+      setApiError(e.message || "Failed to delete contact.");
     }
   };
 
+  const handleDeleteContact = (id: number) => {
+    setDeleteContactId(id);
+  };
+
   const handleNotifyCircle = () => {
-    alert("Alert sent! Notified all Trust Circle members of your current location coordinates.");
+    setSuccessToast("Location coordinates broadcast sent to safety circle!");
+    setTimeout(() => setSuccessToast(null), 3000);
   };
 
   return (
@@ -135,10 +163,33 @@ export default function GuardianPage() {
               {contacts.length} Secure {contacts.length === 1 ? "Guardian" : "Guardians"}
             </span>
           </div>
-          <button onClick={() => setIsModalOpen(true)} className={styles.addGuardianBtn} aria-label="Add Guardian contact">
+          <button onClick={handleOpenAddModal} className={styles.addGuardianBtn} aria-label="Add Guardian contact">
             <Plus size={18} />
           </button>
         </div>
+
+        {apiError && (
+          <div style={{
+            background: "rgba(239, 68, 68, 0.08)",
+            border: "1px solid rgba(239, 68, 68, 0.25)",
+            borderRadius: "var(--radius-md)",
+            padding: "12px 16px",
+            margin: "0 16px 16px 16px",
+            color: "var(--text-primary)",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px"
+          }}>
+            <AlertTriangle size={18} style={{ color: "var(--status-danger)", flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: "0.82rem", fontWeight: 800 }}>Guardian Circle Error</div>
+              <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)" }}>{apiError}</div>
+            </div>
+            <button type="button" onClick={() => setApiError(null)} style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer" }}>
+              <X size={14} />
+            </button>
+          </div>
+        )}
 
         {loading ? (
           <div style={{ padding: "2rem 0" }}>
@@ -187,7 +238,7 @@ export default function GuardianPage() {
                 title="Your Trust Circle is empty"
                 description="Secure your path by adding friends or emergency contacts to track your walks."
                 action={
-                  <Button variant="emerald" onClick={() => setIsModalOpen(true)}>
+                  <Button variant="emerald" onClick={handleOpenAddModal}>
                     Set Up Guardians
                   </Button>
                 }
@@ -277,7 +328,7 @@ export default function GuardianPage() {
 
                         <div className={styles.guardianActionsCol}>
                           <button 
-                            onClick={() => alert(`Calling ${contact.name} (${contact.phone})...`)} 
+                            onClick={() => window.location.href = `tel:${contact.phone}`} 
                             className={styles.roundActionBtn}
                             aria-label={`Call ${contact.name}`}
                           >
@@ -285,7 +336,10 @@ export default function GuardianPage() {
                           </button>
                           
                           <button 
-                            onClick={() => alert(`Opening chat conversation with ${contact.name}...`)} 
+                            onClick={() => {
+                              setSuccessToast(`Opening secure chat stream with ${contact.name}...`);
+                              setTimeout(() => setSuccessToast(null), 3000);
+                            }} 
                             className={styles.roundActionBtn}
                             aria-label={`Message ${contact.name}`}
                           >
@@ -352,6 +406,19 @@ export default function GuardianPage() {
           size="sm"
         >
           <form onSubmit={handleAddContact} className={styles.modalForm}>
+            {modalError && (
+              <div style={{
+                background: "rgba(239, 68, 68, 0.08)",
+                border: "1px solid rgba(239, 68, 68, 0.25)",
+                borderRadius: "var(--radius-md)",
+                padding: "10px 14px",
+                marginBottom: "14px",
+                fontSize: "0.75rem",
+                color: "var(--text-primary)"
+              }}>
+                {modalError}
+              </div>
+            )}
             <Input 
               label="Full Name"
               value={newName}
@@ -402,6 +469,57 @@ export default function GuardianPage() {
             </div>
           </form>
         </Modal>
+
+        {/* Custom Deletion Contact Modal */}
+        <Modal
+          isOpen={deleteContactId !== null}
+          onClose={() => setDeleteContactId(null)}
+          title="Remove Circle Member"
+          size="sm"
+        >
+          <div style={{ padding: "8px 0", display: "flex", flexDirection: "column", gap: "16px" }}>
+            <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.4 }}>
+              Are you sure you want to remove this contact from your circle?
+            </p>
+            <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+              <Button type="button" variant="secondary" onClick={() => setDeleteContactId(null)}>
+                Cancel
+              </Button>
+              <Button type="button" variant="danger" onClick={async () => {
+                if (deleteContactId !== null) {
+                  await executeDeleteContact(deleteContactId);
+                  setDeleteContactId(null);
+                }
+              }}>
+                Remove
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
+        {/* Success Toast */}
+        {successToast && (
+          <div style={{
+            position: "fixed",
+            bottom: "90px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "var(--accent-emerald)",
+            color: "#ffffff",
+            padding: "12px 24px",
+            borderRadius: "var(--radius-md)",
+            boxShadow: "var(--shadow-lg)",
+            zIndex: 3000,
+            fontWeight: 700,
+            fontSize: "0.85rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px"
+          }}>
+            <CheckCircle size={16} />
+            <span>{successToast}</span>
+          </div>
+        )}
 
       </div>
     </DashboardLayout>

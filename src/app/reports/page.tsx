@@ -63,6 +63,7 @@ export default function ReportsPage() {
   const [apiError, setApiError] = useState<string | null>(null);
   const [modalError, setModalError] = useState<string | null>(null);
   const [successToast, setSuccessToast] = useState<string | null>(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<number | null>(null);
 
   useEffect(() => {
     setUser(AuthService.getSavedUser());
@@ -167,9 +168,7 @@ export default function ReportsPage() {
     }
   };
 
-  const handleDeleteReport = async (id: number) => {
-    const confirmed = window.confirm("Are you sure you want to delete this community hazard alert?");
-    if (!confirmed) return;
+  const executeDeleteReport = async (id: number) => {
     setLoading(true);
     setApiError(null);
     try {
@@ -183,6 +182,10 @@ export default function ReportsPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDeleteReport = (id: number) => {
+    setDeleteConfirmId(id);
   };
 
   const getIncidentIcon = (type: ReportCategory) => {
@@ -450,6 +453,33 @@ export default function ReportsPage() {
           </form>
         </Modal>
 
+        {/* Custom Delete Confirmation Modal */}
+        <Modal
+          isOpen={deleteConfirmId !== null}
+          onClose={() => setDeleteConfirmId(null)}
+          title="Confirm Hazard Deletion"
+          size="sm"
+        >
+          <div style={{ padding: "8px 0", display: "flex", flexDirection: "column", gap: "16px" }}>
+            <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.4 }}>
+              Are you sure you want to delete this community hazard alert? This action is permanent and cannot be undone.
+            </p>
+            <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+              <Button type="button" variant="secondary" onClick={() => setDeleteConfirmId(null)}>
+                Cancel
+              </Button>
+              <Button type="button" variant="danger" onClick={async () => {
+                if (deleteConfirmId !== null) {
+                  await executeDeleteReport(deleteConfirmId);
+                  setDeleteConfirmId(null);
+                }
+              }}>
+                Delete Alert
+              </Button>
+            </div>
+          </div>
+        </Modal>
+
         {/* Premium Floating Success Toast */}
         {successToast && (
           <div style={{
@@ -473,7 +503,6 @@ export default function ReportsPage() {
             <span>{successToast}</span>
           </div>
         )}
-
       </div>
     </DashboardLayout>
   );

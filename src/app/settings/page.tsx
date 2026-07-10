@@ -16,7 +16,10 @@ import {
   Lock, 
   Info, 
   HelpCircle,
-  Phone
+  Phone,
+  CheckCircle,
+  AlertTriangle,
+  X
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, SectionHeader, Button, Input, Modal } from "@/components/ui";
@@ -60,6 +63,13 @@ export default function SettingsPage() {
   const [deleting, setDeleting] = useState(false);
   const [savingContact, setSavingContact] = useState(false);
 
+  // Polish state handlers
+  const [successToast, setSuccessToast] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [modalError, setModalError] = useState<string | null>(null);
+  const [isDeleteAccountModalOpen, setIsDeleteAccountModalOpen] = useState(false);
+  const [deleteContactId, setDeleteContactId] = useState<number | null>(null);
+
   useEffect(() => {
     const usr = AuthService.getSavedUser();
     if (usr) {
@@ -85,6 +95,7 @@ export default function SettingsPage() {
     if (!profileName || !profileEmail) return;
 
     setSaving(true);
+    setApiError(null);
     try {
       const payload: { name: string; email: string; password?: string } = {
         name: profileName,
@@ -97,27 +108,29 @@ export default function SettingsPage() {
       const updated = await AuthService.updateUser(payload);
       setCurrentUser(updated);
       setPassword("");
-      alert("Settings successfully saved to your profile!");
+      setSuccessToast("Profile settings saved successfully!");
+      setTimeout(() => setSuccessToast(null), 3000);
     } catch (err: any) {
-      alert(err.message || "Failed to update profile settings.");
+      setApiError(err.message || "Failed to update profile settings.");
     } finally {
       setSaving(false);
     }
   };
 
-  const handleDeleteAccount = async () => {
-    const confirmed = confirm(
-      "WARNING: This action is permanent. Deleting your account will completely purge your profile, saved routes, emergency contacts, and journey history. Do you wish to proceed?"
-    );
-    if (!confirmed) return;
-
+  const executeDeleteAccount = async () => {
     setDeleting(true);
+    setApiError(null);
+    setIsDeleteAccountModalOpen(false);
     try {
       await AuthService.deleteUser();
     } catch (err: any) {
-      alert(err.message || "Failed to delete account.");
+      setApiError(err.message || "Failed to delete account.");
       setDeleting(false);
     }
+  };
+
+  const handleDeleteAccount = () => {
+    setIsDeleteAccountModalOpen(true);
   };
 
   // Contact operations
@@ -127,6 +140,7 @@ export default function SettingsPage() {
     setContactPhone("");
     setContactRel("");
     setContactPrimary(false);
+    setModalError(null);
     setIsContactModalOpen(true);
   };
 
@@ -136,6 +150,7 @@ export default function SettingsPage() {
     setContactPhone(contact.phone);
     setContactRel(contact.relationship_type || "");
     setContactPrimary(contact.is_primary);
+    setModalError(null);
     setIsContactModalOpen(true);
   };
 
@@ -144,6 +159,7 @@ export default function SettingsPage() {
     if (!contactName || !contactPhone || !currentUser) return;
 
     setSavingContact(true);
+    setModalError(null);
     try {
       const formattedPhone = contactPhone.startsWith("+") ? contactPhone : `+${contactPhone.replace(/\D/g, "")}`;
       
@@ -154,6 +170,7 @@ export default function SettingsPage() {
           relationship_type: contactRel || "Contact",
           is_primary: contactPrimary
         });
+        setSuccessToast("Contact updated successfully!");
       } else {
         await ContactService.createContact({
           name: contactName,
@@ -162,24 +179,32 @@ export default function SettingsPage() {
           is_primary: contactPrimary,
           user_id: currentUser.id
         });
+        setSuccessToast("Contact added to safety circle!");
       }
       setIsContactModalOpen(false);
       await loadContacts();
+      setTimeout(() => setSuccessToast(null), 3000);
     } catch (err: any) {
-      alert(err.message || "Failed to save contact.");
+      setModalError(err.message || "Failed to save contact.");
     } finally {
       setSavingContact(false);
     }
   };
 
-  const handleDeleteContact = async (id: number) => {
-    if (!confirm("Are you sure you want to remove this contact?")) return;
+  const executeDeleteContact = async (id: number) => {
     try {
       await ContactService.deleteContact(id);
+      setSuccessToast("Contact removed from safety circle.");
       await loadContacts();
-    } catch (e) {
+      setTimeout(() => setSuccessToast(null), 3000);
+    } catch (e: any) {
       console.error("Failed to delete contact:", e);
+      setApiError(e.message || "Failed to delete contact.");
     }
+  };
+
+  const handleDeleteContact = (id: number) => {
+    setDeleteContactId(id);
   };
 
   const handleMarkPrimary = async (id: number) => {
@@ -198,6 +223,29 @@ export default function SettingsPage() {
           title="Application Settings" 
           subtitle="Configure your profile, safety triggers, and path algorithms"
         />
+
+        {apiError && (
+          <div style={{
+            background: "rgba(239, 68, 68, 0.08)",
+            border: "1px solid rgba(239, 68, 68, 0.25)",
+            borderRadius: "var(--radius-md)",
+            padding: "12px 16px",
+            marginBottom: "16px",
+            color: "var(--text-primary)",
+            display: "flex",
+            alignItems: "center",
+            gap: "12px"
+          }}>
+            <AlertTriangle size={18} style={{ color: "var(--status-danger)", flexShrink: 0 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: "0.82rem", fontWeight: 800 }}>Profile Settings Error</div>
+              <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)" }}>{apiError}</div>
+            </div>
+            <button type="button" onClick={() => setApiError(null)} style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer" }}>
+              <X size={14} />
+            </button>
+          </div>
+        )}
 
         <form onSubmit={handleSave} className={styles.settingsGrid}>
           {/* 1. User Account Card */}
@@ -545,6 +593,19 @@ export default function SettingsPage() {
         size="sm"
       >
         <form onSubmit={handleSaveContact} className={styles.modalFormGroup}>
+          {modalError && (
+            <div style={{
+              background: "rgba(239, 68, 68, 0.08)",
+              border: "1px solid rgba(239, 68, 68, 0.25)",
+              borderRadius: "var(--radius-md)",
+              padding: "10px 14px",
+              marginBottom: "14px",
+              fontSize: "0.75rem",
+              color: "var(--text-primary)"
+            }}>
+              {modalError}
+            </div>
+          )}
           <Input 
             label="Full Name"
             value={contactName}
@@ -589,6 +650,79 @@ export default function SettingsPage() {
           </div>
         </form>
       </Modal>
+
+      {/* Custom Deletion Account Modal */}
+      <Modal
+        isOpen={isDeleteAccountModalOpen}
+        onClose={() => setIsDeleteAccountModalOpen(false)}
+        title="Confirm Account Deletion"
+        size="sm"
+      >
+        <div style={{ padding: "8px 0", display: "flex", flexDirection: "column", gap: "16px" }}>
+          <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.4 }}>
+            WARNING: This action is permanent. Deleting your account will completely purge your profile, saved routes, emergency contacts, and journey history. Do you wish to proceed?
+          </p>
+          <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+            <Button type="button" variant="secondary" onClick={() => setIsDeleteAccountModalOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="button" variant="danger" onClick={executeDeleteAccount} isLoading={deleting}>
+              Delete Permanent
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Custom Deletion Contact Modal */}
+      <Modal
+        isOpen={deleteContactId !== null}
+        onClose={() => setDeleteContactId(null)}
+        title="Remove Contact"
+        size="sm"
+      >
+        <div style={{ padding: "8px 0", display: "flex", flexDirection: "column", gap: "16px" }}>
+          <p style={{ fontSize: "0.82rem", color: "var(--text-secondary)", margin: 0, lineHeight: 1.4 }}>
+            Are you sure you want to remove this contact from your safety circle?
+          </p>
+          <div style={{ display: "flex", gap: "8px", justifyContent: "flex-end" }}>
+            <Button type="button" variant="secondary" onClick={() => setDeleteContactId(null)}>
+              Cancel
+            </Button>
+            <Button type="button" variant="danger" onClick={async () => {
+              if (deleteContactId !== null) {
+                await executeDeleteContact(deleteContactId);
+                setDeleteContactId(null);
+              }
+            }}>
+              Remove
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Success Toast */}
+      {successToast && (
+        <div style={{
+          position: "fixed",
+          bottom: "90px",
+          left: "50%",
+          transform: "translateX(-50%)",
+          background: "var(--accent-emerald)",
+          color: "#ffffff",
+          padding: "12px 24px",
+          borderRadius: "var(--radius-md)",
+          boxShadow: "var(--shadow-lg)",
+          zIndex: 3000,
+          fontWeight: 700,
+          fontSize: "0.85rem",
+          display: "flex",
+          alignItems: "center",
+          gap: "8px"
+        }}>
+          <CheckCircle size={16} />
+          <span>{successToast}</span>
+        </div>
+      )}
     </DashboardLayout>
   );
 }

@@ -14,6 +14,9 @@ import {
   ChevronLeft,
   Phone,
   Building,
+  CheckCircle,
+  AlertTriangle,
+  X
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, Button, Badge, MapContainer, FilterChips, AIInsightCard, RouteCard, MapFloatingControls, SlidingBottomSheet } from "@/components/ui";
@@ -77,6 +80,9 @@ export default function NavigationPage() {
   const [navSheetExpanded, setNavSheetExpanded] = useState(false);
   const [emergencyContacts, setEmergencyContacts] = useState<EmergencyContact[]>([]);
   const [safePlaces, setSafePlaces] = useState<any[]>([]);
+  
+  // Polish States
+  const [successToast, setSuccessToast] = useState<string | null>(null);
 
   // Dynamic calculations container
   const [dynamicRoutes, setDynamicRoutes] = useState<any[]>([]);
@@ -366,7 +372,11 @@ export default function NavigationPage() {
               <span className={styles.resultsHeaderSub}>Destination</span>
               <h3 className={styles.resultsHeaderDest}>{destination.split(",")[0]}</h3>
             </div>
-            <button className={styles.shareResultsBtn} onClick={() => alert("Route sharing link copied.")}>
+             <button className={styles.shareResultsBtn} onClick={() => {
+              navigator.clipboard.writeText(window.location.origin + `/navigation?dest=${encodeURIComponent(destination)}`);
+              setSuccessToast("Route link copied to clipboard!");
+              setTimeout(() => setSuccessToast(null), 3000);
+            }}>
               <Share2 size={18} />
             </button>
           </div>
@@ -602,7 +612,7 @@ export default function NavigationPage() {
                           <span style={{ fontSize: "0.8rem", fontWeight: "700", color: "var(--text-primary)" }}>{c.name}</span>
                           <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>{c.relationship_type || "Guardian"}</span>
                         </div>
-                        <button onClick={() => alert(`Dialing guardian ${c.name} (${c.phone})...`)} className={styles.callShortcutBtn}>
+                        <button onClick={() => window.location.href = `tel:${c.phone}`} className={styles.callShortcutBtn} aria-label={`Call ${c.name}`}>
                           <Phone size={14} />
                         </button>
                       </div>
@@ -626,7 +636,15 @@ export default function NavigationPage() {
                           <span style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>{s.address}</span>
                         </div>
                       </div>
-                      <button onClick={() => alert(`Displaying path directly to shelter: ${s.name}...`)} className={styles.directHavenBtn}>
+                      <button 
+                        onClick={() => {
+                          setDestination(s.name);
+                          setSuccessToast(`Routing path to shelter: ${s.name}`);
+                          setTimeout(() => setSuccessToast(null), 3000);
+                        }} 
+                        className={styles.directHavenBtn}
+                        aria-label={`Route to shelter ${s.name}`}
+                      >
                         <NavIcon size={12} style={{ transform: "rotate(45deg)" }} />
                       </button>
                     </div>
@@ -645,6 +663,29 @@ export default function NavigationPage() {
           </SlidingBottomSheet>
         )}
 
+        {/* Floating Success Toast */}
+        {successToast && (
+          <div style={{
+            position: "fixed",
+            bottom: "90px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            background: "var(--accent-emerald)",
+            color: "#ffffff",
+            padding: "12px 24px",
+            borderRadius: "var(--radius-md)",
+            boxShadow: "var(--shadow-lg)",
+            zIndex: 3000,
+            fontWeight: 700,
+            fontSize: "0.85rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "8px"
+          }}>
+            <CheckCircle size={16} />
+            <span>{successToast}</span>
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
