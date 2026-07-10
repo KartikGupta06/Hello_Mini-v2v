@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     API_VERSION: str = "v1"
     ENVIRONMENT: str = "development"
     APP_VERSION: str = "1.0.0"
+    DEMO_USER_PASSWORD: str = "password123"
 
     JWT_SECRET: str
     JWT_ALGORITHM: str = "HS256"

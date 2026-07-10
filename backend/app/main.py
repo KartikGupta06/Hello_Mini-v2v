@@ -15,6 +15,7 @@ from app.middleware.errors import (
     generic_exception_handler,
 )
 from app.api.v1.endpoints import health, auth, users, contacts, journeys, reports, police, hospitals, street_lights, cctv, crimes, sos
+from app.startup.initializer import initialize_application
 
 import time
 
@@ -31,6 +32,9 @@ async def lifespan(app: FastAPI):
         print("Database connectivity verified successfully on startup.")
     except Exception as e:
         print(f"CRITICAL: Database connectivity failed on startup: {e}")
+    
+    # Run production initialization
+    await initialize_application()
     
     yield
     
