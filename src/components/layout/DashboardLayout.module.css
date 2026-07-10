@@ -35,7 +35,7 @@
   flex: 1;
   overflow-y: auto;
   padding: 16px;
-  padding-bottom: 92px; /* Bottom Nav (76px) + safe area padding */
+  padding-bottom: calc(120px + env(safe-area-inset-bottom, 20px));
   scroll-behavior: smooth;
   background-color: var(--bg-primary);
   background-image: 
