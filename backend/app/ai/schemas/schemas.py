@@ -11,8 +11,14 @@ class SafetyScoreResponse(BaseModel):
     safety_score: float
     confidence_level: str  # High, Medium, Low
     confidence_percentage: float
-    risk_category: str  # Very Safe, Safe, Moderate, Risky, High Risk, Critical
+    risk_category: str  # Very Safe, Safe, Moderate, Risky, Dangerous
     reasons: List[str]
-    module_breakdown: Dict[str, ModuleBreakdown]
+    module_breakdown: Dict[str, ModuleBreakdown] = {}
+    
+    # New Hackathon-focused fields (Phase 6.2 spec)
+    emergency_readiness_score: float = 0.0
+    readiness_level: str = "Moderate"
+    risk_breakdown: Dict[str, Any] = {}
+    ai_explanation: Dict[str, Any] = {}
 
     model_config = ConfigDict(from_attributes=True)

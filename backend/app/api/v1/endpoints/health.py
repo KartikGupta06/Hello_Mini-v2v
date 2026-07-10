@@ -12,8 +12,14 @@ router = APIRouter()
 def get_health(request: Request, db: Session = Depends(get_db)):
     """Detailed health check validating connection status of database."""
     try:
-        # Check database connectivity and retrieve version
-        db_version = db.execute(text("SELECT version()")).scalar()
+        db.execute(text("SELECT 1"))
+        try:
+            db_version = db.execute(text("SELECT version()")).scalar()
+        except Exception:
+            try:
+                db_version = db.execute(text("SELECT sqlite_version()")).scalar()
+            except Exception:
+                db_version = "Generic Database"
         db_status = "connected"
     except Exception as e:
         db_version = "Unknown"
@@ -25,6 +31,7 @@ def get_health(request: Request, db: Session = Depends(get_db)):
     
     return {
         "status": "healthy" if db_status == "connected" else "degraded",
+        "app_name": settings.APP_NAME,
         "database": db_status,
         "database_version": db_version,
         "api_version": settings.API_VERSION,
