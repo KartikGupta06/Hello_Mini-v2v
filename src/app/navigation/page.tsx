@@ -2,45 +2,29 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { 
   Search, 
   MapPin, 
   Navigation as NavIcon, 
-  Clock, 
-  ShieldCheck, 
   ShieldAlert, 
-  ChevronRight, 
   Sparkles,
-  ChevronUp,
-  ChevronDown,
-  AlertTriangle,
-  RotateCcw,
-  CheckCircle,
   ArrowUpDown,
   Mic,
-  Crosshair,
-  Layers,
-  Compass,
-  Locate,
   Share2,
   ChevronLeft,
-  Volume2,
-  VolumeX,
   Phone,
   Building,
-  Heart
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Card, Button, Badge, MapContainer, LoadingSkeleton, FilterChips, AIInsightCard, RouteCard, MapFloatingControls, SlidingBottomSheet } from "@/components/ui";
+import { Card, Button, Badge, MapContainer, FilterChips, AIInsightCard, RouteCard, MapFloatingControls, SlidingBottomSheet } from "@/components/ui";
 import { SafetyService } from "@/services/safety";
 import { JourneyService } from "@/services/journeys";
 import { ContactService } from "@/services/contacts";
 import { AuthService } from "@/services/auth";
 import { useEmergency } from "@/contexts/EmergencyContext";
 import { User, EmergencyContact } from "@/types";
-import { calculateDistance } from "@/utils/helpers";
 import styles from "./Navigation.module.css";
+
 
 const MOCK_SUGGESTIONS = [
   { name: "Malviya Nagar Police Station Area, South Delhi", coords: [77.2045, 28.5306] },
@@ -149,119 +133,55 @@ export default function NavigationPage() {
     }
   };
 
-  const generateCoordinatesLine = (
-    start: [number, number],
-    end: [number, number],
-    offsetFactor: number,
-    steps = 8
-  ): { lat: number; lng: number }[] => {
-    const points: { lat: number; lng: number }[] = [];
-    const [lng1, lat1] = start;
-    const [lng2, lat2] = end;
-
-    for (let i = 0; i <= steps; i++) {
-      const t = i / steps;
-      let lng = lng1 + (lng2 - lng1) * t;
-      let lat = lat1 + (lat2 - lat1) * t;
-
-      if (i > 0 && i < steps) {
-        const orthoLng = -(lat2 - lat1);
-        const orthoLat = lng2 - lng1;
-        const length = Math.sqrt(orthoLng * orthoLng + orthoLat * orthoLat);
-        if (length > 0) {
-          const sine = Math.sin(t * Math.PI);
-          lng += (orthoLng / length) * offsetFactor * sine;
-          lat += (orthoLat / length) * offsetFactor * sine;
-        }
-      }
-      points.push({ lat, lng });
-    }
-    return points;
-  };
-
   const handleRouteSearch = async () => {
     setIsSearching(true);
     setSheetExpanded(true);
     try {
-      const distance = calculateDistance(originCoords[1], originCoords[0], destCoords[1], destCoords[0]);
-      
-      const safestLine = generateCoordinatesLine(originCoords, destCoords, 0.0035);
-      const balancedLine = generateCoordinatesLine(originCoords, destCoords, 0);
-      const fastestLine = generateCoordinatesLine(originCoords, destCoords, -0.002);
+      const response = await SafetyService.getRouteIntelligence({
+        source_lat: originCoords[1],
+        source_lng: originCoords[0],
+        dest_lat: destCoords[1],
+        dest_lng: destCoords[0]
+      });
 
-      const candidateInputs = [
-        {
-          id: "safest",
-          name: "AI Safe Path",
-          coordinates: safestLine,
-          distance_meters: distance * 1.15,
-          time_seconds: (distance * 1.15) / 1.3
-        },
-        {
-          id: "balanced",
-          name: "Balanced Avenue Path",
-          coordinates: balancedLine,
-          distance_meters: distance * 1.0,
-          time_seconds: (distance * 1.0) / 1.3
-        },
-        {
-          id: "fastest",
-          name: "Standard Direct Path",
-          coordinates: fastestLine,
-          distance_meters: distance * 0.9,
-          time_seconds: (distance * 0.9) / 1.4
-        }
-      ];
+      const allRoutes = [];
+      if (response.recommended_route) allRoutes.push(response.recommended_route);
+      if (response.alternative_routes) allRoutes.push(...response.alternative_routes);
 
-      const analysisResponse = await SafetyService.analyzeRoutes(candidateInputs);
-      
-      setRecommendationReason(analysisResponse.recommendation_reason);
-      setTradeOffsSummary(analysisResponse.trade_offs_summary);
+      // Default visual mappings
+      const colors = ["#10b981", "#3b82f6", "#f59e0b", "#6366f1"];
 
-      const colors = { safest: "#10b981", balanced: "#3b82f6", fastest: "#f59e0b" };
-      const badgeVariants = { safest: "success" as const, balanced: "info" as const, fastest: "warning" as const };
+      const computedRoutes = allRoutes.map((route, index) => {
+        const timeMins = Math.round(route.eta / 60);
+        const distanceKm = (route.distance / 1000).toFixed(1);
 
-      const computedRoutes = candidateInputs.map((candidate) => {
-        const ranking = analysisResponse.rankings.find((r) => r.route_id === candidate.id);
-        const detailed = analysisResponse.detailed_analyses.find((d) => d.route_id === candidate.id);
-
-        const score = Math.round(ranking?.avg_safety_score || 70);
-        const timeMins = Math.round(candidate.time_seconds / 60);
-        const distanceKm = (candidate.distance_meters / 1000).toFixed(1);
-
-        const finalHotspots = (detailed?.hotspots || []).map((h) => ({
-          lat: h.coordinates[0]?.lat || 0,
-          lng: h.coordinates[0]?.lng || 0,
-          type: h.type as any,
-          description: h.description
-        }));
-
-        let notes = "Suggested safety prioritizations.";
-        if (candidate.id === "safest") {
-          notes = "Calculated safe pathway avoiding risk zones.";
-        } else if (candidate.id === "fastest") {
-          notes = "Shortest walking path, but passes closer to reported risk segments.";
-        } else {
-          notes = "Moderate exposure containing standard commercial lighting coverage.";
-        }
+        let badgeVariant: "success" | "info" | "warning" | "destructive" = "success";
+        if (route.safety_score < 80) badgeVariant = "info";
+        if (route.safety_score < 60) badgeVariant = "warning";
+        if (route.safety_score < 40) badgeVariant = "destructive";
 
         return {
-          id: candidate.id,
-          name: candidate.name,
-          coordinates: candidate.coordinates.map((c) => [c.lng, c.lat]),
-          color: colors[candidate.id as keyof typeof colors],
+          id: route.route_id,
+          name: route.route_name || `Route ${index + 1}`,
+          coordinates: route.coordinates,
+          color: colors[index % colors.length],
           distance: `${distanceKm} km`,
           time: `${timeMins} min`,
-          score,
-          badgeVariant: badgeVariants[candidate.id as keyof typeof badgeVariants],
-          isAISuggested: analysisResponse.recommended_route_id === candidate.id,
-          notes,
-          hotspots: finalHotspots
+          score: Math.round(route.safety_score),
+          badgeVariant,
+          isAISuggested: index === 0,
+          notes: route.ai_explanation || "Safety analysis complete.",
+          hotspots: [] // Hotspots removed in MVP simplified response
         };
       });
 
+      setRecommendationReason(response.recommended_route?.ai_explanation || "Recommended based on overall safety metrics.");
+      setTradeOffsSummary("Comparing AI analyzed safety routes.");
+
       setDynamicRoutes(computedRoutes);
-      setSelectedRoute(analysisResponse.recommended_route_id || "safest");
+      if (computedRoutes.length > 0) {
+        setSelectedRoute(computedRoutes[0].id);
+      }
       setShowRoutes(true);
       setSheetExpanded(true);
     } catch (e) {
@@ -339,8 +259,9 @@ export default function NavigationPage() {
 
   const getSafetyMarginPercent = () => {
     if (dynamicRoutes.length < 2) return 24;
-    const safestScore = dynamicRoutes.find(r => r.id === "safest")?.score || 90;
-    const fastestScore = dynamicRoutes.find(r => r.id === "fastest")?.score || 70;
+    const sortedByScore = [...dynamicRoutes].sort((a, b) => b.score - a.score);
+    const safestScore = sortedByScore[0]?.score || 90;
+    const fastestScore = sortedByScore[sortedByScore.length - 1]?.score || 70;
     return Math.round(((safestScore - fastestScore) / fastestScore) * 100);
   };
 
@@ -602,7 +523,7 @@ export default function NavigationPage() {
                   {dynamicRoutes.map(r => (
                     <RouteCard
                       key={r.id}
-                      name={r.id === "safest" ? "Safest" : r.id === "balanced" ? "Balanced" : "Fastest"}
+                      name={r.name}
                       score={r.score}
                       time={r.time}
                       color={r.color}

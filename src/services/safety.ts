@@ -1,28 +1,21 @@
-import { fetchJson } from "../lib/api";
+import { apiClient } from "../lib/api";
 import { 
-  RouteDetail, 
-  SafetyReport, 
   SafeHaven, 
-  RouteRecommendationResponse, 
-  CandidateRouteInput,
-  ReportCategory
+  SafetyReport, 
+  ReportCategory,
+  RouteIntelligencePayload,
+  RouteIntelligenceResponse
 } from "../types";
 
 export const SafetyService = {
   // Post route coordinates to obtain analysis, ranking, and explainable safety details
-  analyzeRoutes: async (routes: CandidateRouteInput[]): Promise<RouteRecommendationResponse> => {
-    return fetchJson<RouteRecommendationResponse>("/routes/analyze", {
-      method: "POST",
-      body: JSON.stringify(routes),
-    });
+  getRouteIntelligence: async (payload: RouteIntelligencePayload): Promise<RouteIntelligenceResponse> => {
+    return apiClient.post<RouteIntelligenceResponse>("/routes/intelligence", payload);
   },
 
   // Submit hazard reports
   submitReport: async (report: { lat: number; lng: number; type: ReportCategory; description: string; user_id?: number }): Promise<SafetyReport> => {
-    return fetchJson<SafetyReport>("/reports", {
-      method: "POST",
-      body: JSON.stringify(report),
-    });
+    return apiClient.post<SafetyReport>("/reports", report);
   },
 
   // Query community reported hazards
@@ -34,7 +27,7 @@ export const SafetyService = {
     if (params?.search) queryParts.push(`search=${encodeURIComponent(params.search)}`);
     
     const queryStr = queryParts.length ? `?${queryParts.join("&")}` : "";
-    return fetchJson<SafetyReport[]>(`/reports${queryStr}`);
+    return apiClient.get<SafetyReport[]>(`/reports${queryStr}`);
   },
 
   // Fetch coordinates safety score and explainable reasons
@@ -46,13 +39,13 @@ export const SafetyService = {
     reasons: string[];
     module_breakdown: Record<string, any>;
   }> => {
-    return fetchJson(`/ai/safety-score?lat=${lat}&lng=${lng}`);
+    return apiClient.get(`/ai/safety-score?lat=${lat}&lng=${lng}`);
   },
 
   // Query police stations infrastructure
   getPoliceStations: async (district?: string): Promise<{ data: SafeHaven[]; total: number }> => {
     const query = district ? `?district=${encodeURIComponent(district)}` : "";
-    const response = await fetchJson<{ success: boolean; data: any[]; total: number }>(`/police-stations/${query}`);
+    const response = await apiClient.get<{ success: boolean; data: any[]; total: number }>(`/police-stations/${query}`);
     return {
       total: response.total,
       data: response.data.map(item => ({
@@ -70,7 +63,7 @@ export const SafetyService = {
   // Query hospitals infrastructure
   getHospitals: async (district?: string): Promise<{ data: SafeHaven[]; total: number }> => {
     const query = district ? `?district=${encodeURIComponent(district)}` : "";
-    const response = await fetchJson<{ success: boolean; data: any[]; total: number }>(`/hospitals/${query}`);
+    const response = await apiClient.get<{ success: boolean; data: any[]; total: number }>(`/hospitals/${query}`);
     return {
       total: response.total,
       data: response.data.map(item => ({

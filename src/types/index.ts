@@ -67,71 +67,33 @@ export interface JourneyHistory {
   updated_at: string;
 }
 
-// Coordinate Pydantic matching model
 export interface RouteCoordinate {
   lat: number;
   lng: number;
 }
 
-export interface CandidateRouteInput {
-  id: string;
-  name: string;
-  coordinates: RouteCoordinate[];
-  distance_meters: number;
-  time_seconds: number;
+export interface RouteIntelligencePayload {
+  source_lat: number;
+  source_lng: number;
+  dest_lat: number;
+  dest_lng: number;
 }
 
-export interface RouteDetail {
-  id: string;
-  name: string;
-  coordinates: RouteCoordinate[];
-  distance_meters: number;
-  time_seconds: number;
-  avg_safety_score?: number;
-  safetyScore?: number; // fallback compatibility
-}
-
-export interface RouteHotspot {
-  type: "unsafe_cluster" | "sudden_drop";
-  description: string;
-  start_index: number;
-  end_index: number;
-  coordinates: RouteCoordinate[];
-}
-
-export interface RouteStatistics {
-  avg_safety_score: number;
-  min_safety_score: number;
-  max_safety_score: number;
-  median_safety_score: number;
-  avg_confidence: number;
-  risk_distribution: Record<string, number>;
-  safe_segments_count: number;
-  unsafe_segments_count: number;
-}
-
-export interface RouteAnalysisResult {
+export interface AnalyzedRoute {
   route_id: string;
   route_name: string;
-  sampled_points_count: number;
-  statistics: RouteStatistics;
-  hotspots: RouteHotspot[];
+  coordinates: RouteCoordinate[];
+  distance: number;
+  eta: number;
+  safety_score: number;
+  risk_level: string;
+  confidence: number;
+  emergency_readiness: number;
+  ai_explanation: string;
 }
 
-export interface RouteRankingItem {
-  route_id: string;
-  route_name: string;
-  rank: number;
-  rank_score: number;
-  avg_safety_score: number;
-  travel_time_seconds: number;
-  travel_distance_meters: number;
+export interface RouteIntelligenceResponse {
+  recommended_route: AnalyzedRoute | null;
+  alternative_routes: AnalyzedRoute[];
 }
 
-export interface RouteRecommendationResponse {
-  recommended_route_id: string;
-  recommendation_reason: string;
-  trade_offs_summary: string;
-  rankings: RouteRankingItem[];
-  detailed_analyses: RouteAnalysisResult[];
-}
