@@ -809,7 +809,10 @@ SafeRoute AI is not a hackathon gimmick. It is a foundation — a real-world arc
 <table>
   <tr>
     <td align="center">
-      <strong>Kartik Gupta</strong><br/>
+      <a href="https://github.com/KartikGupta06">
+        <img src="https://github.com/KartikGupta06.png" width="80" style="border-radius:50%;" alt="Kartik Gupta"/><br/>
+        <strong>Kartik Gupta</strong>
+      </a><br/>
       <em>Full Stack Engineer · AI Engine Design · System Architecture</em><br/>
       <a href="https://github.com/KartikGupta06">@KartikGupta06</a>
     </td>
