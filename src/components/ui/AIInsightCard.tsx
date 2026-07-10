@@ -31,7 +31,7 @@ export const AIInsightCard: React.FC<AIInsightCardProps> = ({
         {icon}
         <span className={styles.title}>{title}</span>
       </div>
-      <p className={styles.text}>{text}</p>
+      <div className={styles.text}>{text}</div>
     </Card>
   );
 };
