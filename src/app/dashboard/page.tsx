@@ -16,7 +16,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Card, Badge, LoadingSkeleton } from "@/components/ui";
+import { Card, Badge, LoadingSkeleton, SectionHeader, EmptyState } from "@/components/ui";
 import { JourneyService } from "@/services/journeys";
 import { ContactService } from "@/services/contacts";
 import { SafetyService } from "@/services/safety";
@@ -211,11 +211,14 @@ export default function DashboardPage() {
 
         {/* 5. Nearby Safety: Horizontal scroll list */}
         <div className={styles.sectionBlock}>
-          <h3 className={styles.sectionTitle}>Nearby Safe Zones</h3>
+          <SectionHeader title="Nearby Safe Zones" />
           <div className={styles.horizontalScroll}>
             {nearestPlaces.length === 0 ? (
-              <div className={styles.emptyScrollCard}>
-                Locating nearby emergency support stations...
+              <div style={{ width: "100%" }}>
+                <EmptyState 
+                  title="Locating Safe Zones" 
+                  description="Locating nearby emergency support stations..." 
+                />
               </div>
             ) : (
               nearestPlaces.map((place, idx) => (
@@ -247,12 +250,14 @@ export default function DashboardPage() {
         {/* 6. Recent Activity Section */}
         {recentTrip && (
           <div className={styles.sectionBlock} style={{ marginBottom: "20px" }}>
-            <div className={styles.recentHeaderRow}>
-              <h3 className={styles.sectionTitle}>Recent Walk Activity</h3>
-              <button className={styles.viewAllBtn} onClick={() => router.push("/settings")}>
-                History <ChevronRight size={14} />
-              </button>
-            </div>
+            <SectionHeader 
+              title="Recent Walk Activity" 
+              action={
+                <button className={styles.viewAllBtn} onClick={() => router.push("/settings")}>
+                  History <ChevronRight size={14} />
+                </button>
+              }
+            />
             
             <Card 
               glass={true} 

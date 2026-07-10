@@ -1,0 +1,46 @@
+.floatingActionsCol {
+  position: absolute;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 10;
+  transition: bottom var(--transition-normal);
+}
+
+.actionRoundBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-fast);
+  outline: none;
+}
+
+.actionRoundBtn:hover {
+  color: var(--text-primary);
+  background: var(--bg-glass-hover);
+  border-color: var(--border-medium);
+}
+
+.actionRoundBtn:focus-visible {
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+
+.muteActive {
+  color: var(--status-danger);
+}
+
+.locateActive {
+  color: var(--accent-emerald);
+}

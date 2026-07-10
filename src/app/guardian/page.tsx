@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Card, Button, Badge, Modal, Input, LoadingSkeleton, MapContainer } from "@/components/ui";
+import { Card, Button, Badge, Modal, Input, LoadingSkeleton, MapContainer, EmptyState } from "@/components/ui";
 import { ContactService } from "@/services/contacts";
 import { AuthService } from "@/services/auth";
 import { useEmergency } from "@/contexts/EmergencyContext";
@@ -182,13 +182,16 @@ export default function GuardianPage() {
                 })}
               </div>
             ) : (
-              <Card glass={true} padding="md" className={styles.emptyCircleCard}>
-                <Users size={32} className={styles.emptyCircleIcon} />
-                <p className={styles.emptyCircleText}>Your Trust Circle is empty</p>
-                <Button variant="emerald" onClick={() => setIsModalOpen(true)}>
-                  Set Up Guardians
-                </Button>
-              </Card>
+              <EmptyState
+                icon={<Users size={32} className={styles.emptyCircleIcon} />}
+                title="Your Trust Circle is empty"
+                description="Secure your path by adding friends or emergency contacts to track your walks."
+                action={
+                  <Button variant="emerald" onClick={() => setIsModalOpen(true)}>
+                    Set Up Guardians
+                  </Button>
+                }
+              />
             )}
 
             {/* C. Mini Find My Map Radar Preview */}

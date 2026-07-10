@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Card, Button, Badge, Modal, Input, LoadingSkeleton, MapContainer } from "@/components/ui";
+import { Card, Button, Badge, Modal, Input, LoadingSkeleton, MapContainer, FilterChips, EmptyState, TimelineList, TimelineItem } from "@/components/ui";
 import { SafetyService } from "@/services/safety";
 import { AuthService } from "@/services/auth";
 import { SafetyReport, ReportCategory, User } from "@/types";
@@ -245,27 +245,23 @@ export default function ReportsPage() {
             </div>
 
             {/* C. Quick Filter Chips horizontal row */}
-            <div className={styles.chipsScroll}>
-              {QUICK_FILTERS.map(f => (
-                <button 
-                  key={f.id} 
-                  className={`${styles.filterChip} ${activeFilter === f.id ? styles.activeChip : ""}`}
-                  onClick={() => setActiveFilter(f.id)}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
+            <FilterChips
+              chips={QUICK_FILTERS}
+              activeId={activeFilter}
+              onChange={setActiveFilter}
+              className={styles.chipsScroll}
+            />
 
             {/* D. Live timeline feed panel */}
             <div className={styles.feedPanel}>
               {filteredReports.length === 0 ? (
-                <Card glass={true} padding="md" className={styles.emptyFeedCard}>
-                  <AlertTriangle size={32} className={styles.emptyIcon} />
-                  <p className={styles.emptyText}>No alerts reported in this category</p>
-                </Card>
+                <EmptyState
+                  icon={<AlertTriangle size={32} className={styles.emptyIcon} />}
+                  title="No Alerts Reported"
+                  description="No alerts reported in this category."
+                />
               ) : (
-                <div className={styles.timelineList}>
+                <TimelineList>
                   {filteredReports.map((report, idx) => {
                     const isExpanded = activeReportId === report.id;
                     const timeLabel = `${((idx + 1) * 7)}m ago`;
@@ -274,84 +270,26 @@ export default function ReportsPage() {
                     const isVerified = report.id % 2 === 0;
 
                     return (
-                      <Card 
-                        key={report.id} 
-                        glass={true} 
-                        padding="sm" 
-                        className={`${styles.feedCard} ${isExpanded ? styles.feedCardExpanded : ""}`}
+                      <TimelineItem
+                        key={report.id}
+                        id={report.id}
+                        icon={getIncidentIcon(report.type)}
+                        category={report.type}
+                        meta={`Nearby Area • ${timeLabel}`}
+                        summary={`${report.description.substring(0, 56)}...`}
+                        isVerified={isVerified}
+                        isExpanded={isExpanded}
                         onClick={() => handleSelectReport(report)}
-                      >
-                        <div className={styles.feedCardHeader}>
-                          <div className={styles.feedHeaderLeft}>
-                            <div className={styles.categoryIconBg}>
-                              {getIncidentIcon(report.type)}
-                            </div>
-                            <div className={styles.categoryTitleCol}>
-                              <h4 className={styles.feedCardCategory}>{report.type}</h4>
-                              <span className={styles.feedCardMeta}>
-                                Nearby Area • {timeLabel}
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className={styles.verificationBadgeCol}>
-                            {isVerified ? (
-                              <Badge variant="success" size="sm" glow={true}>
-                                <CheckCircle size={10} style={{ marginRight: 2 }} />
-                                Verified
-                              </Badge>
-                            ) : (
-                              <Badge variant="warning" size="sm">
-                                <HelpCircle size={10} style={{ marginRight: 2 }} />
-                                Pending
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Summary preview */}
-                        <p className={styles.feedCardSummary}>
-                          {report.description.substring(0, 56)}...
-                        </p>
-
-                        {/* Interactive Expanded Detail view */}
-                        {isExpanded && (
-                          <div className={styles.expandedBlock}>
-                            <p className={styles.fullDescription}>{report.description}</p>
-                            
-                            <div className={styles.trustScoresRow}>
-                              <div className={styles.scoreMetric}>
-                                <span className={styles.metricLabel}>Community Trust</span>
-                                <span className={styles.metricVal} style={{ color: isVerified ? "var(--accent-emerald)" : "var(--accent-amber)" }}>
-                                  {trustScore}% Score
-                                </span>
-                              </div>
-                              <div className={styles.verticalScoreDivider} />
-                              <div className={styles.scoreMetric}>
-                                <span className={styles.metricLabel}>AI Confidence</span>
-                                <span className={styles.metricVal} style={{ color: "var(--accent-blue)" }}>
-                                  {aiConfidence}% Level
-                                </span>
-                              </div>
-                            </div>
-
-                            <div className={styles.aiInsightBox}>
-                              <Sparkles size={13} className={styles.sparkleIcon} />
-                              <span className={styles.aiInsightText}>
-                                AI Summary: Safety index decreased slightly on coordinates segments due to {report.type.toLowerCase()} updates.
-                              </span>
-                            </div>
-
-                            <div className={styles.locationFooterRow}>
-                              <MapPin size={12} className={styles.pinIcon} />
-                              <span>Lat: {report.lat.toFixed(5)}° N, Lng: {report.lng.toFixed(5)}° E</span>
-                            </div>
-                          </div>
-                        )}
-                      </Card>
+                        description={report.description}
+                        trustScore={trustScore}
+                        aiConfidence={aiConfidence}
+                        latitude={report.lat}
+                        longitude={report.lng}
+                        aiSummaryText={`AI Summary: Safety index decreased slightly on coordinates segments due to ${report.type.toLowerCase()} updates.`}
+                      />
                     );
                   })}
-                </div>
+                </TimelineList>
               )}
             </div>
 

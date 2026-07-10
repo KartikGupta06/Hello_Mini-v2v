@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Card, Button, Badge, LoadingSkeleton, MapContainer } from "@/components/ui";
+import { Card, Button, Badge, LoadingSkeleton, MapContainer, FilterChips, EmptyState, AIInsightCard } from "@/components/ui";
 import { SafetyService } from "@/services/safety";
 import styles from "./Nearby.module.css";
 
@@ -264,28 +264,24 @@ export default function NearbyPage() {
             </div>
 
             {/* C. Quick Filter Chips horizontal row */}
-            <div className={styles.chipsScroll}>
-              {FILTER_CHIPS.map(f => (
-                <button 
-                  key={f.id} 
-                  className={`${styles.filterChip} ${activeFilter === f.id ? styles.activeChip : ""}`}
-                  onClick={() => {
-                    setActiveFilter(f.id);
-                    setSelectedPlaceId(null);
-                  }}
-                >
-                  {f.label}
-                </button>
-              ))}
-            </div>
+            <FilterChips
+              chips={FILTER_CHIPS}
+              activeId={activeFilter}
+              onChange={(id) => {
+                setActiveFilter(id);
+                setSelectedPlaceId(null);
+              }}
+              className={styles.chipsScroll}
+            />
 
             {/* D. Scrollable Nearby cards stack */}
             <div className={styles.placesListPanel}>
               {displayedPlaces.length === 0 ? (
-                <Card glass={true} padding="md" className={styles.emptyFeedCard}>
-                  <AlertTriangle size={32} className={styles.emptyIcon} />
-                  <p className={styles.emptyText}>No safe places matching filter bounds</p>
-                </Card>
+                <EmptyState
+                  icon={<AlertTriangle size={32} className={styles.emptyIcon} />}
+                  title="No Safe Places"
+                  description="No safe places discovered matching selected filter bounds."
+                />
               ) : (
                 displayedPlaces.map(place => {
                   const isExpanded = selectedPlaceId === place.id;
@@ -333,12 +329,12 @@ export default function NearbyPage() {
                             </div>
                           )}
 
-                          <div className={styles.aiInsightBox}>
-                            <Sparkles size={13} className={styles.sparkleIcon} />
-                            <span className={styles.aiInsightText}>
-                              AI Status: {place.aiRecommendation}
-                            </span>
-                          </div>
+                          <AIInsightCard
+                            title="AI Recommendation"
+                            text={place.aiRecommendation}
+                            variant="success"
+                            className={styles.aiInsightBox}
+                          />
 
                           <div className={styles.actionRow}>
                             <Button 

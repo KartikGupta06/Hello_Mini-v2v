@@ -32,7 +32,7 @@ import {
   Heart
 } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Card, Button, Badge, MapContainer, LoadingSkeleton } from "@/components/ui";
+import { Card, Button, Badge, MapContainer, LoadingSkeleton, FilterChips, AIInsightCard, RouteCard, MapFloatingControls, SlidingBottomSheet } from "@/components/ui";
 import { SafetyService } from "@/services/safety";
 import { JourneyService } from "@/services/journeys";
 import { ContactService } from "@/services/contacts";
@@ -491,49 +491,33 @@ export default function NavigationPage() {
             </div>
 
             {/* AI Assistant Live Guidance insight bar */}
-            <div className={styles.aiGuidanceInsightCard}>
-              <Sparkles size={14} className={styles.guidanceSparkle} />
-              <span className={styles.guidanceText}>{AI_INSIGHTS[insightIndex]}</span>
-            </div>
+            <AIInsightCard
+              title="AI Active Guidance"
+              text={AI_INSIGHTS[insightIndex]}
+              variant="info"
+              className={styles.aiGuidanceInsightCard}
+            />
           </div>
         )}
 
         {/* PLANNER: Quick Filter Chips */}
         {!showRoutes && !activeWalkMode && (
-          <div className={styles.chipsScroll}>
-            {QUICK_FILTERS.map(f => (
-              <button 
-                key={f.id} 
-                className={`${styles.filterChip} ${activeFilter === f.id ? styles.activeChip : ""}`}
-                onClick={() => setActiveFilter(f.id)}
-              >
-                {f.label}
-              </button>
-            ))}
-          </div>
+          <FilterChips
+            chips={QUICK_FILTERS}
+            activeId={activeFilter}
+            onChange={setActiveFilter}
+            className={styles.chipsScroll}
+          />
         )}
 
         {/* Floating Right Map Controls */}
-        <div className={styles.floatingActionsCol} style={{ bottom: activeWalkMode ? "170px" : showRoutes ? "160px" : "120px" }}>
-          <button className={styles.actionRoundBtn} aria-label="Recenter Map" onClick={() => alert("Recentering map view...")}>
-            <Crosshair size={16} />
-          </button>
-          <button className={styles.actionRoundBtn} aria-label="Layer Options">
-            <Layers size={16} />
-          </button>
-          {activeWalkMode ? (
-            <button className={styles.actionRoundBtn} aria-label="Mute voice guidance toggle" onClick={() => setIsMuted(!isMuted)}>
-              {isMuted ? <VolumeX size={16} style={{ color: "var(--status-danger)" }} /> : <Volume2 size={16} />}
-            </button>
-          ) : (
-            <button className={styles.actionRoundBtn} aria-label="Compass Orientation">
-              <Compass size={16} />
-            </button>
-          )}
-          <button className={styles.actionRoundBtn} aria-label="Verify GPS status">
-            <Locate size={16} style={{ color: "var(--accent-emerald)" }} />
-          </button>
-        </div>
+        <MapFloatingControls
+          bottom={activeWalkMode ? "170px" : showRoutes ? "160px" : "120px"}
+          showMute={activeWalkMode}
+          isMuted={isMuted}
+          onToggleMute={() => setIsMuted(!isMuted)}
+          className={styles.floatingActionsCol}
+        />
 
         {/* Bottom Right Floating Urgent SOS alert button */}
         {activeWalkMode && (
@@ -551,11 +535,15 @@ export default function NavigationPage() {
 
         {/* RESULTS: M4 Sliding Results Bottom Sheet */}
         {showRoutes && !activeWalkMode && (
-          <div className={`${styles.bottomSheet} ${sheetExpanded ? styles.sheetExpandedM4 : styles.sheetCollapsedM4}`}>
-            <div className={styles.sheetHandleRow} onClick={() => setSheetExpanded(!sheetExpanded)}>
-              <div className={styles.sheetHandleDragBar} />
-              {!sheetExpanded && activeRouteData && (
-                <div className={styles.collapsedHeaderContent}>
+          <SlidingBottomSheet
+            isExpanded={sheetExpanded}
+            onToggleExpanded={() => setSheetExpanded(!sheetExpanded)}
+            expandedHeight="560px"
+            collapsedHeight="140px"
+            className={styles.bottomSheet}
+            collapsedHeader={
+              activeRouteData && (
+                <>
                   <div className={styles.collapsedMeta}>
                     <span className={styles.collapsedDestName}>{destination.split(",")[0]}</span>
                     <span className={styles.collapsedDuration}>
@@ -568,180 +556,172 @@ export default function NavigationPage() {
                     </span>
                     <span className={styles.swipeIndicatorText}>Swipe up for AI Insights</span>
                   </div>
+                </>
+              )
+            }
+          >
+            {isSearching ? (
+              <div className={styles.aiLoadingWrapper}>
+                <div className={styles.aiPulseCircle}>
+                  <Sparkles size={28} className={styles.sparkleIconAnim} />
                 </div>
-              )}
-            </div>
-
-            <div className={styles.sheetBody}>
-              {isSearching ? (
-                <div className={styles.aiLoadingWrapper}>
-                  <div className={styles.aiPulseCircle}>
-                    <Sparkles size={28} className={styles.sparkleIconAnim} />
-                  </div>
-                  <h4 className={styles.aiLoadingTitle}>AI Preparing Safest Route...</h4>
-                  <p className={styles.aiLoadingSub}>Evaluating lighting layers and historical reports</p>
-                </div>
-              ) : (
-                <div className={styles.expandedContent}>
-                  <Card glass={true} padding="sm" className={styles.decisionHeroCard}>
-                    <div className={styles.decisionTop}>
-                      <div className={styles.decisionValueCol}>
-                        <span className={styles.decisionLabel}>AI Route Safety Index</span>
-                        <div className={styles.decisionScoreRow}>
-                          <span className={styles.decisionScoreNum}>{activeRouteData.score}</span>
-                          <span className={styles.decisionScoreScale}>/100</span>
-                        </div>
-                      </div>
-                      <div className={styles.decisionStatusCol}>
-                        <Badge variant={activeRouteData.badgeVariant} size="md" glow={true}>
-                          {activeRouteData.score >= 85 ? "Very Safe" : "Moderately Safe"}
-                        </Badge>
-                        <span className={styles.confidenceText}>Confidence: 96%</span>
+                <h4 className={styles.aiLoadingTitle}>AI Preparing Safest Route...</h4>
+                <p className={styles.aiLoadingSub}>Evaluating lighting layers and historical reports</p>
+              </div>
+            ) : (
+              <div className={styles.expandedContent}>
+                <Card glass={true} padding="sm" className={styles.decisionHeroCard}>
+                  <div className={styles.decisionTop}>
+                    <div className={styles.decisionValueCol}>
+                      <span className={styles.decisionLabel}>AI Route Safety Index</span>
+                      <div className={styles.decisionScoreRow}>
+                        <span className={styles.decisionScoreNum}>{activeRouteData.score}</span>
+                        <span className={styles.decisionScoreScale}>/100</span>
                       </div>
                     </div>
-                  </Card>
-
-                  <div className={styles.explanationSection}>
-                    <h4 className={styles.resultsSubtitle}>Key Safety Indicators</h4>
-                    <div className={styles.chipsWrap}>
-                      <div className={styles.explanationChip}>✓ Well Lit Area</div>
-                      <div className={styles.explanationChip}>✓ Police Nearby</div>
-                      <div className={styles.explanationChip}>✓ Low Crime Rating</div>
-                      <div className={styles.explanationChip}>✓ High Foot Traffic</div>
+                    <div className={styles.decisionStatusCol}>
+                      <Badge variant={activeRouteData.badgeVariant} size="md" glow={true}>
+                        {activeRouteData.score >= 85 ? "Very Safe" : "Moderately Safe"}
+                      </Badge>
+                      <span className={styles.confidenceText}>Confidence: 96%</span>
                     </div>
                   </div>
+                </Card>
 
-                  <div className={styles.comparisonGrid}>
-                    {dynamicRoutes.map(r => {
-                      const isSelected = r.id === selectedRoute;
-                      return (
-                        <div 
-                          key={r.id} 
-                          onClick={() => setSelectedRoute(r.id)}
-                          className={`${styles.compareCard} ${isSelected ? styles.compareCardActive : ""}`}
-                          style={{ borderTop: `3px solid ${r.color}` }}
-                        >
-                          <span className={styles.compareName}>{r.id === "safest" ? "Safest" : r.id === "balanced" ? "Balanced" : "Fastest"}</span>
-                          <span className={styles.compareScore} style={{ color: r.color }}>{r.score}%</span>
-                          <span className={styles.compareMeta}>{r.time}</span>
-                        </div>
-                      );
-                    })}
+                <div className={styles.explanationSection}>
+                  <h4 className={styles.resultsSubtitle}>Key Safety Indicators</h4>
+                  <div className={styles.chipsWrap}>
+                    <div className={styles.explanationChip}>✓ Well Lit Area</div>
+                    <div className={styles.explanationChip}>✓ Police Nearby</div>
+                    <div className={styles.explanationChip}>✓ Low Crime Rating</div>
+                    <div className={styles.explanationChip}>✓ High Foot Traffic</div>
                   </div>
+                </div>
 
-                  <Card glass={true} padding="sm" className={styles.aiInsightCard}>
-                    <div className={styles.insightHeader}>
-                      <Sparkles size={16} className={styles.sparkleIcon} />
-                      <span className={styles.insightTitle}>AI SafeRoute Briefing</span>
-                    </div>
-                    <p className={styles.insightText}>
+                <div className={styles.comparisonGrid}>
+                  {dynamicRoutes.map(r => (
+                    <RouteCard
+                      key={r.id}
+                      name={r.id === "safest" ? "Safest" : r.id === "balanced" ? "Balanced" : "Fastest"}
+                      score={r.score}
+                      time={r.time}
+                      color={r.color}
+                      isSelected={r.id === selectedRoute}
+                      onClick={() => setSelectedRoute(r.id)}
+                    />
+                  ))}
+                </div>
+
+                <AIInsightCard
+                  title="AI SafeRoute Briefing"
+                  variant="success"
+                  text={
+                    <>
                       This route is <strong>{getSafetyMarginPercent()}% safer</strong> than the fastest direct alternative because it routes along commercial corridors with verified public lighting.
-                    </p>
-                  </Card>
+                    </>
+                  }
+                />
 
-                  <div className={styles.actionBtnWrapper}>
-                    <Button variant="emerald" className={styles.startWalkBtn} onClick={handleStartWalk}>
-                      Start Safe Navigation ({activeRouteData.time})
-                    </Button>
-                  </div>
+                <div className={styles.actionBtnWrapper}>
+                  <Button variant="emerald" className={styles.startWalkBtn} onClick={handleStartWalk}>
+                    Start Safe Navigation ({activeRouteData.time})
+                  </Button>
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
+            )}
+          </SlidingBottomSheet>
         )}
 
         {/* 4. NAVIGATION: M5 Sliding Bottom Mini Sheet */}
         {activeWalkMode && activeRouteData && (
-          <div className={`${styles.bottomSheet} ${navSheetExpanded ? styles.sheetExpandedM5 : styles.sheetCollapsedM5}`}>
-            <div className={styles.sheetHandleRow} onClick={() => setNavSheetExpanded(!navSheetExpanded)}>
-              <div className={styles.sheetHandleDragBar} />
-              
-              {/* Collapsed state mini info bar */}
-              {!navSheetExpanded && (
-                <div className={styles.collapsedHeaderContent}>
-                  <div className={styles.collapsedMeta}>
-                    <span className={styles.collapsedDestName}>To: {destination.split(",")[0]}</span>
-                    <span className={styles.collapsedDuration}>
-                      ETA: <strong>{activeRouteData.time}</strong> ({activeRouteData.distance} left)
-                    </span>
-                  </div>
-                  <Badge variant={activeRouteData.badgeVariant} size="sm" glow={true}>
-                    🛡️ {activeRouteData.score}% Safety Index
-                  </Badge>
-                </div>
-              )}
-            </div>
-
-            <div className={styles.sheetBody}>
-              <div className={styles.expandedContent}>
-                
-                {/* A. Walk route summary heading */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
-                  <span style={{ fontSize: "0.68rem", fontWeight: "700", textTransform: "uppercase", color: "var(--text-muted)", letterSpacing: "0.03em" }}>
-                    Route Summary
+          <SlidingBottomSheet
+            isExpanded={navSheetExpanded}
+            onToggleExpanded={() => setNavSheetExpanded(!navSheetExpanded)}
+            expandedHeight="420px"
+            collapsedHeight="120px"
+            className={styles.bottomSheet}
+            collapsedHeader={
+              <>
+                <div className={styles.collapsedMeta}>
+                  <span className={styles.collapsedDestName}>To: {destination.split(",")[0]}</span>
+                  <span className={styles.collapsedDuration}>
+                    ETA: <strong>{activeRouteData.time}</strong> ({activeRouteData.distance} left)
                   </span>
-                  <p style={{ fontSize: "0.82rem", color: "var(--text-primary)", fontWeight: "600", margin: 0 }}>
-                    Walkway via Press Enclave Marg Corridor.
-                  </p>
                 </div>
+                <Badge variant={activeRouteData.badgeVariant} size="sm" glow={true}>
+                  🛡️ {activeRouteData.score}% Safety Index
+                </Badge>
+              </>
+            }
+          >
+            <div className={styles.expandedContent}>
+              
+              {/* A. Walk route summary heading */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "2px" }}>
+                <span style={{ fontSize: "0.68rem", fontWeight: "700", textTransform: "uppercase", color: "var(--text-muted)", letterSpacing: "0.03em" }}>
+                  Route Summary
+                </span>
+                <p style={{ fontSize: "0.82rem", color: "var(--text-primary)", fontWeight: "600", margin: 0 }}>
+                  Walkway via Press Enclave Marg Corridor.
+                </p>
+              </div>
 
-                {/* B. Emergency Contacts shortcuts */}
-                <div className={styles.emergencyShortcutSection}>
-                  <h4 className={styles.resultsSubtitle}>Quick Call Guardians</h4>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
-                    {emergencyContacts.length === 0 ? (
-                      <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
-                        No guardians configured. Go to Profile Settings page to add.
-                      </span>
-                    ) : (
-                      emergencyContacts.map(c => (
-                        <div key={c.id} className={styles.shortcutContactRow}>
-                          <div style={{ display: "flex", flexDirection: "column" }}>
-                            <span style={{ fontSize: "0.8rem", fontWeight: "700", color: "var(--text-primary)" }}>{c.name}</span>
-                            <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>{c.relationship_type || "Guardian"}</span>
-                          </div>
-                          <button onClick={() => alert(`Dialing guardian ${c.name} (${c.phone})...`)} className={styles.callShortcutBtn}>
-                            <Phone size={14} />
-                          </button>
+              {/* B. Emergency Contacts shortcuts */}
+              <div className={styles.emergencyShortcutSection}>
+                <h4 className={styles.resultsSubtitle}>Quick Call Guardians</h4>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
+                  {emergencyContacts.length === 0 ? (
+                    <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                      No guardians configured. Go to Profile Settings page to add.
+                    </span>
+                  ) : (
+                    emergencyContacts.map(c => (
+                      <div key={c.id} className={styles.shortcutContactRow}>
+                        <div style={{ display: "flex", flexDirection: "column" }}>
+                          <span style={{ fontSize: "0.8rem", fontWeight: "700", color: "var(--text-primary)" }}>{c.name}</span>
+                          <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>{c.relationship_type || "Guardian"}</span>
                         </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                {/* C. Safe Havens nearby list */}
-                <div className={styles.havensShortcutSection}>
-                  <h4 className={styles.resultsSubtitle}>Emergency Safe places</h4>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
-                    {safePlaces.map(s => (
-                      <div key={s.id} className={styles.shortcutContactRow}>
-                        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                          <div className={styles.smallHavenIconBg}>
-                            <Building size={14} />
-                          </div>
-                          <div style={{ display: "flex", flexDirection: "column" }}>
-                            <span style={{ fontSize: "0.75rem", fontWeight: "700", color: "var(--text-primary)" }}>{s.name}</span>
-                            <span style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>{s.address}</span>
-                          </div>
-                        </div>
-                        <button onClick={() => alert(`Displaying path directly to shelter: ${s.name}...`)} className={styles.directHavenBtn}>
-                          <NavIcon size={12} style={{ transform: "rotate(45deg)" }} />
+                        <button onClick={() => alert(`Dialing guardian ${c.name} (${c.phone})...`)} className={styles.callShortcutBtn}>
+                          <Phone size={14} />
                         </button>
                       </div>
-                    ))}
-                  </div>
+                    ))
+                  )}
                 </div>
-
-                {/* D. Finish button trigger */}
-                <div className={styles.actionBtnWrapper} style={{ marginTop: "8px" }}>
-                  <Button variant="emerald" className={styles.startWalkBtn} onClick={handleCompleteWalk}>
-                    Complete Navigation Walk
-                  </Button>
-                </div>
-
               </div>
+
+              {/* C. Safe Havens nearby list */}
+              <div className={styles.havensShortcutSection}>
+                <h4 className={styles.resultsSubtitle}>Emergency Safe places</h4>
+                <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "4px" }}>
+                  {safePlaces.map(s => (
+                    <div key={s.id} className={styles.shortcutContactRow}>
+                      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                        <div className={styles.smallHavenIconBg}>
+                          <Building size={14} />
+                        </div>
+                        <div style={{ display: "flex", flexDirection: "column" }}>
+                          <span style={{ fontSize: "0.75rem", fontWeight: "700", color: "var(--text-primary)" }}>{s.name}</span>
+                          <span style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>{s.address}</span>
+                        </div>
+                      </div>
+                      <button onClick={() => alert(`Displaying path directly to shelter: ${s.name}...`)} className={styles.directHavenBtn}>
+                        <NavIcon size={12} style={{ transform: "rotate(45deg)" }} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* D. Finish button trigger */}
+              <div className={styles.actionBtnWrapper} style={{ marginTop: "8px" }}>
+                <Button variant="emerald" className={styles.startWalkBtn} onClick={handleCompleteWalk}>
+                  Complete Navigation Walk
+                </Button>
+              </div>
+
             </div>
-          </div>
+          </SlidingBottomSheet>
         )}
 
       </div>
