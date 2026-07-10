@@ -813,7 +813,7 @@ SafeRoute AI is not a hackathon gimmick. It is a foundation — a real-world arc
         <img src="https://github.com/KartikGupta06.png" width="80" style="border-radius:50%;" alt="Kartik Gupta"/><br/>
         <strong>Kartik Gupta</strong>
       </a><br/>
-      <em>Full Stack Engineer · AI Engine Design · System Architecture</em><br/>
+      <em>Frontend Engineer · UI Specialist · Mobile Developer</em><br/>
       <a href="https://github.com/KartikGupta06">@KartikGupta06</a>
     </td>
     <td align="center">
@@ -821,7 +821,7 @@ SafeRoute AI is not a hackathon gimmick. It is a foundation — a real-world arc
         <img src="https://github.com/Bhavesh1411.png" width="80" style="border-radius:50%;" alt="Bhavesh Chaudhary"/><br/>
         <strong>Bhavesh Chaudhary</strong>
       </a><br/>
-      <em>Frontend Engineer · UI Specialist · Mobile Developer</em><br/>
+      <em>Full Stack Engineer · AI Engine Design · System Architecture</em><br/>
       <a href="https://github.com/Bhavesh1411">@Bhavesh1411</a>
     </td>
   </tr>
