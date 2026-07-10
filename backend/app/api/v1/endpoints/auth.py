@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from app.database.session import get_db
 from app.schemas.user import UserCreate, User
@@ -8,10 +9,6 @@ from app.services.auth import AuthService
 from pydantic import BaseModel, EmailStr
 
 router = APIRouter()
-
-class LoginCredentials(BaseModel):
-    email: EmailStr
-    password: str
 
 @router.post(
     "/signup", 
@@ -29,11 +26,11 @@ def signup(obj_in: UserCreate, db: Session = Depends(get_db)):
     summary="User Authenticate and Access Token retrieval",
     description="Validates credentials and issues signed bearer JWT tokens."
 )
-def login(credentials: LoginCredentials, db: Session = Depends(get_db)):
+def login(db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()):
     user = AuthService.authenticate_user(
         db, 
-        email=credentials.email, 
-        password=credentials.password
+        email=form_data.username, 
+        password=form_data.password
     )
     if not user:
         raise HTTPException(

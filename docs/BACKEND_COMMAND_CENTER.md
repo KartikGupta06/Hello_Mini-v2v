@@ -255,6 +255,32 @@ Standardized all newly implemented infrastructure APIs to follow a unified contr
 
 ---
 
+**Date:** 10 July 2026
+
+**Phase:** Phase 5 – FastAPI APIs
+
+**Task:** Phase 5.3 Authentication & Authorization Foundation
+
+**Status:** ✅ Completed
+
+**Summary:**
+Audited and formalized the authentication architecture. Reused the existing `User` model, adding a robust `role` column via Alembic migration for Role-Based Access Control (RBAC). Implemented `get_current_user`, `get_current_active_user`, and `get_current_admin_user` dependency injections in `app/api/deps.py`. Bound the `OAuth2PasswordRequestForm` to `/api/v1/auth/login` to securely issue and validate signed JWTs from environment variables while maintaining standard JSON error formats and Swagger UI compatibility.
+
+---
+
+**Date:** 10 July 2026
+
+**Phase:** Phase 5 – FastAPI APIs
+
+**Task:** Phase 5.3.1 Authentication Security Audit & Final Verification
+
+**Status:** ✅ Completed
+
+**Summary:**
+Performed a complete security and verification audit of the Authentication & Authorization layer. Downgraded and upgraded Alembic migrations successfully, validating the safety of the `users.role` migration with `server_default='user'`. Verified password security, token expiry checks, signature integrity, and JWT tampering mitigations. Tested RBAC route controls using a temporary endpoint via FastAPI's `TestClient` (200 for admins, 403 for users, 401 for unauthorized calls). The authentication layer is verified secure, production-ready, and officially frozen.
+
+---
+
 ## Decision Log
 
 - **Architecture:** Keep AI, routing, and safety logic strictly decoupled in `app/ai`, `app/routing`, and `app/safety`.
