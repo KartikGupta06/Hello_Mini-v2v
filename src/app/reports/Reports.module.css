@@ -66,11 +66,12 @@
 .layoutScrollArea {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding-bottom: 92px; /* space above navigation tab bar */
+  padding-bottom: var(--bottom-nav-safe-padding);
   
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -250,6 +251,11 @@
   overflow-x: auto;
   padding: 4px 0;
   scrollbar-width: none;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+  flex-shrink: 0;
 }
 
 .chipsScroll::-webkit-scrollbar {

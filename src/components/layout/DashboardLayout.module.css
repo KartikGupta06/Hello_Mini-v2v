@@ -30,12 +30,12 @@
     0 0 0 10px rgba(9, 13, 22, 0.85); /* Phone outer bezel simulator */
 }
 
-/* Interactive main layout content column */
 .contentArea {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 16px;
-  padding-bottom: calc(120px + env(safe-area-inset-bottom, 20px));
+  padding-bottom: var(--bottom-nav-safe-padding);
   scroll-behavior: smooth;
   background-color: var(--bg-primary);
   background-image: 

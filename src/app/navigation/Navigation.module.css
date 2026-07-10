@@ -190,18 +190,21 @@
   background: rgba(239, 68, 68, 0.15);
 }
 
-/* Quick Filter chips */
 .chipsScroll {
   position: absolute;
   top: 130px;
   left: 16px;
   width: calc(100% - 32px);
+  max-width: 100%;
   display: flex;
   gap: 8px;
   overflow-x: auto;
   z-index: 10;
   padding: 4px 0;
   scrollbar-width: none;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+  flex-shrink: 0;
 }
 
 .chipsScroll::-webkit-scrollbar {

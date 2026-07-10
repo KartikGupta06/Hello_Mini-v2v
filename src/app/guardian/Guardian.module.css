@@ -66,11 +66,12 @@
 .layoutScrollArea {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding-bottom: 92px; /* space above navigation tab bar */
+  padding-bottom: var(--bottom-nav-safe-padding);
   
   -ms-overflow-style: none;
   scrollbar-width: none;

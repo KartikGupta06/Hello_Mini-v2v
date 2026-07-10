@@ -5,6 +5,10 @@
   scrollbar-width: none;
   padding: 8px 0;
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
+  flex-shrink: 0;
 }
 
 .chipsScroll::-webkit-scrollbar {
