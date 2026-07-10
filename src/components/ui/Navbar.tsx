@@ -1,8 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Bell, Shield, Menu, ShieldAlert } from "lucide-react";
 import Link from "next/link";
+import { AuthService } from "@/services/auth";
+import { User } from "@/types";
 import styles from "./Navbar.module.css";
 import { Badge } from "./Badge";
 
@@ -15,6 +17,21 @@ export const Navbar: React.FC<NavbarProps> = ({
   onMenuToggle,
   title = "SafeRoute AI"
 }) => {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    setUser(AuthService.getSavedUser());
+  }, []);
+
+  const initials = user?.name
+    ? user.name
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .substring(0, 2)
+        .toUpperCase()
+    : "SR";
+
   return (
     <header className={styles.header}>
       <div className={styles.left}>
@@ -51,7 +68,9 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* User Profile Avatar */}
         <div className={styles.profile}>
-          <div className={styles.avatar}>KG</div>
+          <div className={styles.avatar} title={user?.name || "User Profile"}>
+            {initials}
+          </div>
         </div>
       </div>
     </header>

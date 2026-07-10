@@ -8,6 +8,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "primary" | "secondary" | "danger" | "warning" | "outline" | "ghost" | "emerald";
   size?: "sm" | "md" | "lg";
   isLoading?: boolean;
+  fullWidth?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
 }
@@ -17,10 +18,12 @@ export const Button: React.FC<ButtonProps> = ({
   variant = "primary",
   size = "md",
   isLoading = false,
+  fullWidth = false,
   leftIcon,
   rightIcon,
   className = "",
   disabled,
+  style,
   ...props
 }) => {
   const isDisabled = disabled || isLoading;
@@ -32,6 +35,7 @@ export const Button: React.FC<ButtonProps> = ({
       transition={{ type: "spring", stiffness: 400, damping: 15 }}
       className={`${styles.btn} ${styles[variant]} ${styles[size]} ${className}`}
       disabled={isDisabled}
+      style={{ width: fullWidth ? "100%" : undefined, ...style }}
       {...(props as any)}
     >
       {isLoading && <span className={styles.spinner} />}

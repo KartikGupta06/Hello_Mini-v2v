@@ -1,14 +1,20 @@
 "use client";
 
-import React, { useState } from "react";
-import { Settings, Shield, Bell, User, Volume2, Save } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Settings, Shield, Bell, User, Volume2, Save, Trash2, Key } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, SectionHeader, Button, Input } from "@/components/ui";
+import { AuthService } from "@/services/auth";
+import { User as UserType } from "@/types";
 import styles from "./Settings.module.css";
 
 export default function SettingsPage() {
-  const [profileName, setProfileName] = useState("Kartik Gupta");
-  const [profileEmail, setProfileEmail] = useState("kartik.g@domain.com");
+  const [currentUser, setCurrentUser] = useState<UserType | null>(null);
+  
+  // Profile settings
+  const [profileName, setProfileName] = useState("");
+  const [profileEmail, setProfileEmail] = useState("");
+  const [password, setPassword] = useState("");
   
   // Routing preferences
   const [routingPref, setRoutingPref] = useState("safe-first");
@@ -19,9 +25,56 @@ export default function SettingsPage() {
   const [smsAlerts, setSmsAlerts] = useState(true);
   const [pushAlerts, setPushAlerts] = useState(true);
 
-  const handleSave = (e: React.FormEvent) => {
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  useEffect(() => {
+    const usr = AuthService.getSavedUser();
+    if (usr) {
+      setCurrentUser(usr);
+      setProfileName(usr.name);
+      setProfileEmail(usr.email);
+    }
+  }, []);
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert("Simulating settings update save transaction...");
+    if (!profileName || !profileEmail) return;
+
+    setSaving(true);
+    try {
+      const payload: { name: string; email: string; password?: string } = {
+        name: profileName,
+        email: profileEmail
+      };
+      if (password) {
+        payload.password = password;
+      }
+      
+      const updated = await AuthService.updateUser(payload);
+      setCurrentUser(updated);
+      setPassword("");
+      alert("Settings successfully saved to your profile!");
+    } catch (err: any) {
+      alert(err.message || "Failed to update profile settings.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmed = confirm(
+      "WARNING: This action is permanent. Deleting your account will completely purge your profile, saved routes, emergency contacts, and journey history. Do you wish to proceed?"
+    );
+    if (!confirmed) return;
+
+    setDeleting(true);
+    try {
+      await AuthService.deleteUser();
+    } catch (err: any) {
+      alert(err.message || "Failed to delete account.");
+      setDeleting(false);
+    }
   };
 
   return (
@@ -32,9 +85,9 @@ export default function SettingsPage() {
           subtitle="Configure your profile, safety triggers, and path algorithms"
         />
 
-        <form onSubmit={handleSave} className={styles.settingsGrid}>
+        <div className={styles.settingsGrid}>
           {/* Left Side: General Profile and Alerting Settings */}
-          <div className={styles.mainCol}>
+          <form onSubmit={handleSave} className={styles.mainCol}>
             
             {/* Account Settings */}
             <Card glass={true} padding="md" className={styles.sectionCard}>
@@ -48,6 +101,8 @@ export default function SettingsPage() {
                   value={profileName}
                   onChange={(e) => setProfileName(e.target.value)}
                   placeholder="John Doe"
+                  required
+                  disabled={saving}
                 />
                 <Input 
                   label="Registered Email Address"
@@ -55,6 +110,16 @@ export default function SettingsPage() {
                   onChange={(e) => setProfileEmail(e.target.value)}
                   placeholder="john.doe@email.com"
                   type="email"
+                  required
+                  disabled={saving}
+                />
+                <Input 
+                  label="Update Password (Leave blank to keep current)"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  type="password"
+                  disabled={saving}
                 />
               </div>
             </Card>
@@ -102,7 +167,17 @@ export default function SettingsPage() {
                 </label>
               </div>
             </Card>
-          </div>
+
+            <Button 
+              type="submit" 
+              variant="primary" 
+              className={styles.saveBtn}
+              leftIcon={<Save size={18} />}
+              isLoading={saving}
+            >
+              Save Configuration
+            </Button>
+          </form>
 
           {/* Right Side: Emergency Trigger preferences & Notifications */}
           <div className={styles.sideCol}>
@@ -182,17 +257,27 @@ export default function SettingsPage() {
               </div>
             </Card>
 
-            {/* Save Buttons */}
-            <Button 
-              type="submit" 
-              variant="primary" 
-              className={styles.saveBtn}
-              leftIcon={<Save size={18} />}
-            >
-              Save Configuration
-            </Button>
+            {/* Danger Zone */}
+            <Card glass={true} padding="md" className={styles.sectionCard} style={{ border: "1px solid rgba(239, 68, 68, 0.25)" }}>
+              <div className={styles.sectionHeaderRow}>
+                <Trash2 size={18} style={{ color: "var(--status-danger)" }} />
+                <h3 className={styles.sectionTitle} style={{ color: "var(--status-danger)" }}>Danger Zone</h3>
+              </div>
+              <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", margin: "0.5rem 0 1rem 0" }}>
+                Unsubscribe and completely purge your SafeRoute AI user records from the central PostgreSQL database.
+              </p>
+              <Button 
+                variant="danger" 
+                onClick={handleDeleteAccount} 
+                isLoading={deleting} 
+                leftIcon={<Trash2 size={16} />}
+                fullWidth
+              >
+                Delete Account
+              </Button>
+            </Card>
           </div>
-        </form>
+        </div>
       </div>
     </DashboardLayout>
   );

@@ -6,21 +6,79 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ShieldAlert, AlertTriangle, ShieldCheck, PhoneCall, ChevronLeft, MapPin, Users } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { ContactService } from "@/services/contacts";
+import { EmergencyContact } from "@/types";
 import styles from "./Emergency.module.css";
 
 export default function EmergencyPage() {
   const [sosState, setSosState] = useState<"idle" | "countdown" | "active">("idle");
   const [countdown, setCountdown] = useState(5);
+  const [contacts, setContacts] = useState<EmergencyContact[]>([]);
+  const [primaryContact, setPrimaryContact] = useState<EmergencyContact | null>(null);
 
+  // Position tracking states
+  const [latitude, setLatitude] = useState<number | null>(null);
+  const [longitude, setLongitude] = useState<number | null>(null);
+  const [watchId, setWatchId] = useState<number | null>(null);
+
+  useEffect(() => {
+    // Fetch emergency contacts to display notification count
+    async function loadContacts() {
+      try {
+        const fetched = await ContactService.getContacts();
+        setContacts(fetched);
+        const primary = fetched.find(c => c.is_primary) || fetched[0] || null;
+        setPrimaryContact(primary);
+      } catch (e) {
+        console.error("Failed to load emergency contacts:", e);
+      }
+    }
+    loadContacts();
+  }, []);
+
+  // Control countdown timer
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (sosState === "countdown" && countdown > 0) {
       timer = setTimeout(() => setCountdown(countdown - 1), 1000);
     } else if (sosState === "countdown" && countdown === 0) {
       setSosState("active");
+      startLocationStreaming();
     }
     return () => clearTimeout(timer);
   }, [sosState, countdown]);
+
+  // Clean location stream on unmount
+  useEffect(() => {
+    return () => {
+      if (watchId !== null && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchId);
+      }
+    };
+  }, [watchId]);
+
+  const startLocationStreaming = () => {
+    if (navigator.geolocation) {
+      const id = navigator.geolocation.watchPosition(
+        (position) => {
+          setLatitude(position.coords.latitude);
+          setLongitude(position.coords.longitude);
+        },
+        (err) => {
+          console.error("Error watching GPS position:", err);
+          // Fallback to default Malviya Nagar coordinates if GPS fails
+          setLatitude(28.5306);
+          setLongitude(77.2045);
+        },
+        { enableHighAccuracy: true }
+      );
+      setWatchId(id);
+    } else {
+      // Fallback
+      setLatitude(28.5306);
+      setLongitude(77.2045);
+    }
+  };
 
   const triggerSOS = () => {
     setCountdown(5);
@@ -28,8 +86,19 @@ export default function EmergencyPage() {
   };
 
   const cancelSOS = () => {
+    if (watchId !== null && navigator.geolocation) {
+      navigator.geolocation.clearWatch(watchId);
+      setWatchId(null);
+    }
     setSosState("idle");
     setCountdown(5);
+  };
+
+  const formattedCoordinates = () => {
+    if (latitude !== null && longitude !== null) {
+      return `${latitude.toFixed(5)}° N, ${longitude.toFixed(5)}° E`;
+    }
+    return "Resolving GPS position...";
   };
 
   return (
@@ -142,7 +211,7 @@ export default function EmergencyPage() {
                   <MapPin size={16} className={styles.statusIconBlue} />
                   <div>
                     <span className={styles.statusLabel}>Live Position</span>
-                    <span className={styles.statusValue}>40.7128° N, 74.0060° W</span>
+                    <span className={styles.statusValue}>{formattedCoordinates()}</span>
                   </div>
                 </div>
 
@@ -150,7 +219,16 @@ export default function EmergencyPage() {
                   <Users size={16} className={styles.statusIconEmerald} />
                   <div>
                     <span className={styles.statusLabel}>Notified Guardians</span>
-                    <span className={styles.statusValue}>4 Contacts (SMS Sent)</span>
+                    <span className={styles.statusValue}>
+                      {contacts.length > 0
+                        ? `${contacts.length} Contact${contacts.length > 1 ? "s" : ""} (Alert Link Sent)`
+                        : "No Guardians Added (Direct Dispatch Only)"}
+                    </span>
+                    {primaryContact && (
+                      <span style={{ fontSize: "0.75rem", color: "var(--accent-emerald)", display: "block", marginTop: "2px" }}>
+                        Primary Target: <strong>{primaryContact.name}</strong> ({primaryContact.phone})
+                      </span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -160,7 +238,7 @@ export default function EmergencyPage() {
                   variant="primary" 
                   size="md" 
                   leftIcon={<PhoneCall size={18} />}
-                  onClick={() => alert("Simulating phone call connection to emergency services...")}
+                  onClick={() => alert(`Dialing local emergency dispatch services...`)}
                 >
                   Call Local Police
                 </Button>

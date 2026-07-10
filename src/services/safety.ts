@@ -1,19 +1,87 @@
 import { fetchJson } from "../lib/api";
-import { RouteDetail, SafetyReport, SafeHaven } from "../types";
+import { 
+  RouteDetail, 
+  SafetyReport, 
+  SafeHaven, 
+  RouteRecommendationResponse, 
+  CandidateRouteInput,
+  ReportCategory
+} from "../types";
 
 export const SafetyService = {
-  getRoutes: async (origin: string, destination: string): Promise<RouteDetail[]> => {
-    return fetchJson<RouteDetail[]>(`/routes?origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}`);
+  // Post route coordinates to obtain analysis, ranking, and explainable safety details
+  analyzeRoutes: async (routes: CandidateRouteInput[]): Promise<RouteRecommendationResponse> => {
+    return fetchJson<RouteRecommendationResponse>("/routes/analyze", {
+      method: "POST",
+      body: JSON.stringify(routes),
+    });
   },
 
-  submitReport: async (report: Omit<SafetyReport, "id" | "createdAt">): Promise<SafetyReport> => {
+  // Submit hazard reports
+  submitReport: async (report: { lat: number; lng: number; type: ReportCategory; description: string; user_id?: number }): Promise<SafetyReport> => {
     return fetchJson<SafetyReport>("/reports", {
       method: "POST",
       body: JSON.stringify(report),
     });
   },
 
-  getSafeHavens: async (lat: number, lng: number): Promise<SafeHaven[]> => {
-    return fetchJson<SafeHaven[]>(`/havens?lat=${lat}&lng=${lng}`);
+  // Query community reported hazards
+  getReports: async (params?: { limit?: number; offset?: number; type?: string; search?: string }): Promise<SafetyReport[]> => {
+    const queryParts: string[] = [];
+    if (params?.limit !== undefined) queryParts.push(`limit=${params.limit}`);
+    if (params?.offset !== undefined) queryParts.push(`offset=${params.offset}`);
+    if (params?.type) queryParts.push(`type=${encodeURIComponent(params.type)}`);
+    if (params?.search) queryParts.push(`search=${encodeURIComponent(params.search)}`);
+    
+    const queryStr = queryParts.length ? `?${queryParts.join("&")}` : "";
+    return fetchJson<SafetyReport[]>(`/reports${queryStr}`);
+  },
+
+  // Fetch coordinates safety score and explainable reasons
+  getSafetyScore: async (lat: number, lng: number): Promise<{
+    safety_score: number;
+    confidence_level: string;
+    confidence_percentage: number;
+    risk_category: string;
+    reasons: string[];
+    module_breakdown: Record<string, any>;
+  }> => {
+    return fetchJson(`/ai/safety-score?lat=${lat}&lng=${lng}`);
+  },
+
+  // Query police stations infrastructure
+  getPoliceStations: async (district?: string): Promise<{ data: SafeHaven[]; total: number }> => {
+    const query = district ? `?district=${encodeURIComponent(district)}` : "";
+    const response = await fetchJson<{ success: boolean; data: any[]; total: number }>(`/police-stations/${query}`);
+    return {
+      total: response.total,
+      data: response.data.map(item => ({
+        id: item.station_id,
+        name: item.station_name,
+        type: "police_station" as const,
+        lat: item.latitude,
+        lng: item.longitude,
+        address: item.address,
+        phone: item.contact_number
+      }))
+    };
+  },
+
+  // Query hospitals infrastructure
+  getHospitals: async (district?: string): Promise<{ data: SafeHaven[]; total: number }> => {
+    const query = district ? `?district=${encodeURIComponent(district)}` : "";
+    const response = await fetchJson<{ success: boolean; data: any[]; total: number }>(`/hospitals/${query}`);
+    return {
+      total: response.total,
+      data: response.data.map(item => ({
+        id: item.hospital_id,
+        name: item.hospital_name,
+        type: "hospital" as const,
+        lat: item.latitude,
+        lng: item.longitude,
+        address: item.address,
+        phone: item.contact_number
+      }))
+    };
   }
 };

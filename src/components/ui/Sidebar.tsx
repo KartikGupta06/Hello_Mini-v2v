@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -12,8 +12,12 @@ import {
   Info,
   ShieldAlert,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  LogOut,
+  Building
 } from "lucide-react";
+import { AuthService } from "@/services/auth";
+import { User } from "@/types";
 import styles from "./Sidebar.module.css";
 
 interface SidebarProps {
@@ -26,6 +30,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onClose
 }) => {
   const pathname = usePathname();
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    setUser(AuthService.getSavedUser());
+  }, []);
+
+  const handleLogout = () => {
+    AuthService.logout();
+  };
 
   const menuItems = [
     {
@@ -37,6 +50,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: "Safe Navigation",
       icon: <Navigation size={18} />,
       href: "/navigation"
+    },
+    {
+      label: "Safe Havens",
+      icon: <Building size={18} />,
+      href: "/nearby"
     },
     {
       label: "Guardian Mode",
@@ -115,6 +133,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <div className={styles.footerAppName}>SafeRoute AI</div>
             <div className={styles.footerVersion}>v1.0.0 (Foundation)</div>
           </div>
+          {user && (
+            <div className={styles.profileSection}>
+              <div className={styles.profileDetails}>
+                <span className={styles.profileName}>{user.name}</span>
+                <span className={styles.profileRole}>{user.role || "User"}</span>
+              </div>
+              <button 
+                onClick={handleLogout} 
+                className={styles.logoutBtn}
+                title="Log Out of System"
+                aria-label="Log Out"
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
+          )}
         </div>
       </aside>
     </>

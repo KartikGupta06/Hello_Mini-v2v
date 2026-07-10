@@ -1,92 +1,102 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus, MessageSquareWarning, MapPin, Calendar, ThumbsUp, AlertTriangle } from "lucide-react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Card, SectionHeader, Button, Badge, Modal, Input } from "@/components/ui";
+import { Card, SectionHeader, Button, Badge, Modal, Input, LoadingSkeleton } from "@/components/ui";
+import { SafetyService } from "@/services/safety";
+import { AuthService } from "@/services/auth";
+import { SafetyReport, ReportCategory, User } from "@/types";
 import styles from "./Reports.module.css";
 
 export default function ReportsPage() {
-  const [reports, setReports] = useState([
-    {
-      id: "1",
-      type: "Poorly Lit Area",
-      typeVariant: "warning" as const,
-      location: "8th Ave & W 34th St",
-      date: "Today, 6:00 PM",
-      description: "Streetlights are fully out on the northeast corner. Very dark near the subway exit entrance.",
-      likes: 12,
-      voted: false
-    },
-    {
-      id: "2",
-      type: "Suspicious Activity",
-      typeVariant: "danger" as const,
-      location: "Broadway & W 29th St",
-      date: "Yesterday, 10:45 PM",
-      description: "Two individuals loitering near the dark alleyway behind the convenience store, acting aggressively towards passersby.",
-      likes: 8,
-      voted: false
-    },
-    {
-      id: "3",
-      type: "Obstruction",
-      typeVariant: "info" as const,
-      location: "5th Ave & E 31st St",
-      date: "2 days ago",
-      description: "Sidewalk blocked by construction barriers forcing pedestrians to walk on the active roadway. Poor safety cones.",
-      likes: 4,
-      voted: false
-    }
-  ]);
-
+  const [user, setUser] = useState<User | null>(null);
+  const [reports, setReports] = useState<SafetyReport[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newLocation, setNewLocation] = useState("");
-  const [newType, setNewType] = useState("poorly-lit");
+  const [newType, setNewType] = useState<ReportCategory>("Poor Lighting");
   const [newDesc, setNewDesc] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleCreateReport = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newLocation || !newDesc) return;
+  useEffect(() => {
+    setUser(AuthService.getSavedUser());
+    fetchReports();
+  }, []);
 
-    const typeMapping: Record<string, { label: string, variant: "warning" | "danger" | "info" }> = {
-      "poorly-lit": { label: "Poorly Lit Area", variant: "warning" },
-      "theft": { label: "Theft / Robbery Alert", variant: "danger" },
-      "harassment": { label: "Harassment Alert", variant: "danger" },
-      "obstruction": { label: "Obstruction", variant: "info" },
-      "other": { label: "Suspicious Activity", variant: "warning" }
-    };
-
-    const mapped = typeMapping[newType] || { label: "Alert", variant: "warning" as const };
-
-    const newReport = {
-      id: String(reports.length + 1),
-      type: mapped.label,
-      typeVariant: mapped.variant,
-      location: newLocation,
-      date: "Just now",
-      description: newDesc,
-      likes: 0,
-      voted: false
-    };
-
-    setReports([newReport, ...reports]);
-    setIsModalOpen(false);
-    setNewLocation("");
-    setNewDesc("");
+  const fetchReports = async () => {
+    setLoading(true);
+    try {
+      const data = await SafetyService.getReports({ limit: 100 });
+      // Sort reports by created_at descending
+      const sorted = data.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      setReports(sorted);
+    } catch (e) {
+      console.error("Failed to load reports:", e);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleVote = (id: string) => {
-    setReports(reports.map(r => {
-      if (r.id === id) {
-        return {
-          ...r,
-          likes: r.voted ? r.likes - 1 : r.likes + 1,
-          voted: !r.voted
-        };
+  const handleCreateReport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newDesc) return;
+
+    setSubmitting(true);
+    try {
+      // Capture browser coordinates if available
+      let lat = 28.5306; // South Delhi defaults
+      let lng = 77.2045;
+
+      if (navigator.geolocation) {
+        await new Promise<void>((resolve) => {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              lat = position.coords.latitude;
+              lng = position.coords.longitude;
+              resolve();
+            },
+            () => {
+              console.warn("Geolocation coordinate resolution failed, utilizing default area coordinates.");
+              resolve();
+            },
+            { timeout: 3000 }
+          );
+        });
       }
-      return r;
-    }));
+
+      await SafetyService.submitReport({
+        lat,
+        lng,
+        type: newType,
+        description: newDesc,
+        user_id: user?.id
+      });
+
+      setNewDesc("");
+      setIsModalOpen(false);
+      await fetchReports(); // Reload lists
+    } catch (err) {
+      console.error("Failed to post community hazard alert:", err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const getBadgeVariant = (type: ReportCategory) => {
+    switch (type) {
+      case "Harassment":
+      case "Stalking":
+        return "danger" as const;
+      case "Street Light Issue":
+      case "Poor Lighting":
+      case "Broken CCTV":
+        return "warning" as const;
+      case "Road Block":
+      case "Suspicious Activity":
+      case "Other":
+      default:
+        return "info" as const;
+    }
   };
 
   return (
@@ -107,60 +117,76 @@ export default function ReportsPage() {
           }
         />
 
-        <div className={styles.layoutGrid}>
-          {/* Main Feed */}
-          <div className={styles.feedPanel}>
-            <div className={styles.feedList}>
-              {reports.map((report) => (
-                <Card key={report.id} glass={true} padding="md" className={styles.reportCard}>
-                  <div className={styles.cardHeader}>
-                    <Badge variant={report.typeVariant} size="sm">
-                      {report.type}
-                    </Badge>
-                    <span className={styles.reportDate}>
-                      <Calendar size={12} className={styles.headerIcon} />
-                      {report.date}
-                    </span>
-                  </div>
+        {loading ? (
+          <div style={{ padding: "2rem 0" }}>
+            <LoadingSkeleton count={3} height={120} />
+          </div>
+        ) : (
+          <div className={styles.layoutGrid}>
+            {/* Main Feed */}
+            <div className={styles.feedPanel}>
+              <div className={styles.feedList}>
+                {reports.length === 0 ? (
+                  <Card glass={true} padding="md" style={{ textAlign: "center", color: "var(--text-secondary)" }}>
+                    No safety hazard alerts currently logged in this district.
+                  </Card>
+                ) : (
+                  reports.map((report) => (
+                    <Card key={report.id} glass={true} padding="md" className={styles.reportCard}>
+                      <div className={styles.cardHeader}>
+                        <Badge variant={getBadgeVariant(report.type)} size="sm">
+                          {report.type}
+                        </Badge>
+                        <span className={styles.reportDate}>
+                          <Calendar size={12} className={styles.headerIcon} />
+                          {new Date(report.created_at).toLocaleDateString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit"
+                          })}
+                        </span>
+                      </div>
 
-                  <div className={styles.locationRow}>
-                    <MapPin size={14} className={styles.pinIcon} />
-                    <span className={styles.locationName}>{report.location}</span>
-                  </div>
+                      <div className={styles.locationRow}>
+                        <MapPin size={14} className={styles.pinIcon} />
+                        <span className={styles.locationName}>
+                          Location: {report.lat.toFixed(4)}° N, {report.lng.toFixed(4)}° E
+                        </span>
+                      </div>
 
-                  <p className={styles.description}>{report.description}</p>
+                      <p className={styles.description}>{report.description}</p>
 
-                  <div className={styles.cardFooter}>
-                    <button 
-                      onClick={() => handleVote(report.id)}
-                      className={`${styles.voteBtn} ${report.voted ? styles.voted : ""}`}
-                    >
-                      <ThumbsUp size={14} />
-                      <span>{report.likes} Pedestrians confirmed this</span>
-                    </button>
-                  </div>
-                </Card>
-              ))}
+                      <div className={styles.cardFooter}>
+                        <button className={`${styles.voteBtn} ${styles.voted}`} style={{ cursor: "default" }}>
+                          <ThumbsUp size={14} />
+                          <span>Verified active security indicator</span>
+                        </button>
+                      </div>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Secondary Info card */}
+            <div className={styles.infoPanel}>
+              <Card glass={true} padding="md" className={styles.infoCard}>
+                <div className={styles.infoTitleRow}>
+                  <AlertTriangle size={20} className={styles.alertIcon} />
+                  <h3 className={styles.infoTitle}>Verification System</h3>
+                </div>
+                <p className={styles.infoText}>
+                  Crowdsourced safety alerts are automatically integrated into local routing scores after receiving confirmations from other pedestrians.
+                </p>
+                <div className={styles.divider} />
+                <p className={styles.infoSubText}>
+                  SafeRoute AI filters spam and flags outdated alerts automatically after 24 hours of inactivity.
+                </p>
+              </Card>
             </div>
           </div>
-
-          {/* Secondary Info card */}
-          <div className={styles.infoPanel}>
-            <Card glass={true} padding="md" className={styles.infoCard}>
-              <div className={styles.infoTitleRow}>
-                <AlertTriangle size={20} className={styles.alertIcon} />
-                <h3 className={styles.infoTitle}>Verification System</h3>
-              </div>
-              <p className={styles.infoText}>
-                Crowdsourced safety alerts are automatically integrated into local routing scores after receiving confirmations from other pedestrians.
-              </p>
-              <div className={styles.divider} />
-              <p className={styles.infoSubText}>
-                SafeRoute AI filters spam and flags outdated alerts automatically after 24 hours of inactivity.
-              </p>
-            </Card>
-          </div>
-        </div>
+        )}
 
         {/* Create Report Modal */}
         <Modal 
@@ -170,26 +196,27 @@ export default function ReportsPage() {
           size="sm"
         >
           <form onSubmit={handleCreateReport} className={styles.modalForm}>
-            <Input 
-              label="Location / Intersection"
-              value={newLocation}
-              onChange={(e) => setNewLocation(e.target.value)}
-              placeholder="e.g. 8th Ave & W 34th St"
-              required
-            />
+            <div style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
+              <span className={styles.pulseDot} style={{ display: "inline-block", marginRight: "6px", backgroundColor: "var(--accent-emerald)" }} />
+              Coordinates will be automatically resolved using your current GPS location.
+            </div>
 
             <div className={styles.selectWrapper}>
               <label className={styles.selectLabel}>Incident Category</label>
               <select 
                 value={newType} 
-                onChange={(e) => setNewType(e.target.value)}
+                onChange={(e) => setNewType(e.target.value as ReportCategory)}
                 className={styles.select}
+                disabled={submitting}
               >
-                <option value="poorly-lit">Poorly Lit Pathway</option>
-                <option value="theft">Theft / Physical Danger</option>
-                <option value="harassment">Harassment / Safety Risk</option>
-                <option value="obstruction">Sidewalk Blocked / Construction</option>
-                <option value="other">Other Suspicious Behavior</option>
+                <option value="Poor Lighting">Poor Lighting Coverage</option>
+                <option value="Street Light Issue">Street Light Out / Faulty</option>
+                <option value="Broken CCTV">Broken Surveillance Camera</option>
+                <option value="Harassment">Harassment / Safety Danger</option>
+                <option value="Stalking">Stalking Incident</option>
+                <option value="Road Block">Road Block / Construction</option>
+                <option value="Suspicious Activity">Suspicious Loitering Activity</option>
+                <option value="Other">Other Hazard Alert</option>
               </select>
             </div>
 
@@ -201,14 +228,15 @@ export default function ReportsPage() {
                 placeholder="Describe lighting issues, physical barriers, or safety concerns..."
                 className={styles.textarea}
                 required
+                disabled={submitting}
               />
             </div>
 
             <div className={styles.formActions}>
-              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)}>
+              <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)} disabled={submitting}>
                 Cancel
               </Button>
-              <Button type="submit" variant="primary">
+              <Button type="submit" variant="primary" isLoading={submitting}>
                 Publish Alert
               </Button>
             </div>

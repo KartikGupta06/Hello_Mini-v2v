@@ -1,14 +1,21 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, Variants } from "framer-motion";
 import { Shield, Navigation, AlertTriangle, Eye, Activity, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { AuthService } from "@/services/auth";
 import styles from "./Landing.module.css";
 
 export default function LandingPage() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    setIsLoggedIn(AuthService.isAuthenticated());
+  }, []);
+
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -60,8 +67,10 @@ export default function LandingPage() {
         </div>
         <div className={styles.navLinks}>
           <Link href="/about" className={styles.navLink}>About AI</Link>
-          <Link href="/dashboard">
-            <Button variant="outline" size="sm">Access App</Button>
+          <Link href={isLoggedIn ? "/dashboard" : "/login"}>
+            <Button variant="outline" size="sm">
+              {isLoggedIn ? "Dashboard" : "Sign In"}
+            </Button>
           </Link>
         </div>
       </nav>
@@ -93,9 +102,9 @@ export default function LandingPage() {
 
         {/* Call to Actions */}
         <motion.div variants={itemVariants} className={styles.ctaRow}>
-          <Link href="/dashboard">
+          <Link href={isLoggedIn ? "/dashboard" : "/login"}>
             <Button variant="primary" size="lg" rightIcon={<ArrowRight size={18} />}>
-              Open Dashboard
+              {isLoggedIn ? "Open Dashboard" : "Get Started"}
             </Button>
           </Link>
           <Link href="/emergency">
