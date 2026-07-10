@@ -1,5 +1,8 @@
 // Base API Fetch client configuration
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+let BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+if (BASE_URL && !BASE_URL.endsWith("/api/v1")) {
+  BASE_URL = BASE_URL.replace(/\/+$/, "") + "/api/v1";
+}
 const DEFAULT_TIMEOUT = 10000; // 10 seconds
 
 export interface FetchOptions extends RequestInit {
