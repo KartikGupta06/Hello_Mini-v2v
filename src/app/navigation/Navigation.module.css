@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   height: 100%;
-  background-color: #060913;
+  background-color: var(--bg-primary);
   overflow: hidden;
 }
 
@@ -28,12 +28,12 @@
 }
 
 .searchCard {
-  background: rgba(10, 15, 30, 0.75) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55) !important;
-  border-radius: 20px !important;
+  background: var(--bg-glass) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid var(--border-light) !important;
+  box-shadow: var(--shadow-md) !important;
+  border-radius: var(--radius-lg) !important;
 }
 
 .searchFormRow {
@@ -53,16 +53,16 @@
   position: relative;
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
   padding: 8px 12px;
   transition: all 0.2s ease;
 }
 
 .inputBox:focus-within {
-  border-color: var(--accent-emerald, #10b981);
-  background: rgba(255, 255, 255, 0.07);
+  border-color: var(--accent-secondary);
+  background: var(--bg-secondary);
 }
 
 .dotOrigin {
@@ -84,7 +84,7 @@
 .premiumInput {
   background: none;
   border: none;
-  color: #ffffff;
+  color: var(--text-primary);
   font-size: 0.85rem;
   font-weight: 500;
   width: 100%;
@@ -93,7 +93,7 @@
 }
 
 .premiumInput::placeholder {
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--text-muted);
 }
 
 .micIcon {
@@ -114,14 +114,13 @@
   top: calc(100% + 4px);
   left: 0;
   right: 0;
-  background: rgba(9, 13, 22, 0.95);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
   border-radius: 12px;
   max-height: 160px;
   overflow-y: auto;
   z-index: 50;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  box-shadow: var(--shadow-md);
 }
 
 .suggestPill {
@@ -129,16 +128,16 @@
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-secondary);
   font-size: 0.75rem;
   font-weight: 500;
   cursor: pointer;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .suggestPill:hover {
-  background: rgba(255, 255, 255, 0.06);
-  color: #ffffff;
+  background: rgba(30, 42, 57, 0.04);
+  color: var(--text-primary);
 }
 
 /* Swap & Action buttons col */
@@ -152,7 +151,7 @@
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-medium);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -161,19 +160,19 @@
 }
 
 .swapCircleBtn {
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--bg-secondary);
   color: var(--text-secondary);
 }
 
 .swapCircleBtn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+  background: rgba(30, 42, 57, 0.04);
+  color: var(--text-primary);
 }
 
 .goSearchBtn {
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-secondary));
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  box-shadow: var(--shadow-sm);
   border: none;
 }
 
@@ -182,13 +181,13 @@
 }
 
 .resetCircleBtn {
-  background: rgba(239, 68, 68, 0.12);
+  background: rgba(239, 68, 68, 0.08);
   color: var(--status-danger);
-  border-color: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.18);
 }
 
 .resetCircleBtn:hover {
-  background: rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.15);
 }
 
 /* Quick Filter chips */
@@ -212,12 +211,10 @@
 .filterChip {
   flex-shrink: 0;
   padding: 6px 12px;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
   border-radius: 9999px;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   font-size: 0.72rem;
   font-weight: 600;
   cursor: pointer;
@@ -226,15 +223,15 @@
 }
 
 .filterChip:hover {
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+  border-color: var(--accent-blue);
 }
 
 .activeChip {
-  background: rgba(16, 185, 129, 0.15);
-  color: var(--accent-emerald, #10b981);
-  border-color: rgba(16, 185, 129, 0.35);
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+  background: var(--accent-blue);
+  color: #FFFFFF;
+  border-color: var(--accent-blue);
+  box-shadow: var(--shadow-sm);
 }
 
 /* M4 Floating Results Header Overlay */
@@ -244,25 +241,25 @@
   left: 16px;
   width: calc(100% - 32px);
   height: 56px;
-  background: rgba(10, 15, 30, 0.75);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-glass);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-light);
   border-radius: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 0 8px;
   z-index: 10;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-md);
 }
 
 .backResultsBtn, .shareResultsBtn {
   width: 38px;
   height: 38px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
   color: var(--text-secondary);
   display: flex;
   align-items: center;
@@ -272,8 +269,8 @@
 }
 
 .backResultsBtn:hover, .shareResultsBtn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+  background: rgba(30, 42, 57, 0.04);
+  color: var(--text-primary);
 }
 
 .resultsHeaderDetails {
@@ -313,12 +310,12 @@
 }
 
 .navInstructionCard {
-  background: rgba(10, 15, 30, 0.85) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
-  border-radius: 20px !important;
+  background: var(--bg-glass) !important;
+  backdrop-filter: blur(24px) !important;
+  -webkit-backdrop-filter: blur(24px) !important;
+  border: 1px solid var(--border-light) !important;
+  box-shadow: var(--shadow-md) !important;
+  border-radius: var(--radius-lg) !important;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -335,12 +332,12 @@
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-emerald));
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-secondary));
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
 .navInstructionArrow {
@@ -377,7 +374,7 @@
 .etaNavText {
   font-size: 1rem;
   font-weight: 800;
-  color: var(--accent-emerald, #10b981);
+  color: var(--status-success);
 }
 
 .distNavText {
@@ -391,12 +388,12 @@
   display: flex;
   align-items: center;
   justify-content: space-around;
-  background: rgba(10, 15, 30, 0.8);
+  background: var(--bg-glass);
   backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-light);
   border-radius: 12px;
   padding: 8px 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-sm);
 }
 
 .safetyBarMetric {
@@ -428,13 +425,13 @@
 .safetyBarShield {
   font-size: 0.72rem;
   font-weight: 700;
-  color: var(--accent-emerald);
+  color: var(--status-success);
 }
 
 .verticalSafetyDivider {
   width: 1px;
   height: 20px;
-  background-color: rgba(255, 255, 255, 0.08);
+  background-color: var(--border-medium);
 }
 
 /* AI guidance Insight tip overlay */

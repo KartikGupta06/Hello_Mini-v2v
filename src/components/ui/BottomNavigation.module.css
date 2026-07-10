@@ -1,19 +1,21 @@
 .bottomNav {
   position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  height: 76px;
-  background: rgba(9, 13, 22, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  bottom: 16px;
+  left: 12px;
+  right: 12px;
+  width: calc(100% - 24px);
+  height: 68px;
+  background: var(--bg-glass);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
   display: flex;
   justify-content: space-around;
   align-items: center;
   z-index: 1000;
-  padding-bottom: env(safe-area-inset-bottom, 8px);
-  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.6);
+  box-shadow: var(--shadow-md);
+  padding: 0 8px;
 }
 
 .navItem {
@@ -23,9 +25,9 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   text-decoration: none;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   font-weight: 500;
   height: 100%;
   transition: all 0.2s ease;
@@ -58,7 +60,7 @@
 
 .sosButtonWrapper {
   position: relative;
-  bottom: 14px;
+  bottom: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -67,13 +69,13 @@
   border: none;
   cursor: pointer;
   z-index: 1010;
-  width: 68px;
-  height: 68px;
+  width: 64px;
+  height: 64px;
 }
 
 .sosButton {
-  width: 52px;
-  height: 52px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
   background: linear-gradient(135deg, #ef4444, #b91c1c);
   color: #ffffff;
@@ -99,22 +101,22 @@
 }
 
 .sosLabel {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 700;
   color: #ef4444;
-  margin-top: 4px;
+  margin-top: 2px;
   letter-spacing: 0.02em;
   font-family: var(--font-sans);
 }
 
 .sosPulse {
   position: absolute;
-  top: 8px;
-  left: 8px;
-  width: 52px;
-  height: 52px;
+  top: 7px;
+  left: 7px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background-color: rgba(239, 68, 68, 0.4);
+  background-color: rgba(239, 68, 68, 0.35);
   z-index: 1;
   animation: sosGlowPulse 2.5s infinite;
   pointer-events: none;
@@ -131,6 +133,6 @@
   }
   100% {
     transform: scale(0.9);
-    opacity: 0;
+    opacity: 0.8;
   }
 }

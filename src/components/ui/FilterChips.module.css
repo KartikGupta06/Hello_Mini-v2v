@@ -14,12 +14,10 @@
 .filterChip {
   flex-shrink: 0;
   padding: 8px 16px;
-  background: var(--bg-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-light);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
   border-radius: var(--radius-full);
-  color: var(--text-secondary);
+  color: var(--text-muted);
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
@@ -30,17 +28,17 @@
 
 .filterChip:hover {
   color: var(--text-primary);
-  border-color: var(--border-medium);
+  border-color: var(--accent-blue);
 }
 
 .filterChip:focus-visible {
   border-color: var(--accent-blue);
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 0 0 2px rgba(92, 115, 134, 0.4);
 }
 
 .activeChip {
-  background: rgba(var(--accent-emerald-rgb), 0.15);
-  color: var(--accent-emerald);
-  border-color: rgba(var(--accent-emerald-rgb), 0.35);
-  box-shadow: var(--shadow-glow-emerald);
+  background: var(--accent-blue);
+  color: #FFFFFF;
+  border-color: var(--accent-blue);
+  box-shadow: var(--shadow-sm);
 }

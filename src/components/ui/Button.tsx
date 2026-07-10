@@ -30,9 +30,9 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <motion.button
-      whileHover={isDisabled ? {} : { scale: 1.015, translateY: -1 }}
-      whileTap={isDisabled ? {} : { scale: 0.985 }}
-      transition={{ type: "spring", stiffness: 400, damping: 15 }}
+      whileHover={isDisabled ? {} : { scale: 1.01 }}
+      whileTap={isDisabled ? {} : { scale: 0.99 }}
+      transition={{ type: "spring", stiffness: 450, damping: 20 }}
       className={`${styles.btn} ${styles[variant]} ${styles[size]} ${className}`}
       disabled={isDisabled}
       style={{ width: fullWidth ? "100%" : undefined, ...style }}

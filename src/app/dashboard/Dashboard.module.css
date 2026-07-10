@@ -31,19 +31,16 @@
   color: var(--text-primary);
   letter-spacing: -0.02em;
   margin: 0;
-  background: linear-gradient(to right, var(--text-primary), rgba(255,255,255,0.7));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 .weatherWidget {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(30, 42, 57, 0.04);
   padding: 6px 12px;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-light);
 }
 
 .weatherIcon {
@@ -67,18 +64,16 @@
   align-items: center;
   padding: 0 8px 0 16px;
   height: 54px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
-  box-shadow: 
-    0 10px 25px -5px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(255,255,255,0.02);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .searchInputMock:hover {
-  background: rgba(15, 23, 42, 0.85);
-  border-color: rgba(59, 130, 246, 0.35);
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 0 3px rgba(157, 180, 198, 0.25);
   transform: translateY(-1px);
 }
 
@@ -99,12 +94,12 @@
   width: 38px;
   height: 38px;
   border-radius: 14px;
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-secondary));
   display: flex;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.35);
+  box-shadow: var(--shadow-sm);
 }
 
 .navigationArrow {
@@ -113,9 +108,11 @@
 
 /* 3. Safety Score Card */
 .safetyScoreCard {
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.04), rgba(59, 130, 246, 0.02));
-  border: 1px solid rgba(16, 185, 129, 0.15) !important;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  background: var(--bg-glass);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid var(--border-light) !important;
+  box-shadow: var(--shadow-md);
   transition: transform 0.2s ease;
 }
 
@@ -154,9 +151,6 @@
   line-height: 1;
   color: var(--text-primary);
   letter-spacing: -0.03em;
-  background: linear-gradient(to right, #ffffff, #10b981);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 .scoreScale {
@@ -180,7 +174,7 @@
   gap: 8px;
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-top: 1px solid var(--border-light);
 }
 
 .reasonBadgeDot {
@@ -207,10 +201,10 @@
   position: relative;
   height: 120px;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid var(--border-light);
+  background: var(--bg-glass);
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -228,14 +222,13 @@
   align-items: center;
   gap: 6px;
   padding: 6px 12px;
-  background: rgba(9, 13, 22, 0.85);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-light);
   border-radius: 10px;
   font-size: 0.72rem;
   font-weight: 700;
   color: var(--text-primary);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-sm);
 }
 
 .labelArrow {
@@ -291,23 +284,23 @@
   text-align: center;
   color: var(--text-secondary);
   font-size: 0.8rem;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px dashed rgba(255, 255, 255, 0.08);
+  background: rgba(30, 42, 57, 0.02);
+  border: 1px dashed var(--border-medium);
   border-radius: 16px;
 }
 
 .scrollCard {
   flex: 0 0 160px;
   scroll-snap-align: start;
-  background: rgba(15, 23, 42, 0.5) !important;
-  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  background: var(--bg-glass) !important;
+  border: 1px solid var(--border-light) !important;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .scrollCard:hover {
   transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: var(--border-medium) !important;
 }
 
 .scrollCardHeader {
@@ -384,15 +377,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(15, 23, 42, 0.4) !important;
-  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  background: var(--bg-glass) !important;
+  border: 1px solid var(--border-light) !important;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .compactTripCard:hover {
-  background: rgba(15, 23, 42, 0.6) !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
+  background: var(--bg-glass-hover) !important;
+  border-color: var(--border-medium) !important;
 }
 
 .compactTripLeft {

@@ -28,8 +28,8 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <motion.div
-      whileHover={hoverEffect ? { y: -3, scale: 1.005 } : {}}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+      whileHover={hoverEffect ? { y: -1, scale: 1.002 } : {}}
+      transition={{ type: "spring", stiffness: 350, damping: 25 }}
       className={cardClasses}
       {...(props as any)}
     >

@@ -464,19 +464,19 @@ export const MapContainer: React.FC<MapContainerProps> = ({
       <div className={styles.mapLegend}>
         <div className={styles.legendHeader}>Safety Legend</div>
         <div className={styles.legendRow}>
-          <span className={styles.legendDot} style={{ backgroundColor: "#10b981" }} />
+          <span className={styles.legendDot} style={{ backgroundColor: "var(--status-success)" }} />
           <span>Safest AI Path (90-100)</span>
         </div>
         <div className={styles.legendRow}>
-          <span className={styles.legendDot} style={{ backgroundColor: "#3b82f6" }} />
+          <span className={styles.legendDot} style={{ backgroundColor: "var(--status-info)" }} />
           <span>Balanced Path (70-89)</span>
         </div>
         <div className={styles.legendRow}>
-          <span className={styles.legendDot} style={{ backgroundColor: "#ef4444" }} />
+          <span className={styles.legendDot} style={{ backgroundColor: "var(--status-danger)" }} />
           <span>Standard Path (&lt; 70)</span>
         </div>
         <div className={styles.legendRow}>
-          <span className={styles.legendDot} style={{ backgroundColor: "#f59e0b" }} />
+          <span className={styles.legendDot} style={{ backgroundColor: "var(--status-warning)" }} />
           <span>Unsafe Hotspot Area</span>
         </div>
       </div>

@@ -3,9 +3,9 @@
   bottom: 0;
   left: 0;
   width: 100%;
-  background: rgba(9, 13, 22, 0.98);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: rgba(30, 42, 57, 0.98);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
   border-top: 1px solid var(--border-light);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   z-index: 20;

@@ -72,7 +72,7 @@
   display: flex;
   gap: 14px;
   padding: 16px;
-  background-color: var(--bg-tertiary);
+  background-color: var(--bg-secondary);
   border: 1px solid var(--border-light);
   border-radius: var(--radius-md);
   cursor: pointer;
@@ -81,12 +81,12 @@
 }
 
 .radioLabel:hover {
-  background-color: rgba(255, 255, 255, 0.04);
+  background-color: rgba(30, 42, 57, 0.03);
 }
 
 .radioActive {
   border-color: var(--accent-blue);
-  background-color: rgba(59, 130, 246, 0.04);
+  background-color: rgba(92, 115, 134, 0.05);
 }
 
 .radioInput {
@@ -122,7 +122,7 @@
 
 .select {
   padding: 12px;
-  background-color: rgba(255, 255, 255, 0.02);
+  background-color: var(--bg-secondary);
   border: 1px solid var(--border-medium);
   border-radius: var(--radius-md);
   color: var(--text-primary);
@@ -130,10 +130,13 @@
   font-size: 0.9rem;
   outline: none;
   cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
 }
 
 .select:focus {
-  border-color: var(--accent-blue);
+  border-color: var(--accent-secondary);
+  box-shadow: 0 0 0 3px rgba(157, 180, 198, 0.35);
 }
 
 .toggleGroup, .toggleRow {

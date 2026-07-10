@@ -1,9 +1,9 @@
 .card {
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border-light);
   overflow: hidden;
   position: relative;
-  transition: border-color var(--transition-normal), box-shadow var(--transition-normal);
+  transition: border-color var(--transition-normal), box-shadow var(--transition-normal), background-color var(--transition-normal), filter var(--transition-normal);
 }
 
 .solid {
@@ -13,14 +13,16 @@
 
 .glass {
   background-color: var(--bg-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
   box-shadow: var(--shadow-md);
 }
 
 .hover:hover {
   border-color: var(--border-medium);
+  background-color: var(--bg-glass-hover);
   box-shadow: var(--shadow-lg);
+  filter: brightness(1.03);
 }
 
 /* Padding Sizes */

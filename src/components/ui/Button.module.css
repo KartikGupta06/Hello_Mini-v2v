@@ -8,7 +8,7 @@
   border: 1px solid transparent;
   cursor: pointer;
   outline: none;
-  transition: background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
   white-space: nowrap;
   user-select: none;
   gap: 8px;
@@ -22,44 +22,48 @@
 
 /* Sizes */
 .sm {
-  font-size: 0.85rem;
-  padding: 8px 14px;
+  font-size: 0.82rem;
+  padding: 8px 16px;
   border-radius: var(--radius-sm);
 }
 
 .md {
-  font-size: 0.95rem;
-  padding: 12px 20px;
+  font-size: 0.9rem;
+  padding: 12px 24px;
   border-radius: var(--radius-md);
 }
 
 .lg {
-  font-size: 1.05rem;
-  padding: 16px 28px;
+  font-size: 1rem;
+  padding: 14px 28px;
   border-radius: var(--radius-lg);
 }
 
 /* Variants */
 .primary {
-  background-color: var(--accent-blue);
-  color: var(--accent-white);
+  background: linear-gradient(135deg, var(--accent-blue) 0%, var(--accent-secondary) 100%);
+  color: #FFFFFF;
   box-shadow: var(--shadow-glow);
 }
 
 .primary:hover:not(:disabled) {
-  background-color: #2563EB;
-  box-shadow: 0 0 25px rgba(59, 130, 246, 0.3);
+  filter: brightness(1.08);
+  box-shadow: 0 4px 20px rgba(157, 180, 198, 0.25);
 }
 
 .secondary {
-  background-color: var(--bg-tertiary);
+  background: var(--bg-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   color: var(--text-primary);
   border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .secondary:hover:not(:disabled) {
-  background-color: rgba(255, 255, 255, 0.08);
+  background: var(--bg-glass-hover);
   border-color: var(--border-medium);
+  filter: brightness(1.08);
 }
 
 .danger {
@@ -69,17 +73,17 @@
 }
 
 .danger:hover:not(:disabled) {
-  background-color: #DC2626;
-  box-shadow: 0 0 30px rgba(239, 68, 68, 0.5);
+  filter: brightness(1.08);
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
 }
 
 .warning {
   background-color: var(--status-warning);
-  color: #060913;
+  color: var(--bg-primary);
 }
 
 .warning:hover:not(:disabled) {
-  background-color: #D97706;
+  filter: brightness(1.08);
 }
 
 .emerald {
@@ -89,8 +93,8 @@
 }
 
 .emerald:hover:not(:disabled) {
-  background-color: #059669;
-  box-shadow: 0 0 25px rgba(16, 185, 129, 0.3);
+  filter: brightness(1.08);
+  box-shadow: 0 4px 20px rgba(34, 197, 94, 0.25);
 }
 
 .outline {
@@ -102,6 +106,7 @@
 .outline:hover:not(:disabled) {
   background-color: rgba(255, 255, 255, 0.03);
   border-color: var(--text-primary);
+  filter: brightness(1.08);
 }
 
 .ghost {
@@ -112,6 +117,7 @@
 .ghost:hover:not(:disabled) {
   background-color: rgba(255, 255, 255, 0.05);
   color: var(--text-primary);
+  filter: brightness(1.08);
 }
 
 /* Spinner */

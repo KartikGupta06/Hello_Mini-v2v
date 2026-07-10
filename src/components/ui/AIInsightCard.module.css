@@ -1,16 +1,14 @@
 .insightCard {
-  border: 1px solid var(--border-medium);
-  background: linear-gradient(
-    135deg,
-    rgba(59, 130, 246, 0.04) 0%,
-    rgba(15, 21, 36, 0.7) 100%
-  );
+  border: 1px solid var(--border-light);
+  background: var(--bg-secondary);
   box-shadow: var(--shadow-sm);
   display: flex;
   flex-direction: column;
   gap: 6px;
   position: relative;
   overflow: hidden;
+  border-radius: var(--radius-lg);
+  padding: 16px 16px 16px 20px;
 }
 
 .insightCard::before {
@@ -18,7 +16,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 3px;
+  width: 4px;
   height: 100%;
   background: var(--accent-blue);
 }
@@ -31,7 +29,6 @@
 
 .sparkleIcon {
   color: var(--accent-blue);
-  filter: drop-shadow(0 0 4px rgba(59, 130, 246, 0.4));
 }
 
 .title {
@@ -50,48 +47,24 @@
   margin: 0;
 }
 
-/* Variants overrides */
-.success {
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.04) 0%,
-    rgba(15, 21, 36, 0.7) 100%
-  );
-}
+/* Variants overrides - Colored left border only, minimal white card backgrounds */
 .success::before {
   background: var(--accent-emerald);
 }
 .success .sparkleIcon {
   color: var(--accent-emerald);
-  filter: drop-shadow(0 0 4px rgba(16, 185, 129, 0.4));
 }
 
-.warning {
-  background: linear-gradient(
-    135deg,
-    rgba(245, 158, 11, 0.04) 0%,
-    rgba(15, 21, 36, 0.7) 100%
-  );
-}
 .warning::before {
   background: var(--status-warning);
 }
 .warning .sparkleIcon {
   color: var(--status-warning);
-  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.4));
 }
 
-.neutral {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.02) 0%,
-    rgba(15, 21, 36, 0.7) 100%
-  );
-}
 .neutral::before {
   background: var(--text-muted);
 }
 .neutral .sparkleIcon {
   color: var(--text-muted);
-  filter: none;
 }

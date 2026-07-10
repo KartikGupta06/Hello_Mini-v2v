@@ -2,7 +2,7 @@
   position: relative;
   width: 100%;
   height: 100%;
-  background-color: #060913;
+  background-color: var(--bg-primary);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -14,17 +14,17 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px;
-  background: rgba(10, 15, 30, 0.4);
+  background: var(--bg-glass);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--border-light);
 }
 
 .backBtn, .refreshBtn {
   width: 38px;
   height: 38px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
   color: var(--text-secondary);
   display: flex;
   align-items: center;
@@ -34,8 +34,8 @@
 }
 
 .backBtn:hover, .refreshBtn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+  background: rgba(30, 42, 57, 0.04);
+  color: var(--text-primary);
 }
 
 .headerTitles {
@@ -86,8 +86,8 @@
   width: 100%;
   height: 160px;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 
@@ -201,9 +201,9 @@
   display: flex;
   align-items: center;
   gap: 4px;
-  background: rgba(10, 15, 30, 0.75);
+  background: var(--bg-glass);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-light);
   padding: 4px 8px;
   border-radius: 8px;
   font-size: 0.58rem;
@@ -269,8 +269,8 @@
 .emptyFeedCard {
   text-align: center;
   padding: 32px 16px !important;
-  background: rgba(255, 255, 255, 0.02) !important;
-  border: 1px dashed rgba(255, 255, 255, 0.1) !important;
+  background: rgba(30, 42, 57, 0.02) !important;
+  border: 1px dashed var(--border-medium) !important;
   border-radius: 20px !important;
 }
 
@@ -285,17 +285,17 @@
 }
 
 .placeCard {
-  background: rgba(255, 255, 255, 0.02) !important;
-  border: 1px solid rgba(255, 255, 255, 0.04) !important;
+  background: var(--bg-glass) !important;
+  border: 1px solid var(--border-light) !important;
   border-radius: 16px !important;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .placeCardExpanded {
-  background: rgba(255, 255, 255, 0.035) !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+  background: var(--bg-glass-hover) !important;
+  border-color: var(--border-medium) !important;
+  box-shadow: var(--shadow-md) !important;
 }
 
 .placeCardHeader {
@@ -316,7 +316,7 @@
   width: 34px;
   height: 34px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(30, 42, 57, 0.04);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -352,7 +352,7 @@
 .expandedBlock {
   margin-top: 12px;
   padding-top: 12px;
-  border-top: 1px dashed rgba(255, 255, 255, 0.06);
+  border-top: 1px dashed var(--border-medium);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -414,8 +414,8 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
   color: var(--text-secondary);
   display: flex;
   align-items: center;
@@ -425,15 +425,15 @@
 }
 
 .roundActionBtn:hover {
-  background: rgba(255, 255, 255, 0.07);
-  color: #ffffff;
+  background: rgba(30, 42, 57, 0.04);
+  color: var(--text-primary);
 }
 
 /* Category Icons */
 .iconDanger { color: var(--status-danger, #ef4444); }
 .iconWarning { color: var(--status-warning, #f59e0b); }
-.iconInfo { color: var(--accent-blue, #3b82f6); }
-.iconPurple { color: var(--accent-purple, #8b5cf6); }
+.iconInfo { color: var(--status-info, #60a5fa); }
+.iconPurple { color: #8b5cf6; }
 
 /* F. Persistent floating bottom CTA button */
 .bottomCtaWrapper {
@@ -454,21 +454,19 @@
   gap: 8px;
   padding: 12px 18px;
   border-radius: 9999px;
-  background: linear-gradient(135deg, var(--accent-emerald), var(--accent-blue));
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-secondary));
   border: none;
   color: #ffffff;
   font-size: 0.82rem;
   font-weight: 700;
-  box-shadow: 
-    0 10px 25px rgba(16, 185, 129, 0.35),
-    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  box-shadow: var(--shadow-md);
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .floatingNavigateBtn:hover {
   transform: scale(1.02);
-  box-shadow: 0 12px 30px rgba(16, 185, 129, 0.45);
+  box-shadow: var(--shadow-lg);
 }
 
 .floatingNavigateBtn:active {

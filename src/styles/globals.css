@@ -2,52 +2,56 @@
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-  /* Color Palette */
-  --bg-primary: #060913;      /* Deep Midnight */
-  --bg-secondary: #0F1524;    /* Soft elevated surface */
-  --bg-tertiary: #161F33;     /* Further elevated surface */
-  --bg-glass: rgba(15, 21, 36, 0.7);
-  --bg-glass-hover: rgba(22, 31, 51, 0.8);
+  /* Color Palette - Arctic Prestige Light Theme */
+  --bg-primary: #F5F8FA;      /* Primary Background */
+  --bg-secondary: #FFFFFF;    /* Card Surface */
+  --bg-tertiary: #D6DEE6;     /* Secondary Background */
+  --bg-glass: rgba(255, 255, 255, 0.78); /* White Glass Backdrop */
+  --bg-glass-hover: rgba(255, 255, 255, 0.9);
   
-  --accent-blue: #3B82F6;     /* Tech/Action Blue */
-  --accent-blue-rgb: 59, 130, 246;
-  --accent-emerald: #10B981;  /* Safety Emerald */
-  --accent-emerald-rgb: 16, 185, 129;
-  --accent-white: #F3F4F6;    /* Soft Warm White */
+  --accent-blue: #5C7386;     /* Primary Accent (Steel Blue-Gray) */
+  --accent-blue-rgb: 92, 115, 134;
+  --accent-secondary: #9DB4C6; /* Secondary Accent (Ice Blue) */
+  --accent-secondary-rgb: 157, 180, 198;
+  --accent-emerald: #22C55E;  /* Safe (Green) */
+  --accent-emerald-rgb: 34, 197, 94;
+  --accent-white: #FFFFFF;    /* Clean White */
   
   /* Status Colors */
-  --status-success: #10B981;  /* Emerald */
-  --status-warning: #F59E0B;  /* Amber */
-  --status-danger: #EF4444;   /* SOS Red */
+  --status-success: #22C55E;  /* Safe Green */
+  --status-warning: #F59E0B;  /* Warning Amber */
+  --status-danger: #EF4444;   /* Emergency SOS Red */
   --status-danger-rgb: 239, 68, 68;
+  --status-info: #60A5FA;     /* Info Light Blue */
   
   /* Text Colors */
-  --text-primary: #F3F4F6;    /* Warm white */
-  --text-secondary: #9CA3AF;  /* Cool gray */
-  --text-muted: #6B7280;      /* Darker gray */
+  --text-primary: #1E2A39;    /* Primary Text (Dark Slate) */
+  --text-secondary: #5C7386;  /* Secondary Text (Steel Blue-Gray) */
+  --text-muted: #8295A8;      /* Muted Text */
   
   /* Border Colors */
-  --border-light: rgba(255, 255, 255, 0.06);
-  --border-medium: rgba(255, 255, 255, 0.12);
-  --border-glow: rgba(59, 130, 246, 0.3);
+  --border-light: rgba(30, 42, 57, 0.06); /* Thin light border */
+  --border-medium: rgba(30, 42, 57, 0.12);
+  --border-glow: rgba(92, 115, 134, 0.12);
   
   /* Fonts */
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   
-  /* Shadow Systems */
-  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 20px rgba(59, 130, 246, 0.15);
-  --shadow-glow-emerald: 0 0 20px rgba(16, 185, 129, 0.15);
-  --shadow-glow-danger: 0 0 25px rgba(239, 68, 68, 0.3);
+  /* Shadow Systems - Soft prestige shadows */
+  --shadow-sm: 0 4px 12px rgba(30, 42, 57, 0.04);
+  --shadow-md: 0 10px 30px rgba(30, 42, 57, 0.08); /* White Card Soft Shadow */
+  --shadow-lg: 0 20px 50px rgba(30, 42, 57, 0.12);
+  --shadow-glow: 0 0 15px rgba(92, 115, 134, 0.08);
+  --shadow-glow-emerald: 0 0 15px rgba(34, 197, 94, 0.08);
+  --shadow-glow-danger: 0 0 25px rgba(239, 68, 68, 0.25);
+  --shadow-glow-frost: 0 0 20px rgba(92, 115, 134, 0.08);
   
-  /* Border Radii */
-  --radius-sm: 8px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
+  /* Border Radii - Standardized premium radius */
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 24px;  /* Premium Standard Radius */
+  --radius-xl: 32px;
   --radius-full: 9999px;
 
   /* Transitions */
@@ -104,10 +108,11 @@ body {
 /* Glassmorphism utility */
 .glass-panel {
   background: var(--bg-glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
   border: 1px solid var(--border-light);
   box-shadow: var(--shadow-md);
+  border-radius: var(--radius-lg);
 }
 
 .glass-panel-hover {
@@ -149,4 +154,27 @@ a {
 
 input, button, select, textarea {
   font-family: inherit;
+}
+
+/* Typography Hierarchy resets */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sectionTitle, h3[class*="sectionTitle"] {
+  font-family: var(--font-sans);
+  font-weight: 600 !important;
+  color: var(--text-secondary);
+}
+
+p, span, div, li, a {
+  font-weight: 400;
+}
+
+.caption, caption {
+  font-weight: 500;
+  font-size: 0.72rem;
+  color: var(--text-muted);
 }

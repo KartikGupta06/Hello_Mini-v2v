@@ -5,10 +5,9 @@
   justify-content: space-between;
   align-items: center;
   padding: 0 16px;
-  background: rgba(9, 13, 22, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-sm);
+  border-bottom: 1px solid var(--border-light);
   z-index: 100;
   padding-top: env(safe-area-inset-top, 0px);
 }
@@ -81,7 +80,7 @@
 
 .iconBtn:hover {
   color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(30, 42, 57, 0.05);
 }
 
 .notificationDot {
@@ -111,7 +110,7 @@
 .avatarCircle {
   width: 32px;
   height: 32px;
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-secondary));
   color: #ffffff;
   border-radius: 50%;
   display: flex;
@@ -120,5 +119,5 @@
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.05em;
-  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  box-shadow: var(--shadow-sm);
 }
