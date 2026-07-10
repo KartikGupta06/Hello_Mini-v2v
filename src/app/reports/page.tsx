@@ -20,24 +20,28 @@ import {
   CheckCircle,
   HelpCircle,
   Map,
-  X
+  X,
+  LayoutGrid,
+  User as UserIcon,
+  Car,
+  MoreHorizontal
 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { Card, Button, Badge, Modal, Input, LoadingSkeleton, MapContainer, FilterChips, EmptyState, TimelineList, TimelineItem } from "@/components/ui";
+import { Card, Button, Badge, Modal, Input, LoadingSkeleton, MapContainer, EmptyState, TimelineList, TimelineItem } from "@/components/ui";
 import { SafetyService } from "@/services/safety";
 import { AuthService } from "@/services/auth";
 import { SafetyReport, ReportCategory, User } from "@/types";
 import styles from "./Reports.module.css";
 
-const QUICK_FILTERS = [
-  { label: "All Alerts", id: "all" },
-  { label: "Poor Lighting", id: "Poor Lighting" },
-  { label: "Harassment", id: "Harassment" },
-  { label: "Stalking", id: "Stalking" },
-  { label: "Broken CCTV", id: "Broken CCTV" },
-  { label: "Road Blocks", id: "Road Block" },
-  { label: "Suspicious Activity", id: "Suspicious Activity" }
+const CHIP_CATEGORIES = [
+  { id: "all", label: "All", icon: <LayoutGrid size={14} /> },
+  { id: "Poor Lighting", label: "Lighting", icon: <Lightbulb size={14} style={{ color: "#F59E0B" }} /> },
+  { id: "Harassment", label: "Harassment", icon: <UserIcon size={14} style={{ color: "#8B5CF6" }} /> },
+  { id: "Road Block", label: "Accident", icon: <Car size={14} style={{ color: "#EF4444" }} /> },
+  { id: "Suspicious Activity", label: "Crime", icon: <AlertCircle size={14} style={{ color: "#F97316" }} /> },
+  { id: "more", label: "More", icon: <MoreHorizontal size={14} /> }
 ];
 
 export default function ReportsPage() {
@@ -233,109 +237,270 @@ export default function ReportsPage() {
     <DashboardLayout>
       <div className={styles.container}>
         
-        {/* A. Top Header */}
-        <div className={styles.topHeaderRow}>
-          <button onClick={() => router.push("/dashboard")} className={styles.backBtn} aria-label="Back to home">
-            <ChevronLeft size={18} />
-          </button>
-          <div className={styles.headerTitles}>
-            <h2 className={styles.circleTitle}>Community Intel</h2>
-            <span className={styles.membersCount}>
-              Live Status: {verifiedCount} Verified Alerts
-            </span>
+        {/* 1. Main Header Row */}
+        <div className={styles.mainHeaderRow}>
+          <div className={styles.titleSection}>
+            <div className={styles.pinkDot} />
+            <div className={styles.titleTextCol}>
+              <h2 className={styles.mainTitle}>Community Intelligence</h2>
+              <span className={styles.mainSubtitle}>Real-time Community Safety Reports</span>
+            </div>
           </div>
-          <button className={styles.filterBtn} onClick={() => fetchReports()} aria-label="Refresh alerts">
-            <Activity size={16} />
-          </button>
-        </div>
-
-        {/* B. Mini Live Map Hero */}
-        <div className={styles.mapRadarWrapper}>
-          <div className={styles.miniMapSandbox}>
-            <MapContainer 
-              routes={[]} 
-              selectedRouteId="" 
-              onRouteSelect={() => {}} 
-              center={mapCenter}
-              zoom={mapZoom}
-              pins={mapPins}
-              onPinSelect={(pinId) => {
-                const report = reports.find(r => r.id === pinId);
-                if (report) {
-                  handleSelectReport(report);
-                }
-              }}
-            />
-          </div>
-
-          {/* Heatmap/Verifications overlays */}
-          <div className={`${styles.heatmapLayer} ${heatmapActive ? styles.heatmapActiveState : ""}`}>
-            <div className={styles.heatPulse} style={{ top: "30%", left: "40%" }} />
-            <div className={styles.heatPulse} style={{ top: "60%", right: "30%" }} />
-            <div className={styles.heatPulse} style={{ bottom: "25%", left: "55%" }} />
-          </div>
-
-          <div className={styles.mapOverlayControls}>
-            <button 
-              className={`${styles.heatmapToggleBtn} ${heatmapActive ? styles.activeHeatmapBtn : ""}`} 
-              onClick={() => setHeatmapActive(!heatmapActive)}
-            >
-              <Flame size={12} />
-              <span>{heatmapActive ? "Heatmap On" : "Show Heatmap"}</span>
+          <div className={styles.headerRightActions}>
+            <button className={styles.bellBtn} aria-label="Notifications">
+              <span className={styles.bellDot} />
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
             </button>
-            <div className={styles.verifiedCountBadge}>
-              <Sparkles size={11} />
-              <span>{verifiedCount} Verified Hazards</span>
+            <div className={styles.profileAvatar}>
+              <span>S</span>
+              <span className={styles.onlineDot} />
             </div>
           </div>
         </div>
 
-        {/* C. Quick Filter Chips horizontal row */}
-        <FilterChips
-          chips={QUICK_FILTERS}
-          activeId={activeFilter}
-          onChange={setActiveFilter}
-          className={styles.chipsScroll}
-        />
-
-        {/* Inline API Error alert */}
-        {apiError && (
-          <div style={{
-            background: "rgba(239, 68, 68, 0.08)",
-            border: "1px solid rgba(239, 68, 68, 0.25)",
-            borderRadius: "var(--radius-md)",
-            padding: "12px 16px",
-            margin: "0 16px 16px 16px",
-            color: "var(--text-primary)",
-            display: "flex",
-            alignItems: "center",
-            gap: "12px"
-          }}>
-            <AlertTriangle size={18} style={{ color: "var(--status-danger)", flexShrink: 0 }} />
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: "0.82rem", fontWeight: 800 }}>Network Failure / Backend Error</div>
-              <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)" }}>{apiError}</div>
+        {/* Scroll area */}
+        <div className={styles.layoutScrollArea}>
+          
+          {/* 2. Map Card */}
+          <div className={styles.mapCard}>
+            <div className={styles.mapSubHeader}>
+              <button onClick={() => router.push("/dashboard")} className={styles.mapBackBtn} aria-label="Back to home">
+                <ChevronLeft size={18} />
+              </button>
+              <div className={styles.mapHeaderTitles}>
+                <h3 className={styles.mapTitle}>Community Intel</h3>
+                <span className={styles.mapLiveStatus}>
+                  LIVE STATUS: <span className={styles.greenText}>{verifiedCount} VERIFIED ALERTS</span>
+                </span>
+              </div>
+              <button className={styles.mapPulseBtn} onClick={() => fetchReports()} aria-label="Refresh alerts">
+                <Activity size={18} />
+              </button>
             </div>
-            <button onClick={() => setApiError(null)} style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer" }}>
-              <X size={14} />
-            </button>
-          </div>
-        )}
 
-        {loading ? (
-          <div style={{ padding: "1rem 16px" }}>
-            <LoadingSkeleton count={3} height={120} />
+            <div className={styles.mapRadarWrapper}>
+              <div className={styles.miniMapSandbox}>
+                <MapContainer 
+                  routes={[]} 
+                  selectedRouteId="" 
+                  onRouteSelect={() => {}} 
+                  center={mapCenter}
+                  zoom={mapZoom}
+                  pins={mapPins}
+                  onPinSelect={(pinId) => {
+                    const report = reports.find(r => r.id === pinId);
+                    if (report) {
+                      handleSelectReport(report);
+                    }
+                  }}
+                />
+              </div>
+
+              {/* Heatmap overlay */}
+              <div className={`${styles.heatmapLayer} ${heatmapActive ? styles.heatmapActiveState : ""}`}>
+                <div className={styles.heatPulse} style={{ top: "30%", left: "40%" }} />
+                <div className={styles.heatPulse} style={{ top: "60%", right: "30%" }} />
+                <div className={styles.heatPulse} style={{ bottom: "25%", left: "55%" }} />
+              </div>
+
+              <div className={styles.mapTopControls}>
+                <button 
+                  className={`${styles.heatmapToggleBtn} ${heatmapActive ? styles.activeHeatmapBtn : ""}`} 
+                  onClick={() => setHeatmapActive(!heatmapActive)}
+                >
+                  <span>🔥 {heatmapActive ? "Heatmap On" : "SHOW HEATMAP"}</span>
+                </button>
+                <div className={styles.verifiedCountBadge}>
+                  <span>✔ {verifiedCount} Verified Hazards</span>
+                </div>
+              </div>
+
+              {/* Bottom Legend Overlay */}
+              <div className={styles.mapLegendOverlay}>
+                <span className={styles.legendPill}>
+                  <span className={`${styles.legendDot} ${styles.dotGreen}`} /> Safe
+                </span>
+                <span className={styles.legendPill}>
+                  <span className={`${styles.legendDot} ${styles.dotYellow}`} /> Moderate
+                </span>
+                <span className={styles.legendPill}>
+                  <span className={`${styles.legendDot} ${styles.dotRed}`} /> Dangerous
+                </span>
+              </div>
+
+              {/* Bottom Right Selected Location */}
+              <div className={styles.mapSelectedLocation}>
+                <span>Select Citywalk</span>
+              </div>
+            </div>
           </div>
-        ) : (
-          <div className={styles.layoutScrollArea}>
-            {/* D. Live timeline feed panel */}
+
+          {/* 3. Statistics Grid */}
+          <div className={styles.statsGrid}>
+            <div className={`${styles.statsCard} ${styles.redCard}`}>
+              <div className={styles.statsIconRow}>
+                <span style={{ fontSize: "1.1rem" }}>🚨</span>
+                <span className={styles.statsVal}>12</span>
+              </div>
+              <span className={styles.statsLabel}>Active Alerts</span>
+              <span className={styles.statsSubTextRed}>• Live Now</span>
+            </div>
+            <div className={`${styles.statsCard} ${styles.blueCard}`}>
+              <div className={styles.statsIconRow}>
+                <span style={{ fontSize: "1.1rem" }}>👥</span>
+                <span className={styles.statsVal}>86</span>
+              </div>
+              <span className={styles.statsLabel}>Community Reports</span>
+              <span className={styles.statsSubText}>Total Reports</span>
+            </div>
+            <div className={`${styles.statsCard} ${styles.greenCard}`}>
+              <div className={styles.statsIconRow}>
+                <span style={{ fontSize: "1.1rem" }}>✔</span>
+                <span className={styles.statsVal}>74</span>
+              </div>
+              <span className={styles.statsLabel}>Verified Reports</span>
+              <span className={styles.statsSubText}>Trusted by Community</span>
+            </div>
+            <div className={`${styles.statsCard} ${styles.purpleCard}`}>
+              <div className={styles.statsIconRow}>
+                <span style={{ fontSize: "1.1rem" }}>🕒</span>
+                <span className={styles.statsVal}>2m ago</span>
+              </div>
+              <span className={styles.statsLabel}>Last Updated</span>
+              <span className={styles.statsSubText}>Live Sync</span>
+            </div>
+          </div>
+
+          {/* 4. Custom Category Chips scroll */}
+          <div className={styles.customChipsScroll}>
+            {CHIP_CATEGORIES.map((chip) => {
+              const isActive = activeFilter === chip.id;
+              return (
+                <motion.button
+                  key={chip.id}
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                  className={`${styles.customFilterChip} ${isActive ? styles.customActiveChip : ""}`}
+                  onClick={() => {
+                    if (chip.id === "more") {
+                      setActiveFilter("all");
+                    } else {
+                      setActiveFilter(chip.id);
+                    }
+                  }}
+                >
+                  <span className={styles.chipIcon}>{chip.icon}</span>
+                  <span className={styles.chipLabel}>{chip.label}</span>
+                </motion.button>
+              );
+            })}
+          </div>
+
+          {/* 5. Live Community Summary Card */}
+          <div className={styles.summaryCard}>
+            <div className={styles.summaryHeader}>
+              <div className={styles.summaryHeaderLeft}>
+                <span className={styles.greenLiveDot} />
+                <span>Live Community Summary</span>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m9 18 6-6-6-6"/></svg>
+            </div>
+            <div className={styles.summaryGrid}>
+              <div className={styles.summaryItem}>
+                <span className={styles.summaryIcon}>🚨</span>
+                <div className={styles.summaryTextCol}>
+                  <span className={styles.summaryVal}>2</span>
+                  <span className={styles.summaryLabel}>Reports in last hour</span>
+                </div>
+              </div>
+              <div className={styles.summaryItem}>
+                <span className={styles.summaryIcon}>👤</span>
+                <div className={styles.summaryTextCol}>
+                  <span className={styles.summaryVal}>3</span>
+                  <span className={styles.summaryLabel}>Verified users nearby</span>
+                </div>
+              </div>
+              <div className={styles.summaryItem}>
+                <span className={styles.summaryIcon}>🛡</span>
+                <div className={styles.summaryTextCol}>
+                  <span className={styles.summaryVal}>800 m</span>
+                  <span className={styles.summaryLabel}>Nearest Police Station</span>
+                </div>
+              </div>
+              <div className={styles.summaryItem}>
+                <span className={styles.summaryIcon}>⛑</span>
+                <div className={styles.summaryTextCol}>
+                  <span className={styles.summaryVal}>1.2 km</span>
+                  <span className={styles.summaryLabel}>Nearest Hospital Available</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 6. Report Incident CTA */}
+          <button className={styles.reportNewIncidentCTA} onClick={handleOpenCreateModal}>
+            <div className={styles.ctaLeftIconBg}>
+              <ShieldAlert size={20} className={styles.ctaWarningIcon} />
+            </div>
+            <div className={styles.ctaTextCol}>
+              <span className={styles.ctaTitle}>Report New Incident</span>
+              <span className={styles.ctaSubtitle}>Help keep your community safe</span>
+            </div>
+            <div className={styles.ctaRightIconBg}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+            </div>
+          </button>
+
+          {/* Inline API Error alert */}
+          {apiError && (
+            <div style={{
+              background: "rgba(239, 68, 68, 0.08)",
+              border: "1px solid rgba(239, 68, 68, 0.25)",
+              borderRadius: "var(--radius-md)",
+              padding: "12px 16px",
+              color: "var(--text-primary)",
+              display: "flex",
+              alignItems: "center",
+              gap: "12px"
+            }}>
+              <AlertTriangle size={18} style={{ color: "var(--status-danger)", flexShrink: 0 }} />
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: "0.82rem", fontWeight: 800 }}>Network Failure / Backend Error</div>
+                <div style={{ fontSize: "0.72rem", color: "var(--text-secondary)" }}>{apiError}</div>
+              </div>
+              <button onClick={() => setApiError(null)} style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer" }}>
+                <X size={14} />
+              </button>
+            </div>
+          )}
+
+          {/* 7. Feed Feed Feed */}
+          {loading ? (
+            <div>
+              <LoadingSkeleton count={3} height={120} />
+            </div>
+          ) : (
             <div className={styles.feedPanel}>
               {reports.length === 0 ? (
-                <EmptyState
-                  icon={<AlertTriangle size={32} style={{ color: "var(--status-warning)" }} />}
-                  title="No Alerts Reported"
-                  description="No hazards reported in this category."
-                />
+                <div className={styles.premiumEmptyState}>
+                  <div className={styles.emptyStateIllustrationCol}>
+                    <div className={styles.shieldIllustrationWrapper}>
+                      <div className={styles.shieldPulseBg} />
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#22C55E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" fill="rgba(34, 197, 94, 0.1)"/>
+                        <path d="m9 11 2 2 4-4" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className={styles.emptyStateTextCol}>
+                    <h4 className={styles.emptyStateTitle}>Great News!</h4>
+                    <p className={styles.emptyStateDesc}>No community safety incidents have been reported in this area.</p>
+                    <span className={styles.emptyStateFooter}>Stay Safe • Stay Aware 💚</span>
+                  </div>
+                </div>
               ) : (
                 <TimelineList>
                   {reports.map((report) => {
@@ -346,8 +511,6 @@ export default function ReportsPage() {
                     const trustScore = 80 + (report.id % 19);
                     const aiConfidence = 85 + (report.id % 13);
                     const isVerified = report.id % 2 === 0;
-
-                    // Deduce Severity
                     const severity = report.type === "Harassment" || report.type === "Stalking" ? "High" : "Moderate";
 
                     return (
@@ -375,8 +538,10 @@ export default function ReportsPage() {
                 </TimelineList>
               )}
             </div>
-          </div>
-        )}
+          )}
+
+        </div>
+
 
         {/* E. Floating report trigger button */}
         <button className={styles.floatingReportBtn} onClick={handleOpenCreateModal} aria-label="Submit Hazard Report">

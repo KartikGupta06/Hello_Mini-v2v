@@ -84,8 +84,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             </motion.div>
           </main>
 
-          {/* Floating AI Assistant (Only on Dashboard) */}
-          {isDashboard && (
+          {/* Floating AI Assistant (Only on Dashboard & Reports) */}
+          {(isDashboard || pathname === "/reports") && (
             <div className={styles.aiAssistantFloating}>
               <div className={styles.aiBadgeLabel}>
                 <span className={styles.aiDot} />
