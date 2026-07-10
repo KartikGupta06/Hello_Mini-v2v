@@ -22,6 +22,10 @@ import time
 async def lifespan(app: FastAPI):
     # Verify database connectivity on startup
     try:
+        if "sqlite" in settings.SQLALCHEMY_DATABASE_URI:
+            from app.database.base import Base
+            Base.metadata.create_all(bind=engine)
+            print("SQLite database tables created/verified successfully on startup.")
         with engine.connect() as connection:
             connection.execute(text("SELECT 1"))
         print("Database connectivity verified successfully on startup.")
@@ -48,7 +52,12 @@ app.state.start_time = time.time()
 # Set CORS parameters
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Restrict origins in production as needed
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3001"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

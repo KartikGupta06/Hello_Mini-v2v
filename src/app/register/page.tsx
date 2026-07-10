@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Shield, AlertCircle } from "lucide-react";
-import { Card } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { AuthService } from "@/services/auth";
@@ -47,86 +46,97 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.backgroundGlow} />
-
-      <div className={styles.cardWrapper}>
-        <Card className={styles.registerCard} glass={true} padding="lg">
-          <div className={styles.header}>
+    <div className={styles.desktopWrapper}>
+      <div className={styles.phoneViewport}>
+        <div className={styles.contentArea}>
+          
+          <div className={styles.logoContainer}>
             <div className={styles.logoRow}>
-              <Shield className={styles.logoIcon} size={28} />
+              <Shield className={styles.logoIcon} size={32} />
               <span className={styles.logoText}>SafeRoute AI</span>
             </div>
-            <h1 className={styles.title}>Create Account</h1>
-            <p className={styles.subtitle}>Register to calculate secure navigation pathways</p>
+            <p className={styles.logoTagline}>AI-Powered Pedestrian Safety Engine</p>
           </div>
 
-          <form onSubmit={handleRegister} className={styles.form}>
-            {error && (
-              <div className={styles.alert}>
-                <AlertCircle size={16} />
-                <span>{error}</span>
-              </div>
-            )}
+          <div className={styles.formContainer}>
+            <div className={styles.greetHeader}>
+              <h1 className={styles.title}>Create Account</h1>
+              <p className={styles.subtitle}>Register to compute secure path routing and alerts</p>
+            </div>
 
-            <Input
-              label="Full Name"
-              type="text"
-              placeholder="Alex Johnson"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              disabled={loading}
-            />
+            <form onSubmit={handleRegister} className={styles.form}>
+              {error && (
+                <div className={styles.alertCard}>
+                  <AlertCircle size={16} className={styles.alertIcon} />
+                  <div className={styles.alertText}>
+                    <strong>Signup Error</strong>
+                    <span>{error}</span>
+                  </div>
+                </div>
+              )}
 
-            <Input
-              label="Email Address"
-              type="email"
-              placeholder="name@domain.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={loading}
-            />
+              <Input
+                label="Full Name"
+                type="text"
+                placeholder="Alex Johnson"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                disabled={loading}
+              />
 
-            <Input
-              label="Password"
-              type="password"
-              placeholder="•••••••• (Min. 6 characters)"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={loading}
-            />
+              <Input
+                label="Email Address"
+                type="email"
+                placeholder="john.doe@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                disabled={loading}
+              />
 
-            <Input
-              label="Confirm Password"
-              type="password"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              disabled={loading}
-            />
+              <Input
+                label="Password"
+                type="password"
+                placeholder="•••••••• (Min. 6 characters)"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+              />
 
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              fullWidth
-              isLoading={loading}
-            >
-              Sign Up Now
-            </Button>
-          </form>
+              <Input
+                label="Confirm Password"
+                type="password"
+                placeholder="••••••••"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                disabled={loading}
+              />
 
-          <p className={styles.footerText}>
-            Already have an account?{" "}
-            <Link href="/login" className={styles.link}>
-              Log in instead
-            </Link>
-          </p>
-        </Card>
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                fullWidth
+                isLoading={loading}
+              >
+                {loading ? "Creating Profile..." : "Confirm & Sign Up"}
+              </Button>
+            </form>
+          </div>
+
+          <div className={styles.footer}>
+            <p className={styles.footerText}>
+              Already registered?{" "}
+              <Link href="/login" className={styles.link}>
+                Log in to profile
+              </Link>
+            </p>
+          </div>
+
+        </div>
       </div>
     </div>
   );
