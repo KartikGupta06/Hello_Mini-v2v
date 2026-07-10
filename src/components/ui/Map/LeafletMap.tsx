@@ -120,6 +120,8 @@ const LeafletMapComponent: React.FC<LeafletMapProps> = ({
 
   // ── Init map once ────────────────────────────────────────────────────────
   useEffect(() => {
+    let active = true;
+    let mapInstance: LeafletMap | null = null;
     if (!containerRef.current || refs.current.map) return;
 
     // Inject pulse animation keyframes into document head (once)
@@ -139,52 +141,65 @@ const LeafletMapComponent: React.FC<LeafletMapProps> = ({
 
     // Dynamic import — Leaflet must load in browser only
     import("leaflet").then((L) => {
-      // Fix default icon path broken by webpack
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-        iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-        shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-      });
+      if (!active || !containerRef.current) return;
 
-      // Import CSS
-      import("leaflet/dist/leaflet.css");
+      const container = containerRef.current;
+      // Safe cleanup of container element's Leaflet registry to prevent strict-mode collisions
+      if ((container as any)._leaflet_id) {
+        (container as any)._leaflet_id = null;
+      }
 
-      const initialCenter: [number, number] = [center[1], center[0]]; // convert [lng,lat]→[lat,lng]
+      try {
+        // Fix default icon path broken by webpack
+        delete (L.Icon.Default.prototype as any)._getIconUrl;
+        L.Icon.Default.mergeOptions({
+          iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+          iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+          shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+        });
 
-      const map = L.map(containerRef.current!, {
-        center: initialCenter,
-        zoom,
-        zoomControl: false, // we add our own
-        attributionControl: true,
-      });
+        // Import CSS
+        import("leaflet/dist/leaflet.css");
 
-      // OSM tile layer
-      const tileLayer = L.tileLayer(
-        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-        {
-          attribution:
-            '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-          maxZoom: 19,
-          crossOrigin: "anonymous",
-        }
-      ).addTo(map);
+        const initialCenter: [number, number] = [center[1], center[0]]; // convert [lng,lat]→[lat,lng]
 
-      refs.current.map = map;
-      refs.current.tileLayer = tileLayer;
+        mapInstance = L.map(container, {
+          center: initialCenter,
+          zoom,
+          zoomControl: false, // we add our own
+          attributionControl: true,
+        });
 
-      // Trigger initial route render after map is ready
-      renderRoutes(L, map);
+        // OSM tile layer
+        const tileLayer = L.tileLayer(
+          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+          {
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19,
+            crossOrigin: "anonymous",
+          }
+        ).addTo(mapInstance);
+
+        refs.current.map = mapInstance;
+        refs.current.tileLayer = tileLayer;
+
+        // Trigger initial route render after map is ready
+        renderRoutes(L, mapInstance);
+      } catch (e) {
+        console.error("Leaflet initialization failed:", e);
+      }
     });
 
     return () => {
-      if (refs.current.map) {
-        refs.current.map.remove();
-        refs.current.map = null;
-        refs.current.polylines.clear();
-        refs.current.outlines.clear();
-        refs.current.markers = [];
+      active = false;
+      if (mapInstance) {
+        mapInstance.remove();
       }
+      refs.current.map = null;
+      refs.current.polylines.clear();
+      refs.current.outlines.clear();
+      refs.current.markers = [];
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
