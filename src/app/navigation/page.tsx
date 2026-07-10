@@ -162,9 +162,10 @@ export default function NavigationPage() {
         const distanceKm = (route.distance / 1000).toFixed(1);
 
         let badgeVariant: "success" | "info" | "warning" | "destructive" = "success";
-        if (route.safety_score < 80) badgeVariant = "info";
-        if (route.safety_score < 60) badgeVariant = "warning";
-        if (route.safety_score < 40) badgeVariant = "destructive";
+        const riskLvl = (route.risk_level || "Safe").toLowerCase();
+        if (riskLvl === "very safe" || riskLvl === "safe") badgeVariant = "success";
+        else if (riskLvl === "moderate") badgeVariant = "warning";
+        else if (riskLvl === "risky" || riskLvl === "dangerous") badgeVariant = "destructive";
 
         return {
           id: route.route_id,
@@ -176,12 +177,16 @@ export default function NavigationPage() {
           score: Math.round(route.safety_score),
           badgeVariant,
           isAISuggested: index === 0,
-          notes: route.ai_explanation || "Safety analysis complete.",
-          hotspots: [] // Hotspots removed in MVP simplified response
+          notes: route.ai_explanation?.why_this_route?.join(" ") || "Safety analysis complete.",
+          hotspots: [], // Hotspots removed in MVP simplified response
+          confidence: route.confidence,
+          riskLevel: route.risk_level,
+          aiExplanation: route.ai_explanation || { why_this_route: [], risks_and_warnings: [] },
+          emergencyReadiness: route.emergency_readiness
         };
       });
 
-      setRecommendationReason(response.recommended_route?.ai_explanation || "Recommended based on overall safety metrics.");
+      setRecommendationReason(response.recommended_route?.ai_explanation?.why_this_route?.join(" ") || "Recommended based on overall safety metrics.");
       setTradeOffsSummary("Comparing AI analyzed safety routes.");
 
       setDynamicRoutes(computedRoutes);
@@ -512,22 +517,43 @@ export default function NavigationPage() {
                     </div>
                     <div className={styles.decisionStatusCol}>
                       <Badge variant={activeRouteData.badgeVariant} size="md" glow={true}>
-                        {activeRouteData.score >= 85 ? "Very Safe" : "Moderately Safe"}
+                        {activeRouteData.riskLevel || "Safe"}
                       </Badge>
-                      <span className={styles.confidenceText}>Confidence: 96%</span>
+                      <span className={styles.confidenceText}>Confidence: {activeRouteData.confidence ?? 100}%</span>
+                      {activeRouteData.emergencyReadiness !== undefined && (
+                        <span style={{ fontSize: "0.68rem", color: "var(--text-muted)", fontWeight: "500", marginTop: "2px" }}>
+                          Readiness: {activeRouteData.emergencyReadiness}%
+                        </span>
+                      )}
                     </div>
                   </div>
                 </Card>
 
-                <div className={styles.explanationSection}>
-                  <h4 className={styles.resultsSubtitle}>Key Safety Indicators</h4>
-                  <div className={styles.chipsWrap}>
-                    <div className={styles.explanationChip}>✓ Well Lit Area</div>
-                    <div className={styles.explanationChip}>✓ Police Nearby</div>
-                    <div className={styles.explanationChip}>✓ Low Crime Rating</div>
-                    <div className={styles.explanationChip}>✓ High Foot Traffic</div>
+                {activeRouteData.aiExplanation?.why_this_route && activeRouteData.aiExplanation.why_this_route.length > 0 && (
+                  <div className={styles.explanationSection}>
+                    <h4 className={styles.resultsSubtitle}>Key Safety Indicators</h4>
+                    <div className={styles.chipsWrap}>
+                      {activeRouteData.aiExplanation.why_this_route.map((item: string, idx: number) => (
+                        <div key={idx} className={styles.explanationChip}>
+                          {item}
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
+
+                {activeRouteData.aiExplanation?.risks_and_warnings && activeRouteData.aiExplanation.risks_and_warnings.length > 0 && (
+                  <div className={styles.explanationSection}>
+                    <h4 className={styles.resultsSubtitle} style={{ color: "var(--status-danger)" }}>Risks & Warnings</h4>
+                    <div className={styles.chipsWrap}>
+                      {activeRouteData.aiExplanation.risks_and_warnings.map((item: string, idx: number) => (
+                        <div key={idx} className={styles.warningChip}>
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
 
                 <div className={styles.comparisonGrid}>
                   {dynamicRoutes.map(r => (
@@ -545,11 +571,20 @@ export default function NavigationPage() {
 
                 <AIInsightCard
                   title="AI SafeRoute Briefing"
-                  variant="success"
+                  variant={activeRouteData.score >= 70 ? "success" : "warning"}
                   text={
-                    <>
-                      This route is <strong>{getSafetyMarginPercent()}% safer</strong> than the fastest direct alternative because it routes along commercial corridors with verified public lighting.
-                    </>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      {activeRouteData.aiExplanation?.why_this_route?.map((item: string, idx: number) => (
+                        <p key={idx} style={{ margin: 0, fontSize: "0.75rem" }}>{item}</p>
+                      ))}
+                      {activeRouteData.aiExplanation?.risks_and_warnings?.map((item: string, idx: number) => (
+                        <p key={idx} style={{ margin: 0, fontSize: "0.75rem", color: "var(--status-danger)" }}>{item}</p>
+                      ))}
+                      {(!activeRouteData.aiExplanation?.why_this_route || activeRouteData.aiExplanation.why_this_route.length === 0) &&
+                       (!activeRouteData.aiExplanation?.risks_and_warnings || activeRouteData.aiExplanation.risks_and_warnings.length === 0) && (
+                        <p style={{ margin: 0, fontSize: "0.75rem" }}>Safety analysis complete.</p>
+                      )}
+                    </div>
                   }
                 />
 

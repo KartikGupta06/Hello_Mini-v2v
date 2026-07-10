@@ -44,7 +44,7 @@ class SafetyEngine:
         time_res = self.time_analyzer.evaluate(current_time=current_time)
 
         # 2. Run Core Scoring / Aggregation
-        agg_res = self.aggregator.aggregate(crime_res, infra_res, time_res)
+        agg_res = self.aggregator.aggregate(crime_res, infra_res, time_res, emergency_res)
         score_res = self.score_engine.calculate_score(agg_res["total_accumulated_risk"])
         confidence_res = self.confidence_engine.evaluate(db, lat, lng)
 

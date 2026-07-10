@@ -61,8 +61,14 @@ class CrimeAnalyzer:
         else:
             reasons.append("No recent historical crime incidents detected within this sector.")
 
+        # Apply normalization curve to prevent unbounded score collapse
+        # Asymptotic curve approaching MAX_CRIME_PENALTY
+        MAX_CRIME_PENALTY = 55.0
+        normalized_crime_risk = MAX_CRIME_PENALTY * (1 - math.exp(-total_crime_risk / 100.0)) if total_crime_risk > 0 else 0.0
+
         return {
-            "crime_risk": round(total_crime_risk, 2),
+            "crime_risk": round(normalized_crime_risk, 2),
+            "raw_crime_risk": round(total_crime_risk, 2),
             "incident_count": incident_count,
             "critical_count": critical_count,
             "high_count": high_count,

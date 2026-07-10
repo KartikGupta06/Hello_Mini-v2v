@@ -79,6 +79,11 @@ export interface RouteIntelligencePayload {
   dest_lng: number;
 }
 
+export interface AIExplanation {
+  why_this_route?: string[];
+  risks_and_warnings?: string[];
+}
+
 export interface AnalyzedRoute {
   route_id: string;
   route_name: string;
@@ -89,7 +94,7 @@ export interface AnalyzedRoute {
   risk_level: string;
   confidence: number;
   emergency_readiness: number;
-  ai_explanation: string;
+  ai_explanation: AIExplanation;
 }
 
 export interface RouteIntelligenceResponse {
