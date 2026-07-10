@@ -13,7 +13,14 @@ import {
   Check, 
   Flame,
   Radio,
-  AlertTriangle
+  AlertTriangle,
+  Bell,
+  Shield,
+  Cctv,
+  Lightbulb,
+  MessageSquare,
+  Activity,
+  ChevronRight
 } from "lucide-react";
 import { useEmergency } from "@/contexts/EmergencyContext";
 import { SafetyService } from "@/services/safety";
@@ -252,47 +259,82 @@ export const EmergencyOverlay: React.FC = () => {
 
   return (
     <div className={styles.overlayWrapper}>
-      {/* HEADER BAR */}
-      <div className={styles.header}>
-        <div className={styles.statusCol}>
-          <div className={styles.liveIndicator}>
-            <span className={styles.pulseDot} />
-            <span className={styles.statusText}>
+      {/* 1. Header Row */}
+      <div className={styles.headerRow}>
+        <div className={styles.headerStatusCol}>
+          <div className={styles.headerLiveIndicator}>
+            <span className={styles.headerPulseDot} />
+            <span className={styles.headerStatusText}>
               {sosStage === "hold" && "SOS Standby Mode"}
               {sosStage === "broadcasting" && "SOS Broadcast Protocol"}
               {sosStage === "live" && `LIVE • ${formatTimer(liveSeconds)}`}
             </span>
           </div>
-          <span className={styles.locationText}>
+          <span className={styles.headerLocationText}>
+            <MapPin size={12} />
             GPS Coordinates: {lat.toFixed(5)}° N, {lng.toFixed(5)}° E
           </span>
         </div>
 
-        {sosStage === "hold" && (
-          <button onClick={cancelEmergency} className={styles.closeBtn} aria-label="Abort SOS">
-            <X size={18} />
+        <div className={styles.headerActions}>
+          <button className={styles.iconBtn} aria-label="Notifications">
+            <Bell size={18} />
+            <span className={styles.bellDot} />
           </button>
-        )}
+          {sosStage === "hold" && (
+            <button onClick={cancelEmergency} className={styles.iconBtn} aria-label="Abort SOS">
+              <X size={18} />
+            </button>
+          )}
+        </div>
       </div>
 
-      {/* STAGE 1: HOLD TO TRIGGER */}
+      {/* STAGE 1: HOLD TO TRIGGER (Dashboard Match) */}
       {sosStage === "hold" && (
         <div className={styles.stageContainer}>
-          {apiError && (
-            <div className={styles.errorAlertBlock}>
-              <AlertTriangle size={18} className={styles.errorAlertIcon} />
-              <div className={styles.errorAlertContent}>
-                <h4 className={styles.errorAlertTitle}>Emergency Dispatch Failed</h4>
-                <p className={styles.errorAlertMessage}>{apiError}</p>
-              </div>
-              <button onClick={() => setApiError(null)} className={styles.errorAlertDismissBtn} aria-label="Dismiss error">
-                <X size={14} />
-              </button>
+          
+          {/* Info Card */}
+          <div className={styles.infoCard}>
+            <div className={styles.infoCardIconWrapper}>
+              <Shield size={24} />
             </div>
-          )}
+            <div className={styles.infoCardTextCol}>
+              <h3 className={styles.infoCardTitle}>Help is on the way when you need it.</h3>
+              <p className={styles.infoCardSub}>Your location will be shared during emergency.</p>
+            </div>
+            <ChevronRight size={18} className={styles.infoCardChevron} />
+          </div>
 
-          <div className={styles.centerHeroSection}>
-            <div className={styles.countdownWrapper}>
+          {/* Safety Indicators */}
+          <div className={styles.safetyIndicatorsGrid}>
+            <div className={styles.safetyIndicatorCard}>
+              <Shield size={20} className={`${styles.safetyIcon} ${styles.valGreen}`} />
+              <span className={styles.safetyLabel}>Crime Risk</span>
+              <span className={`${styles.safetyVal} ${styles.valGreen}`}>Low</span>
+            </div>
+            <div className={styles.safetyIndicatorCard}>
+              <Cctv size={20} className={`${styles.safetyIcon} ${styles.valGreen}`} />
+              <span className={styles.safetyLabel}>CCTV Coverage</span>
+              <span className={`${styles.safetyVal} ${styles.valGreen}`}>Good</span>
+            </div>
+            <div className={styles.safetyIndicatorCard}>
+              <Lightbulb size={20} className={`${styles.safetyIcon} ${styles.valYellow}`} />
+              <span className={styles.safetyLabel}>Street Lights</span>
+              <span className={`${styles.safetyVal} ${styles.valYellow}`}>72%</span>
+            </div>
+            <div className={styles.safetyIndicatorCard}>
+              <Building size={20} className={`${styles.safetyIcon} ${styles.valBlue}`} />
+              <span className={styles.safetyLabel}>Hospitals Nearby</span>
+              <span className={`${styles.safetyVal} ${styles.valBlue}`}>1.2 km</span>
+            </div>
+          </div>
+
+          {/* Hero Center - Button */}
+          <div className={styles.heroSection}>
+            <div className={styles.holdButtonWrapper}>
+              <div className={styles.pulseRing1} />
+              <div className={styles.pulseRing2} />
+              
               <div 
                 className={`${styles.holdButtonCircle} ${isHolding ? styles.holdButtonActive : ""}`}
                 onMouseDown={() => setIsHolding(true)}
@@ -304,22 +346,84 @@ export const EmergencyOverlay: React.FC = () => {
                 <ShieldAlert size={48} className={styles.shieldIcon} />
                 <span className={styles.holdButtonText}>HOLD SOS</span>
               </div>
-              <h2 className={styles.countdownHeading}>Press and Hold to Trigger</h2>
-              <p className={styles.countdownSub}>
-                Keep holding for {holdSeconds} seconds to broadcast emergency signals.
-              </p>
+            </div>
+
+            <div className={styles.standbyBadge}>
+              <Activity size={14} />
+              Standby Mode Active
+            </div>
+
+            <h2 className={styles.countdownHeading}>Press and Hold to Trigger</h2>
+            <p className={styles.countdownSub}>
+              Keep holding for {holdSeconds} seconds to broadcast emergency signals.
+            </p>
+          </div>
+
+          {/* Emergency Info Card */}
+          <div className={styles.emergencyInfoCard}>
+            <div className={styles.infoCardItem}>
+              <div className={styles.infoCardItemIcon}>
+                <Radio size={16} />
+              </div>
+              <span className={styles.infoCardItemText}>Alerts will be sent to Emergency Contacts</span>
+            </div>
+            <div className={styles.infoCardDivider} />
+            <div className={styles.infoCardItem}>
+              <div className={styles.infoCardItemIcon}>
+                <MapPin size={16} />
+              </div>
+              <span className={styles.infoCardItemText}>Live location will be shared</span>
+            </div>
+            <div className={styles.infoCardDivider} />
+            <div className={styles.infoCardItem}>
+              <div className={styles.infoCardItemIcon}>
+                <AlertTriangle size={16} />
+              </div>
+              <span className={styles.infoCardItemText}>Nearby authorities will be notified</span>
             </div>
           </div>
-          
-          <div className={styles.bottomBarActions}>
-            <Button 
-              variant="secondary" 
-              onClick={cancelEmergency} 
-              fullWidth
-              style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "#FFFFFF" }}
-            >
-              Cancel
-            </Button>
+
+          {/* Quick Actions */}
+          <div>
+            <h3 className={styles.quickActionsHeader}>Quick Actions</h3>
+            <div className={styles.quickActionsGrid} style={{ marginTop: "20px" }}>
+              <div className={styles.quickActionItem}>
+                <div className={styles.quickActionIconWrapper}>
+                  <ShieldAlert size={20} className={styles.iconPolice} />
+                </div>
+                <span className={styles.quickActionTitle}>Nearby Police</span>
+                <span className={`${styles.quickActionVal} ${styles.valPolice}`}>800 m</span>
+              </div>
+              <div className={styles.quickActionItem}>
+                <div className={styles.quickActionIconWrapper}>
+                  <Heart size={20} className={styles.iconHospital} />
+                </div>
+                <span className={styles.quickActionTitle}>Nearby Hospitals</span>
+                <span className={`${styles.quickActionVal} ${styles.valHospital}`}>1.2 km</span>
+              </div>
+              <div className={styles.quickActionItem}>
+                <div className={styles.quickActionIconWrapper}>
+                  <Users size={20} className={styles.iconContacts} />
+                </div>
+                <span className={styles.quickActionTitle}>Emergency Contacts</span>
+                <span className={`${styles.quickActionVal} ${styles.valContacts}`}>3 Contacts</span>
+              </div>
+              <div className={styles.quickActionItem}>
+                <div className={styles.quickActionIconWrapper}>
+                  <MessageSquare size={20} className={styles.iconMessage} />
+                </div>
+                <span className={styles.quickActionTitle}>Auto Message</span>
+                <span className={`${styles.quickActionVal} ${styles.valMessage}`}>On</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Cancel Button */}
+          <div className={styles.cancelPillWrapper}>
+            <button className={styles.cancelPillBtn} onClick={cancelEmergency}>
+              <X size={18} />
+              Cancel SOS
+            </button>
           </div>
         </div>
       )}
@@ -327,18 +431,16 @@ export const EmergencyOverlay: React.FC = () => {
       {/* STAGE 2: BROADCASTING SIGNALS */}
       {sosStage === "broadcasting" && (
         <div className={styles.stageContainer}>
-          <div className={styles.centerHeroSection}>
-            <div className={styles.broadcastingWrapper}>
-              <div className={styles.broadcastRingAnimation}>
-                <Radio size={40} className={styles.pulseRadioIcon} />
-              </div>
-              <h3 className={styles.broadcastingTitle}>Sending Emergency Request...</h3>
-              <p className={styles.broadcastingSubtitle}>SafeRoute is contacting local emergency responders and notifying your guardians. Please stand by.</p>
-              
-              {/* Loading Spinner */}
-              <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "24px" }}>
-                <div className={styles.spinner}></div>
-              </div>
+          <div className={styles.broadcastingWrapper}>
+            <div className={styles.broadcastRingAnimation}>
+              <Radio size={40} className={styles.pulseRadioIcon} />
+            </div>
+            <h3 className={styles.broadcastingTitle}>Sending Emergency Request...</h3>
+            <p className={styles.broadcastingSubtitle}>SafeRoute is contacting local emergency responders and notifying your guardians. Please stand by.</p>
+            
+            {/* Loading Spinner */}
+            <div style={{ display: "flex", justifyContent: "center", alignItems: "center", marginTop: "24px" }}>
+              <div className={styles.spinner}></div>
             </div>
           </div>
         </div>
@@ -347,29 +449,16 @@ export const EmergencyOverlay: React.FC = () => {
       {/* STAGE 3: EMERGENCY LIVE PANEL */}
       {sosStage === "live" && (
         <div className={styles.stageContainer}>
-          {/* Main Emergency Active Banner */}
           <div style={{ display: "flex", justifyContent: "center", padding: "8px 0", textTransform: "uppercase", fontWeight: "900", letterSpacing: "0.1em", fontSize: "0.9rem" }}>
             <Badge variant="danger" size="md" glow={true}>
               🚨 Emergency Active 🚨
             </Badge>
           </div>
 
-          {/* Location Area Card */}
-          <div className={styles.statusCard}>
-            <span className={styles.locationTitleLabel}>YOUR RESOLVED LOCATION</span>
-            <div className={styles.locationAddressRow}>
-              <MapPin size={16} className={styles.emeraldIcon} />
-              <p className={styles.addressText}>
-                {sosResponse?.nearest_police?.address || sosResponse?.nearest_hospital?.address || "Address resolving near south district coordinates"}
-              </p>
-            </div>
-          </div>
-
-          {/* ETA / Dispatch Metrics Card */}
           <div className={styles.etaContainerGrid}>
             <div className={styles.etaSubBox}>
               <span className={styles.etaBoxLabel}>Emergency Session</span>
-              <span className={styles.etaBoxValue} style={{ color: "var(--status-danger)", textTransform: "capitalize" }}>
+              <span className={styles.etaBoxValue} style={{ color: "#EF4444", textTransform: "capitalize" }}>
                 {sosResponse?.sos_status || "Active"}
               </span>
             </div>
@@ -389,14 +478,14 @@ export const EmergencyOverlay: React.FC = () => {
 
             <div className={styles.etaSubBox} style={{ gridColumn: "span 2" }}>
               <span className={styles.etaBoxLabel}>Guardian Notification Status</span>
-              <span className={styles.etaBoxValue} style={{ fontSize: "0.82rem", color: "var(--text-primary)" }}>
+              <span className={styles.etaBoxValue} style={{ fontSize: "0.82rem", color: "#1E2A39" }}>
                 {contactsCount > 0 ? `Notified (${contactsCount} Guardians via SMS Broadcast)` : "No Emergency Contacts configured"}
               </span>
             </div>
 
             <div className={styles.etaSubBox} style={{ gridColumn: "span 2" }}>
               <span className={styles.etaBoxLabel}>Police Notification Status</span>
-              <span className={styles.etaBoxValue} style={{ fontSize: "0.82rem", color: "var(--text-primary)" }}>
+              <span className={styles.etaBoxValue} style={{ fontSize: "0.82rem", color: "#1E2A39" }}>
                 {sosResponse?.nearest_police 
                   ? `Dispatched to ${sosResponse.nearest_police.name} (${(sosResponse.nearest_police.distance_m / 1000).toFixed(2)} km away)` 
                   : "Searching nearby police post..."}
@@ -405,7 +494,7 @@ export const EmergencyOverlay: React.FC = () => {
 
             <div className={styles.etaSubBox} style={{ gridColumn: "span 2" }}>
               <span className={styles.etaBoxLabel}>Hospital Notification Status</span>
-              <span className={styles.etaBoxValue} style={{ fontSize: "0.82rem", color: "var(--text-primary)" }}>
+              <span className={styles.etaBoxValue} style={{ fontSize: "0.82rem", color: "#1E2A39" }}>
                 {sosResponse?.nearest_hospital 
                   ? `Dispatched to ${sosResponse.nearest_hospital.name} (${(sosResponse.nearest_hospital.distance_m / 1000).toFixed(2)} km away)` 
                   : "Searching nearest trauma center..."}
@@ -413,7 +502,6 @@ export const EmergencyOverlay: React.FC = () => {
             </div>
           </div>
 
-          {/* Touch actions tiles */}
           <div className={styles.actionsGrid}>
             <button className={`${styles.actionTile} ${styles.tileDanger}`} onClick={handleCallPolice}>
               <PhoneCall size={18} />
@@ -446,19 +534,28 @@ export const EmergencyOverlay: React.FC = () => {
             </button>
           </div>
 
-          {/* End SOS Button */}
-          <div className={styles.bottomBarActions} style={{ marginTop: "24px" }}>
-            <Button 
-              variant="danger" 
-              onClick={cancelEmergency} 
-              fullWidth
-              style={{ height: "54px", fontSize: "0.95rem", fontWeight: 800 }}
-            >
+          <div className={styles.cancelPillWrapper} style={{ marginTop: "24px" }}>
+            <button className={styles.cancelPillBtn} onClick={cancelEmergency}>
               End SOS
-            </Button>
+            </button>
           </div>
         </div>
       )}
+
+      {/* Floating AI Assistant (Reused from DashboardLayout) */}
+      <div className={styles.aiAssistantFloating}>
+        <div className={styles.aiBadgeLabel}>
+          <span className={styles.aiDot} />
+          <span>AI Assistant</span>
+        </div>
+        <button 
+          className={styles.aiFloatingBtn} 
+          aria-label="Ask AI Assistant"
+        >
+          <img src="/ai_avatar.png" alt="AI Assistant" className={styles.aiAvatarImg} />
+        </button>
+      </div>
+
     </div>
   );
 };

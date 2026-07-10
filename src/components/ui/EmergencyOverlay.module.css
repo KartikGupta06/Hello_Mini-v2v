@@ -4,19 +4,23 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(245, 248, 250, 0.98);
+  background: #F7F9FC; /* Bright White Premium Background */
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   z-index: 2000;
   display: flex;
   flex-direction: column;
-  padding: 24px;
+  padding: 24px 20px;
   padding-top: calc(env(safe-area-inset-top, 0px) + 20px);
   padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
-  color: var(--text-primary);
+  color: #1E2A39; /* Text primary */
   font-family: var(--font-sans);
   animation: slideUpOverlay 0.35s cubic-bezier(0.16, 1, 0.3, 1);
   overflow-y: auto;
+}
+
+.overlayWrapper::-webkit-scrollbar {
+  display: none;
 }
 
 @keyframes slideUpOverlay {
@@ -38,112 +42,258 @@
   gap: 20px;
 }
 
-/* Header Section */
-.header {
+/* ========================================= */
+/* HEADER SECTION                            */
+/* ========================================= */
+.headerRow {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  border-bottom: 1px solid var(--border-light);
-  padding-bottom: 16px;
+  margin-bottom: 8px;
 }
 
-.statusCol {
+.headerStatusCol {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.liveIndicator {
+.headerLiveIndicator {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.pulseDot {
+.headerPulseDot {
   width: 10px;
   height: 10px;
-  background-color: var(--status-danger, #ef4444);
+  background-color: #EF4444;
   border-radius: 50%;
-  box-shadow: 0 0 10px var(--status-danger);
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
   animation: pulseDotAlert 1.5s infinite ease-in-out;
 }
 
 @keyframes pulseDotAlert {
-  0%, 100% {
-    transform: scale(0.85);
-    opacity: 0.7;
-  }
-  50% {
-    transform: scale(1.15);
-    opacity: 1;
-  }
+  0%, 100% { transform: scale(0.85); opacity: 0.7; }
+  50% { transform: scale(1.15); opacity: 1; box-shadow: 0 0 16px rgba(239, 68, 68, 1); }
 }
 
-.statusText {
-  font-size: 0.8rem;
-  font-weight: 800;
+.headerStatusText {
+  font-size: 0.9rem;
+  font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  color: var(--status-danger);
+  color: #EF4444;
 }
 
-.locationText {
-  font-size: 0.72rem;
-  color: var(--text-secondary);
+.headerLocationText {
+  font-size: 0.75rem;
+  color: #8295A8;
   font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.closeBtn {
-  width: 38px;
-  height: 38px;
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.iconBtn {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-medium);
-  color: var(--text-secondary);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  color: #1E2A39;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  box-shadow: 0 4px 15px rgba(30, 42, 57, 0.05);
   transition: all 0.2s ease;
+  position: relative;
 }
 
-.closeBtn:hover {
-  background: rgba(30, 42, 57, 0.04);
-  color: var(--text-primary);
+.iconBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(30, 42, 57, 0.08);
 }
 
-/* Center Hero Section */
-.centerHeroSection {
-  flex: 1;
+.bellDot {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  width: 8px;
+  height: 8px;
+  background-color: #EF4444;
+  border-radius: 50%;
+  border: 1.5px solid #FFFFFF;
+}
+
+/* ========================================= */
+/* INFO CARD (Help is on the way)            */
+/* ========================================= */
+.infoCard {
+  background: rgba(255, 241, 242, 0.8); /* Very soft red/pink */
+  border: 1px solid rgba(254, 205, 211, 0.5);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.05);
+}
+
+.infoCardIconWrapper {
+  width: 44px;
+  height: 44px;
+  background: rgba(254, 205, 211, 0.8);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 260px;
+  color: #EF4444;
+  flex-shrink: 0;
 }
 
-/* Hold to Trigger Button */
-.countdownWrapper {
+.infoCardTextCol {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.infoCardTitle {
+  font-size: 0.88rem;
+  font-weight: 850;
+  color: #1E2A39;
+  margin: 0;
+}
+
+.infoCardSub {
+  font-size: 0.72rem;
+  color: #5C7386;
+  font-weight: 500;
+  margin: 0;
+}
+
+.infoCardChevron {
+  color: #8295A8;
+}
+
+/* ========================================= */
+/* LIVE SAFETY INDICATORS GRID               */
+/* ========================================= */
+.safetyIndicatorsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.safetyIndicatorCard {
+  background: #FFFFFF;
+  border-radius: 14px;
+  padding: 12px 6px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 6px;
   text-align: center;
-  gap: 16px;
+  box-shadow: 0 4px 12px rgba(30, 42, 57, 0.03);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.safetyIcon {
+  margin-bottom: 2px;
+}
+
+.safetyLabel {
+  font-size: 0.55rem;
+  font-weight: 800;
+  color: #8295A8;
+  text-transform: uppercase;
+}
+
+.safetyVal {
+  font-size: 0.85rem;
+  font-weight: 900;
+}
+
+/* Value colors */
+.valGreen { color: #22C55E; }
+.valYellow { color: #F59E0B; }
+.valBlue { color: #3B82F6; }
+
+/* ========================================= */
+/* HERO SOS BUTTON SECTION                   */
+/* ========================================= */
+.heroSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px 0;
+  position: relative;
+}
+
+.holdButtonWrapper {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pulseRing1, .pulseRing2 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(239, 68, 68, 0.15) 0%, rgba(239, 68, 68, 0) 70%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.pulseRing1 {
+  width: 260px;
+  height: 260px;
+  animation: pulseRingAnim 3s infinite ease-out;
+}
+
+.pulseRing2 {
+  width: 320px;
+  height: 320px;
+  animation: pulseRingAnim 3s infinite ease-out 1.5s;
+}
+
+@keyframes pulseRingAnim {
+  0% { transform: translate(-50%, -50%) scale(0.8); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1.3); opacity: 0; }
 }
 
 .holdButtonCircle {
-  width: 150px;
-  height: 150px;
+  position: relative;
+  z-index: 10;
+  width: 170px;
+  height: 170px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+  background: linear-gradient(135deg, #FF3B30, #FF2D55);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  color: #ffffff;
-  font-weight: 800;
-  font-size: 0.95rem;
-  box-shadow: 0 10px 30px rgba(239, 68, 68, 0.4);
+  color: #FFFFFF;
+  box-shadow: 
+    0 15px 40px rgba(255, 45, 85, 0.5),
+    inset 0 -4px 10px rgba(0, 0, 0, 0.15),
+    inset 0 4px 10px rgba(255, 255, 255, 0.3);
   cursor: pointer;
   user-select: none;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -151,40 +301,229 @@
 
 .holdButtonCircle:active, .holdButtonActive {
   transform: scale(0.92);
-  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+  box-shadow: 
+    0 8px 20px rgba(255, 45, 85, 0.3),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.holdButtonCircle::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  right: -8px;
+  bottom: -8px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 45, 85, 0.3);
+  z-index: -1;
+  animation: breatheBorder 2s infinite alternate ease-in-out;
+}
+
+@keyframes breatheBorder {
+  0% { transform: scale(0.98); opacity: 0.5; }
+  100% { transform: scale(1.05); opacity: 1; }
 }
 
 .shieldIcon {
-  color: #ffffff;
+  color: #FFFFFF;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
 }
 
 .holdButtonText {
   letter-spacing: 0.05em;
-  font-size: 0.82rem;
+  font-size: 1.1rem;
+  font-weight: 900;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* ========================================= */
+/* INSTRUCTIONS & STATUS CHIP                */
+/* ========================================= */
+.standbyBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #FF2D55;
+  font-size: 0.75rem;
+  font-weight: 800;
+  background: rgba(255, 45, 85, 0.08);
+  padding: 6px 14px;
+  border-radius: 99px;
+  margin-top: 16px;
 }
 
 .countdownHeading {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: var(--text-primary);
-  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #1E2A39;
+  margin: 12px 0 4px 0;
+  text-align: center;
+  letter-spacing: -0.02em;
 }
 
 .countdownSub {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
+  font-size: 0.85rem;
+  color: #5C7386;
   max-width: 280px;
   margin: 0;
   line-height: 1.4;
+  text-align: center;
+  font-weight: 500;
 }
 
-/* Broadcasting UI */
+/* ========================================= */
+/* EMERGENCY INFO HORIZONTAL CARD            */
+/* ========================================= */
+.emergencyInfoCard {
+  background: #FFFFFF;
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  box-shadow: 0 6px 20px rgba(30, 42, 57, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.infoCardItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.infoCardItemIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.08);
+  color: #EF4444;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.infoCardItemText {
+  font-size: 0.65rem;
+  color: #1E2A39;
+  font-weight: 700;
+  line-height: 1.3;
+  max-width: 80px;
+}
+
+.infoCardDivider {
+  width: 1px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.05);
+  align-self: center;
+}
+
+/* ========================================= */
+/* QUICK ACTIONS                             */
+/* ========================================= */
+.quickActionsHeader {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: #1E2A39;
+  margin-bottom: -12px; /* Pull grid closer */
+}
+
+.quickActionsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.quickActionItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.quickActionIconWrapper {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFFFFF;
+  box-shadow: 0 4px 15px rgba(30, 42, 57, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.iconPolice { color: #3B82F6; }
+.iconHospital { color: #22C55E; }
+.iconContacts { color: #F59E0B; }
+.iconMessage { color: #8B5CF6; }
+
+.quickActionTitle {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #5C7386;
+  line-height: 1.1;
+}
+
+.quickActionVal {
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+.valPolice { color: #3B82F6; }
+.valHospital { color: #22C55E; }
+.valContacts { color: #F59E0B; }
+.valMessage { color: #8B5CF6; }
+
+/* ========================================= */
+/* CANCEL SOS PILL                           */
+/* ========================================= */
+.cancelPillWrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.cancelPillBtn {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 99px;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: #EF4444;
+  box-shadow: 0 8px 25px rgba(30, 42, 57, 0.08);
+  cursor: pointer;
+  width: 100%;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.cancelPillBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(30, 42, 57, 0.12);
+}
+
+.cancelPillBtn:active {
+  transform: scale(0.98);
+}
+
+
+/* ========================================= */
+/* STAGE 2: BROADCASTING UI (Preserved)      */
+/* ========================================= */
 .broadcastingWrapper {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
   text-align: center;
+  margin: auto 0;
 }
 
 .broadcastRingAnimation {
@@ -195,17 +534,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--status-danger);
+  color: #EF4444;
   position: relative;
 }
 
 .broadcastRingAnimation::before {
   content: "";
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  top: 0; left: 0; right: 0; bottom: 0;
   border-radius: 50%;
   border: 2px solid rgba(239, 68, 68, 0.4);
   animation: pulseRadioWaves 2s infinite ease-out;
@@ -227,75 +563,24 @@
 
 .broadcastingTitle {
   font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--text-primary);
+  font-weight: 900;
+  color: #1E2A39;
   margin: 0;
 }
 
 .broadcastingSubtitle {
   font-size: 0.82rem;
-  color: var(--text-secondary);
+  color: #5C7386;
   margin: 0;
 }
 
-/* Verification list status stack */
-.statusCard {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  padding: 18px;
-  box-shadow: var(--shadow-sm);
-}
-
-.statusListStack {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.statusCheckItem {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 0.88rem;
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.itemChecked {
-  color: var(--text-primary);
-  font-weight: 700;
-}
-
-.circleBox {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 1.5px solid var(--border-medium);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  color: var(--status-success);
-}
-
-.itemChecked .circleBox {
-  border-color: var(--status-success);
-  background: rgba(34, 197, 94, 0.08);
-}
-
-.dotCheck {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--text-muted);
-}
-
-/* Stage 3: Emergency Live active panels */
+/* ========================================= */
+/* STAGE 3: EMERGENCY LIVE (Preserved/Updated)*/
+/* ========================================= */
 .locationTitleLabel {
   font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--text-muted);
+  font-weight: 800;
+  color: #8295A8;
   letter-spacing: 0.05em;
   display: block;
   margin-bottom: 6px;
@@ -308,19 +593,18 @@
 }
 
 .emeraldIcon {
-  color: var(--status-success, #22c55e);
+  color: #22C55E;
   margin-top: 2px;
 }
 
 .addressText {
   font-size: 0.88rem;
-  font-weight: 700;
-  color: var(--text-primary);
+  font-weight: 800;
+  color: #1E2A39;
   margin: 0;
   line-height: 1.4;
 }
 
-/* ETA Grid layout */
 .etaContainerGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -328,31 +612,30 @@
 }
 
 .etaSubBox {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 14px;
   padding: 14px;
   display: flex;
   flex-direction: column;
   gap: 2px;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 15px rgba(30, 42, 57, 0.03);
 }
 
 .etaBoxLabel {
   font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--text-muted);
+  font-weight: 800;
+  color: #8295A8;
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
 
 .etaBoxValue {
   font-size: 1.05rem;
-  font-weight: 800;
-  color: var(--text-primary);
+  font-weight: 900;
+  color: #1E2A39;
 }
 
-/* Action Tiles Grid */
 .actionsGrid {
   display: flex;
   flex-direction: column;
@@ -364,19 +647,19 @@
   align-items: center;
   gap: 14px;
   padding: 14px 18px;
-  border-radius: var(--radius-md);
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-light);
-  color: var(--text-secondary);
+  border-radius: 16px;
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  color: #5C7386;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   text-align: left;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 15px rgba(30, 42, 57, 0.04);
 }
 
 .actionTile:hover {
-  background: var(--bg-glass-hover);
-  border-color: var(--border-medium);
+  background: #F7F9FC;
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
 .actionTile:active {
@@ -384,9 +667,9 @@
 }
 
 .tileDanger {
-  background: rgba(239, 68, 68, 0.03) !important;
+  background: rgba(239, 68, 68, 0.04) !important;
   border-color: rgba(239, 68, 68, 0.15) !important;
-  color: var(--status-danger) !important;
+  color: #EF4444 !important;
 }
 
 .tileDanger:hover {
@@ -401,28 +684,21 @@
 
 .tileTitle {
   font-size: 0.88rem;
-  font-weight: 800;
-  color: var(--text-primary);
+  font-weight: 900;
+  color: #1E2A39;
 }
 
 .tileDesc {
   font-size: 0.72rem;
-  color: var(--text-secondary);
-}
-
-.blueIcon { color: var(--accent-blue); }
-.redIcon { color: var(--status-danger); }
-
-/* Bottom Action bars */
-.bottomBarActions {
-  width: 100%;
+  color: #5C7386;
+  font-weight: 600;
 }
 
 .spinner {
   animation: spin 1s linear infinite;
   width: 32px;
   height: 32px;
-  color: var(--status-danger);
+  color: #EF4444;
 }
 
 @keyframes spin {
@@ -433,7 +709,7 @@
 .errorAlertBlock {
   background: rgba(239, 68, 68, 0.08);
   border: 1px solid rgba(239, 68, 68, 0.25);
-  border-radius: var(--radius-md);
+  border-radius: 14px;
   padding: 14px;
   display: flex;
   align-items: flex-start;
@@ -443,7 +719,7 @@
 }
 
 .errorAlertIcon {
-  color: var(--status-danger);
+  color: #EF4444;
   flex-shrink: 0;
   margin-top: 2px;
 }
@@ -454,14 +730,14 @@
 
 .errorAlertTitle {
   font-size: 0.82rem;
-  font-weight: 800;
-  color: var(--text-primary);
+  font-weight: 900;
+  color: #1E2A39;
   margin: 0 0 2px 0;
 }
 
 .errorAlertMessage {
   font-size: 0.75rem;
-  color: var(--text-secondary);
+  color: #5C7386;
   margin: 0;
   line-height: 1.3;
 }
@@ -469,7 +745,7 @@
 .errorAlertDismissBtn {
   background: none;
   border: none;
-  color: var(--text-secondary);
+  color: #8295A8;
   cursor: pointer;
   padding: 2px;
   display: flex;
@@ -480,6 +756,75 @@
 }
 
 .errorAlertDismissBtn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.05);
+  color: #1E2A39;
+}
+
+/* AI Assistant in Overlay (Same as Dashboard Layout) */
+.aiAssistantFloating {
+  position: absolute;
+  bottom: 96px; /* Just above bottom nav normally, but in full screen SOS, we might place it differently. Let's say top right or bottom right */
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  z-index: 2005; /* Must be higher than overlay Wrapper (2000) */
+}
+
+.aiBadgeLabel {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #1E2A39;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 4px 12px rgba(30, 42, 57, 0.05);
+  white-space: nowrap;
+}
+
+.aiDot {
+  width: 6px;
+  height: 6px;
+  background-color: #22C55E;
+  border-radius: 50%;
+}
+
+.aiFloatingBtn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6C63FF, #4F7CFF);
+  color: #ffffff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 8px 24px rgba(108, 99, 255, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.aiFloatingBtn:hover {
+  transform: translateY(-2px) scale(1.06);
+  box-shadow: 
+    0 12px 28px rgba(108, 99, 255, 0.5),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
+}
+
+.aiFloatingBtn:active {
+  transform: scale(0.95);
+}
+
+.aiAvatarImg {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+  border-radius: 50%;
 }
