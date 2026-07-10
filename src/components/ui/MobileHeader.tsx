@@ -32,6 +32,7 @@ export const MobileHeader: React.FC = () => {
   } else if (pathname === "/reports") {
     title = "Community Feed";
     showBack = false;
+    hideHeader = true; // Avoid double header on reports page
   } else if (pathname === "/settings") {
     title = "Settings";
     showBack = false;
