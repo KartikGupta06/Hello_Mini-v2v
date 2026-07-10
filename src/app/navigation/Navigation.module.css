@@ -587,11 +587,11 @@
 }
 
 .sheetExpandedM4 { height: 560px; }
-.sheetCollapsedM4 { height: 140px; }
+.sheetCollapsedM4 { height: 98px; }
 
 /* M5 Active navigation bottom sheet heights */
 .sheetExpandedM5 { height: 420px; }
-.sheetCollapsedM5 { height: 120px; }
+.sheetCollapsedM5 { height: 90px; }
 
 .sheetHandleRow {
   height: 44px;

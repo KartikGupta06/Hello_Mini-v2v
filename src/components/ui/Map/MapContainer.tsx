@@ -103,26 +103,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
         </div>
       </div>
 
-      {/* ── Safety Legend ──────────────────────────────────────── */}
-      <div className={styles.mapLegend} aria-label="Safety legend">
-        <div className={styles.legendHeader}>Safety Legend</div>
-        <div className={styles.legendRow}>
-          <span className={styles.legendDot} style={{ backgroundColor: "#10b981" }} />
-          <span>Safest AI Path (80–100)</span>
-        </div>
-        <div className={styles.legendRow}>
-          <span className={styles.legendDot} style={{ backgroundColor: "#3b82f6" }} />
-          <span>Balanced Path (60–79)</span>
-        </div>
-        <div className={styles.legendRow}>
-          <span className={styles.legendDot} style={{ backgroundColor: "#f59e0b" }} />
-          <span>Standard Path (&lt; 60)</span>
-        </div>
-        <div className={styles.legendRow}>
-          <span className={styles.legendDot} style={{ backgroundColor: "#ef4444" }} />
-          <span>Risk Hotspot Area</span>
-        </div>
-      </div>
+
     </div>
   );
 };

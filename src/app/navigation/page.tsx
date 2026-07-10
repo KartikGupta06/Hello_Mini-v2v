@@ -47,6 +47,27 @@ const AI_INSIGHTS = [
   "✓ Crowded commercial area ahead increases active safety score."
 ];
 
+const getInitialHeading = (coords?: { lat: number; lng: number }[]) => {
+  if (!coords || coords.length < 2) return "Proceed straight";
+  const p1 = coords[0];
+  const p2 = coords[Math.min(5, coords.length - 1)]; // look slightly ahead
+  
+  const dLng = p2.lng - p1.lng;
+  const dLat = p2.lat - p1.lat;
+  
+  const angle = Math.atan2(dLng, dLat) * (180 / Math.PI);
+  const normalized = (angle + 360) % 360;
+  
+  if (normalized >= 337.5 || normalized < 22.5) return "Head North";
+  if (normalized >= 22.5 && normalized < 67.5) return "Head North-East";
+  if (normalized >= 67.5 && normalized < 112.5) return "Head East";
+  if (normalized >= 112.5 && normalized < 157.5) return "Head South-East";
+  if (normalized >= 157.5 && normalized < 202.5) return "Head South";
+  if (normalized >= 202.5 && normalized < 247.5) return "Head South-West";
+  if (normalized >= 247.5 && normalized < 292.5) return "Head West";
+  return "Head North-West";
+};
+
 export default function NavigationPage() {
   const router = useRouter();
   const { triggerEmergency } = useEmergency();
@@ -463,8 +484,8 @@ export default function NavigationPage() {
                   <NavIcon size={20} className={styles.navInstructionArrow} />
                 </div>
                 <div className={styles.instructionTextCol}>
-                  <h3 className={styles.instructionHeading}>Turn left in 120m</h3>
-                  <span className={styles.streetNameText}>Press Enclave Marg</span>
+                  <h3 className={styles.instructionHeading}>{getInitialHeading(activeRouteData.coordinates)}</h3>
+                  <span className={styles.streetNameText}>Towards {destination.split(",")[0]}</span>
                 </div>
               </div>
               <div className={styles.navInstructionMeta}>
@@ -493,13 +514,7 @@ export default function NavigationPage() {
               </div>
             </div>
 
-            {/* AI Assistant Live Guidance insight bar */}
-            <AIInsightCard
-              title="AI Active Guidance"
-              text={AI_INSIGHTS[insightIndex]}
-              variant="info"
-              className={styles.aiGuidanceInsightCard}
-            />
+
           </div>
         )}
 
@@ -515,7 +530,7 @@ export default function NavigationPage() {
 
         {/* Floating Right Map Controls */}
         <MapFloatingControls
-          bottom={activeWalkMode ? "170px" : showRoutes ? "160px" : "120px"}
+          bottom={activeWalkMode ? "140px" : showRoutes ? "118px" : "120px"}
           showMute={activeWalkMode}
           isMuted={isMuted}
           onToggleMute={() => setIsMuted(!isMuted)}
@@ -542,7 +557,7 @@ export default function NavigationPage() {
             isExpanded={sheetExpanded}
             onToggleExpanded={() => setSheetExpanded(!sheetExpanded)}
             expandedHeight="560px"
-            collapsedHeight="140px"
+            collapsedHeight="98px"
             className={styles.bottomSheet}
             collapsedHeader={
               activeRouteData && (
@@ -671,7 +686,7 @@ export default function NavigationPage() {
             isExpanded={navSheetExpanded}
             onToggleExpanded={() => setNavSheetExpanded(!navSheetExpanded)}
             expandedHeight="420px"
-            collapsedHeight="120px"
+            collapsedHeight="90px"
             className={styles.bottomSheet}
             collapsedHeader={
               <>
