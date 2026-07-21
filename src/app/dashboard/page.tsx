@@ -33,6 +33,7 @@ import { JourneyService } from "@/services/journeys";
 import { SafetyService } from "@/services/safety";
 import { AuthService } from "@/services/auth";
 import { JourneyHistory } from "@/types";
+import { useLocation } from "@/contexts/LocationContext";
 import styles from "./Dashboard.module.css";
 
 export default function DashboardPage() {
@@ -46,6 +47,10 @@ export default function DashboardPage() {
   const [confidencePercentage, setConfidencePercentage] = useState(87);
   const [reasons, setReasons] = useState<string[]>([]);
   const [nearestPlaces, setNearestPlaces] = useState<any[]>([]);
+  const [coverageData, setCoverageData] = useState<boolean>(true);
+  const [coverageMessage, setCoverageMessage] = useState<string>("");
+
+  const { location, status: locStatus } = useLocation();
 
   useEffect(() => {
     async function loadHomeData() {
@@ -59,37 +64,6 @@ export default function DashboardPage() {
         const fetchedTrips = await JourneyService.getJourneys({ limit: 1 });
         if (fetchedTrips && fetchedTrips.length > 0) {
           setRecentTrip(fetchedTrips[0]);
-        }
-
-        // Fetch browser GPS and safety details
-        let lat = 28.5306; // South Delhi Saket default
-        let lng = 77.2045;
-
-        if (navigator.geolocation) {
-          await new Promise<void>((resolve) => {
-            navigator.geolocation.getCurrentPosition(
-              (pos) => {
-                lat = pos.coords.latitude;
-                lng = pos.coords.longitude;
-                resolve();
-              },
-              () => {
-                console.warn("Using default coordinates for South Delhi");
-                resolve();
-              },
-              { timeout: 3000 }
-            );
-          });
-        }
-
-        // Fetch score index
-        try {
-          const scoreRes = await SafetyService.getSafetyScore(lat, lng);
-          setCurrentScore(Math.round(scoreRes.safety_score));
-          setReasons(scoreRes.reasons);
-          setConfidencePercentage(scoreRes.confidence_percentage || 87);
-        } catch (err) {
-          console.error("Score fetch failed:", err);
         }
 
         // Fetch nearest police and hospitals
@@ -120,6 +94,36 @@ export default function DashboardPage() {
     loadHomeData();
   }, []);
 
+  useEffect(() => {
+    async function loadScore() {
+      if (!location) {
+        if (locStatus !== "idle" && locStatus !== "detecting") {
+          setCurrentScore(0);
+          setCoverageData(false);
+          setCoverageMessage("Real-time location is required to calculate your area's safety score.");
+        }
+        return;
+      }
+      
+      try {
+        const scoreRes = await SafetyService.getSafetyScore(location.latitude, location.longitude);
+        if (scoreRes.coverage === false) {
+          setCurrentScore(0);
+          setCoverageData(false);
+          setCoverageMessage(scoreRes.ai_explanation?.why_this_route || "Safety intelligence data is not yet available for this region.");
+        } else {
+          setCurrentScore(Math.round(scoreRes.safety_score || 0));
+          setCoverageData(true);
+          setReasons(scoreRes.reasons || []);
+          setConfidencePercentage(scoreRes.confidence_percentage || 87);
+        }
+      } catch (err) {
+        console.error("Score fetch failed:", err);
+      }
+    }
+    loadScore();
+  }, [location, locStatus]);
+
   const getGreeting = () => {
     const hr = new Date().getHours();
     if (hr < 12) return "Good morning";
@@ -128,12 +132,14 @@ export default function DashboardPage() {
   };
 
   const getSafetySummary = (score: number) => {
+    if (!coverageData) return coverageMessage;
     if (score >= 85) return "Your current area is well-lit and considered safe for walking.";
     if (score >= 70) return "Moderately safe area. Walk on main thoroughfares where possible.";
     return "Alert: Elevated local hazards flagged. Consider sharing live coordinates.";
   };
 
   const getRiskBadgeLabel = (score: number) => {
+    if (!coverageData) return "UNAVAILABLE";
     if (score >= 85) return "SAFE";
     if (score >= 70) return "MODERATE";
     return "ELEVATED RISK";
@@ -210,7 +216,7 @@ export default function DashboardPage() {
           <div className={styles.locationBadge}>
             <MapPin size={12} className={styles.metaIcon} />
             <span className={styles.metaLabel}>Current Location</span>
-            <span className={styles.metaVal}>New Delhi, India</span>
+            <span className={styles.metaVal}>{location ? `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}` : "Location Unknown"}</span>
           </div>
           <div className={styles.dateBadge}>
             <Calendar size={12} className={styles.metaIcon} />
@@ -289,10 +295,18 @@ export default function DashboardPage() {
                 )}
               </svg>
               <div className={styles.circularCenterText}>
-                <span className={styles.circularScore}>{currentScore}</span>
-                <span className={styles.circularScale}>/100</span>
-                <span className={styles.circularConfidenceLabel}>AI Confidence</span>
-                <span className={styles.circularConfidenceVal}>{confidencePercentage}%</span>
+                {coverageData ? (
+                  <>
+                    <span className={styles.circularScore}>{currentScore}</span>
+                    <span className={styles.circularScale}>/100</span>
+                    <span className={styles.circularConfidenceLabel}>AI Confidence</span>
+                    <span className={styles.circularConfidenceVal}>{confidencePercentage}%</span>
+                  </>
+                ) : (
+                  <>
+                    <span className={styles.circularScore} style={{ fontSize: '24px' }}>N/A</span>
+                  </>
+                )}
               </div>
             </div>
 
@@ -303,7 +317,7 @@ export default function DashboardPage() {
               <div className={styles.crimeIncidentStatus}>
                 <CheckCircle2 size={16} className={styles.checkmarkIcon} />
                 <span className={styles.crimeStatusText}>
-                  {reasons.length > 0 ? reasons[0] : "No recent historical crime incidents detected."}
+                  {!coverageData ? "No data points available." : (reasons.length > 0 ? reasons[0] : "No recent historical crime incidents detected.")}
                 </span>
               </div>
 

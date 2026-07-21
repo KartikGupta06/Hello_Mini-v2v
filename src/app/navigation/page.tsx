@@ -25,6 +25,7 @@ import { JourneyService } from "@/services/journeys";
 import { ContactService } from "@/services/contacts";
 import { AuthService } from "@/services/auth";
 import { useEmergency } from "@/contexts/EmergencyContext";
+import { useLocation } from "@/contexts/LocationContext";
 import { User, EmergencyContact } from "@/types";
 import styles from "./Navigation.module.css";
 
@@ -78,6 +79,15 @@ export default function NavigationPage() {
   
   const [originCoords, setOriginCoords] = useState<[number, number]>([77.2083, 28.5233]);
   const [destCoords, setDestCoords] = useState<[number, number]>([77.2045, 28.5306]);
+
+  const { location, status: locStatus } = useLocation();
+
+  useEffect(() => {
+    if (location && locStatus === "success") {
+      setOriginCoords([location.longitude, location.latitude]);
+      setOrigin("Current Location");
+    }
+  }, [location, locStatus]);
 
   const [showRoutes, setShowRoutes] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState("safest");

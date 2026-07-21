@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 class ModuleBreakdown(BaseModel):
     risk_score: float
@@ -8,7 +8,8 @@ class ModuleBreakdown(BaseModel):
     metadata: Dict[str, Any]
 
 class SafetyScoreResponse(BaseModel):
-    safety_score: float
+    safety_score: Optional[float] = None
+    coverage: bool = True
     confidence_level: str  # High, Medium, Low
     confidence_percentage: float
     risk_category: str  # Very Safe, Safe, Moderate, Risky, Dangerous

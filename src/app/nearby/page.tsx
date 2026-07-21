@@ -24,6 +24,7 @@ import { useRouter } from "next/navigation";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, Button, Badge, LoadingSkeleton, MapContainer, FilterChips, EmptyState, AIInsightCard } from "@/components/ui";
 import { SafetyService } from "@/services/safety";
+import { useLocation } from "@/contexts/LocationContext";
 import styles from "./Nearby.module.css";
 
 const MOCK_PLACES_EXTENSIONS = [
@@ -89,6 +90,13 @@ export default function NearbyPage() {
   
   const [mapCenter, setMapCenter] = useState<[number, number]>([77.2083, 28.5233]);
   const [mapZoom, setMapZoom] = useState(14);
+  const { location, status: locStatus } = useLocation();
+
+  useEffect(() => {
+    if (location && locStatus === "success") {
+      setMapCenter([location.longitude, location.latitude]);
+    }
+  }, [location, locStatus]);
 
   // Polish States
   const [successToast, setSuccessToast] = useState<string | null>(null);

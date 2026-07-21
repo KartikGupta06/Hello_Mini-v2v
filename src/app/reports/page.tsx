@@ -32,6 +32,7 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, Button, Badge, Modal, Input, LoadingSkeleton, MapContainer, EmptyState, TimelineList, TimelineItem } from "@/components/ui";
 import { SafetyService } from "@/services/safety";
 import { AuthService } from "@/services/auth";
+import { useLocation } from "@/contexts/LocationContext";
 import { SafetyReport, ReportCategory, User } from "@/types";
 import styles from "./Reports.module.css";
 
@@ -55,6 +56,8 @@ export default function ReportsPage() {
   const [newDesc, setNewDesc] = useState("");
   const [submitting, setSubmitting] = useState(false);
   
+  const { location } = useLocation();
+
   // Custom states
   const [activeFilter, setActiveFilter] = useState("all");
   const [activeReportId, setActiveReportId] = useState<number | null>(null);
@@ -129,25 +132,12 @@ export default function ReportsPage() {
         setSuccessToast("Hazard incident updated successfully!");
       } else {
         // Create report
-        let lat = 28.5306;
-        let lng = 77.2045;
-
-        if (navigator.geolocation) {
-          await new Promise<void>((resolve) => {
-            navigator.geolocation.getCurrentPosition(
-              (position) => {
-                lat = position.coords.latitude;
-                lng = position.coords.longitude;
-                resolve();
-              },
-              () => {
-                console.warn("Geolocation failed. Falling back.");
-                resolve();
-              },
-              { timeout: 3000 }
-            );
-          });
+        if (!location) {
+          throw new Error("Live GPS location is required to submit a hazard report.");
         }
+        
+        const lat = location.latitude;
+        const lng = location.longitude;
 
         await SafetyService.submitReport({
           lat,

@@ -31,8 +31,11 @@ class RouteRanker:
             hotspots_count = len(analysis.hotspots)
 
             # 1. Compute components
-            avg_safety_comp = stats.avg_safety_score * self.SAFETY_WEIGHT
-            worst_seg_comp = stats.min_safety_score * self.WORST_SEGMENT_WEIGHT
+            avg_safety = stats.avg_safety_score if stats.avg_safety_score is not None else 0.0
+            min_safety = stats.min_safety_score if stats.min_safety_score is not None else 0.0
+            
+            avg_safety_comp = avg_safety * self.SAFETY_WEIGHT
+            worst_seg_comp = min_safety * self.WORST_SEGMENT_WEIGHT
             conf_comp = stats.avg_confidence * self.CONFIDENCE_WEIGHT
             
             time_penalty = inp.time_seconds * self.TIME_PENALTY_WEIGHT

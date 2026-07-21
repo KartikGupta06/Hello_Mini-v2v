@@ -37,6 +37,36 @@ class SafetyEngine:
         if current_date is None:
             current_date = datetime.now().date()
 
+        # 0. Check Dataset Coverage (Delhi NCR Bounding Box)
+        # Lat approx: 28.2 to 29.0, Lng approx: 76.7 to 77.5
+        is_covered = (28.2 <= lat <= 29.0) and (76.7 <= lng <= 77.5)
+        
+        if not is_covered:
+            return {
+                "safety_score": None,
+                "coverage": False,
+                "risk_level": "Unavailable",
+                "confidence_percentage": 0.0,
+                "confidence_level": "Low",
+                "emergency_readiness_score": 0.0,
+                "readiness_level": "Unavailable",
+                "risk_breakdown": {
+                    "crime_risk": 0.0,
+                    "infrastructure_risk": 0.0,
+                    "total_accumulated_risk": 0.0,
+                    "adjusted_crime_risk": 0.0,
+                    "adjusted_infrastructure_risk": 0.0,
+                    "crime_multiplier": 1.0,
+                    "infrastructure_multiplier": 1.0,
+                    "emergency_readiness_score": 0.0,
+                    "telemetry_points_count": 0
+                },
+                "ai_explanation": {
+                    "why_this_route": ["Safety intelligence data is not yet available for this region."],
+                    "risks_and_warnings": []
+                }
+            }
+
         # 1. Run Analyzers
         crime_res = self.crime_analyzer.evaluate(db, lat, lng, evaluation_date=current_date)
         infra_res = self.infra_analyzer.evaluate(db, lat, lng)
@@ -56,6 +86,7 @@ class SafetyEngine:
         # 4. Formulate Unified Response
         return {
             "safety_score": score_res["safety_score"],
+            "coverage": True,
             "risk_level": score_res["risk_category"],
             "confidence_percentage": confidence_res["confidence_percentage"],
             "confidence_level": confidence_res["confidence_level"],

@@ -37,19 +37,27 @@ class RouteAnalyzer:
         ai_results = await asyncio.gather(*tasks)
 
         # 3. Calculate statistics
-        scores = [res.safety_score for res in ai_results]
+        raw_scores = [res.safety_score for res in ai_results]
+        scores = [s for s in raw_scores if s is not None]
+        
         confidences = [res.confidence_percentage for res in ai_results]
         categories = [res.risk_category for res in ai_results]
 
-        avg_safety = sum(scores) / len(scores)
-        min_safety = min(scores)
-        max_safety = max(scores)
-        
-        sorted_scores = sorted(scores)
-        n = len(sorted_scores)
-        median_safety = (sorted_scores[n//2] + sorted_scores[(n-1)//2]) / 2.0
-        
-        avg_conf = sum(confidences) / len(confidences)
+        if scores:
+            avg_safety = sum(scores) / len(scores)
+            min_safety = min(scores)
+            max_safety = max(scores)
+            
+            sorted_scores = sorted(scores)
+            n = len(sorted_scores)
+            median_safety = (sorted_scores[n//2] + sorted_scores[(n-1)//2]) / 2.0
+        else:
+            avg_safety = None
+            min_safety = None
+            max_safety = None
+            median_safety = None
+            
+        avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
 
         # Compute risk category distributions
         distribution = {
@@ -72,10 +80,10 @@ class RouteAnalyzer:
         unsafe_count = len(scores) - safe_count
 
         stats = RouteStatistics(
-            avg_safety_score=round(avg_safety, 2),
-            min_safety_score=round(min_safety, 2),
-            max_safety_score=round(max_safety, 2),
-            median_safety_score=round(median_safety, 2),
+            avg_safety_score=round(avg_safety, 2) if avg_safety is not None else None,
+            min_safety_score=round(min_safety, 2) if min_safety is not None else None,
+            max_safety_score=round(max_safety, 2) if max_safety is not None else None,
+            median_safety_score=round(median_safety, 2) if median_safety is not None else None,
             avg_confidence=round(avg_conf, 2),
             risk_distribution=distribution,
             safe_segments_count=safe_count,
@@ -89,8 +97,12 @@ class RouteAnalyzer:
         in_cluster = False
         cluster_start = -1
         
-        for i in range(len(scores)):
-            if scores[i] < 50.0:
+        for i in range(len(raw_scores)):
+            s = raw_scores[i]
+            # Treat None as unsafe for cluster detection to warn about unmapped areas
+            is_unsafe = s is None or s < 50.0
+            
+            if is_unsafe:
                 if not in_cluster:
                     in_cluster = True
                     cluster_start = i
@@ -100,7 +112,7 @@ class RouteAnalyzer:
                     if i - cluster_start >= 2:
                         hotspots.append(RouteHotspot(
                             type="unsafe_cluster",
-                            description=f"Continuous unsafe segment spanning {i - cluster_start} sampled coordinates with safety scores below 50.",
+                            description=f"Continuous unsafe or unmapped segment spanning {i - cluster_start} sampled coordinates.",
                             start_index=cluster_start,
                             end_index=i - 1,
                             coordinates=sampled_points[cluster_start:i]
@@ -108,26 +120,29 @@ class RouteAnalyzer:
                     in_cluster = False
                     
         # Catch cluster extending to last element
-        if in_cluster and len(scores) - cluster_start >= 2:
+        if in_cluster and len(raw_scores) - cluster_start >= 2:
             hotspots.append(RouteHotspot(
                 type="unsafe_cluster",
-                description=f"Continuous unsafe segment extending to destination with safety scores below 50.",
+                description=f"Continuous unsafe or unmapped segment extending to destination.",
                 start_index=cluster_start,
-                end_index=len(scores) - 1,
+                end_index=len(raw_scores) - 1,
                 coordinates=sampled_points[cluster_start:]
             ))
 
         # Sudden score drop checks
-        for i in range(len(scores) - 1):
-            drop = scores[i] - scores[i+1]
-            if drop > 25.0:
-                hotspots.append(RouteHotspot(
-                    type="sudden_drop",
-                    description=f"Sudden safety score drop of {round(drop, 1)} points between segments.",
-                    start_index=i,
-                    end_index=i + 1,
-                    coordinates=[sampled_points[i], sampled_points[i+1]]
-                ))
+        for i in range(len(raw_scores) - 1):
+            s1 = raw_scores[i]
+            s2 = raw_scores[i+1]
+            if s1 is not None and s2 is not None:
+                drop = s1 - s2
+                if drop > 25.0:
+                    hotspots.append(RouteHotspot(
+                        type="sudden_drop",
+                        description=f"Sudden safety score drop of {round(drop, 1)} points between segments.",
+                        start_index=i,
+                        end_index=i + 1,
+                        coordinates=[sampled_points[i], sampled_points[i+1]]
+                    ))
 
         return RouteAnalysisResult(
             route_id=route_id,

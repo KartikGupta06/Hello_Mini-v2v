@@ -23,6 +23,7 @@ import {
   ChevronRight
 } from "lucide-react";
 import { useEmergency } from "@/contexts/EmergencyContext";
+import { useLocation } from "@/contexts/LocationContext";
 import { SafetyService } from "@/services/safety";
 import { Button } from "./Button";
 import styles from "./EmergencyOverlay.module.css";
@@ -49,8 +50,8 @@ export const EmergencyOverlay: React.FC = () => {
   // Stage 3: Live Active Timer
   const [liveSeconds, setLiveSeconds] = useState(0);
 
-  const [lat, setLat] = useState(28.5306);
-  const [lng, setLng] = useState(77.2045);
+  const { location, status: locStatus } = useLocation();
+
   const [closestPost, setClosestPost] = useState("Malviya Nagar Post");
   const [closestHospital, setClosestHospital] = useState("Max Super Speciality");
   
@@ -63,18 +64,6 @@ export const EmergencyOverlay: React.FC = () => {
   // Geolocation and Safe Places stream
   useEffect(() => {
     if (!isEmergencyActive) return;
-    
-    let watchId: number;
-    if (navigator.geolocation) {
-      watchId = navigator.geolocation.watchPosition(
-        (pos) => {
-          setLat(pos.coords.latitude);
-          setLng(pos.coords.longitude);
-        },
-        () => console.warn("Failed resolving geolocation streams"),
-        { enableHighAccuracy: true }
-      );
-    }
 
     async function loadPlaces() {
       try {
@@ -88,12 +77,6 @@ export const EmergencyOverlay: React.FC = () => {
       }
     }
     loadPlaces();
-
-    return () => {
-      if (watchId && navigator.geolocation) {
-        navigator.geolocation.clearWatch(watchId);
-      }
-    };
   }, [isEmergencyActive]);
 
   // Stage 1: Hold to Activate Countdown
@@ -130,58 +113,39 @@ export const EmergencyOverlay: React.FC = () => {
     let active = true;
 
     const triggerSOSCall = async () => {
-      if (!navigator.geolocation) {
+      if (!location) {
         if (active) {
-          setApiError("GPS Unavailable: Geolocation is not supported by your browser.");
+          let errorMsg = "GPS Coordinates Unavailable.";
+          if (locStatus === 'denied') errorMsg = "Location Permission Denied: Please enable browser GPS permissions to trigger SOS.";
+          else if (locStatus === 'unavailable') errorMsg = "GPS Unavailable: SafeRoute is unable to establish contact with satellite location providers.";
+          else if (locStatus === 'timeout') errorMsg = "Timeout: Geolocation query took too long to resolve.";
+          else if (locStatus === 'unsupported') errorMsg = "GPS Unavailable: Geolocation is not supported by your browser.";
+
+          setApiError(errorMsg);
           setSosStage("hold");
           setApiLoading(false);
         }
         return;
       }
 
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          if (!active) return;
-          const currentLat = position.coords.latitude;
-          const currentLng = position.coords.longitude;
-          setLat(currentLat);
-          setLng(currentLng);
-
-          try {
-            const res = await SafetyService.triggerSOS({
-              latitude: currentLat,
-              longitude: currentLng
-            });
-            if (!active) return;
-            setSosResponse(res);
-            setTriggerTime(new Date().toLocaleTimeString() + " " + new Date().toLocaleDateString());
-            setSosStage("live");
-          } catch (error: any) {
-            if (!active) return;
-            setApiError(error.message || "Backend Failure: Unable to connect to SafeRoute SOS server.");
-            setSosStage("hold");
-          } finally {
-            if (active) {
-              setApiLoading(false);
-            }
-          }
-        },
-        (error) => {
-          if (!active) return;
-          let errorMsg = "GPS Coordinates Unavailable.";
-          if (error.code === error.PERMISSION_DENIED) {
-            errorMsg = "Location Permission Denied: Please enable browser GPS permissions to trigger SOS.";
-          } else if (error.code === error.POSITION_UNAVAILABLE) {
-            errorMsg = "GPS Unavailable: SafeRoute is unable to establish contact with satellite location providers.";
-          } else if (error.code === error.TIMEOUT) {
-            errorMsg = "Timeout: Geolocation query took too long to resolve.";
-          }
-          setApiError(errorMsg);
-          setSosStage("hold");
+      try {
+        const res = await SafetyService.triggerSOS({
+          latitude: location.latitude,
+          longitude: location.longitude
+        });
+        if (!active) return;
+        setSosResponse(res);
+        setTriggerTime(new Date().toLocaleTimeString() + " " + new Date().toLocaleDateString());
+        setSosStage("live");
+      } catch (error: any) {
+        if (!active) return;
+        setApiError(error.message || "Backend Failure: Unable to connect to SafeRoute SOS server.");
+        setSosStage("hold");
+      } finally {
+        if (active) {
           setApiLoading(false);
-        },
-        { enableHighAccuracy: true, timeout: 8000 }
-      );
+        }
+      }
     };
 
     triggerSOSCall();
@@ -272,7 +236,7 @@ export const EmergencyOverlay: React.FC = () => {
           </div>
           <span className={styles.headerLocationText}>
             <MapPin size={12} />
-            GPS Coordinates: {lat.toFixed(5)}° N, {lng.toFixed(5)}° E
+            GPS Coordinates: {location ? `${location.latitude.toFixed(5)}° N, ${location.longitude.toFixed(5)}° E` : "Detecting..."}
           </span>
         </div>
 
@@ -472,7 +436,7 @@ export const EmergencyOverlay: React.FC = () => {
             <div className={styles.etaSubBox} style={{ gridColumn: "span 2" }}>
               <span className={styles.etaBoxLabel}>Current Coordinates</span>
               <span className={styles.etaBoxValue} style={{ fontSize: "0.85rem" }}>
-                {lat.toFixed(6)}° N, {lng.toFixed(6)}° E
+                {location ? `${location.latitude.toFixed(6)}° N, ${location.longitude.toFixed(6)}° E` : "Unknown"}
               </span>
             </div>
 

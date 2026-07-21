@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 class RouteCoordinate(BaseModel):
     lat: float
@@ -13,10 +13,10 @@ class CandidateRouteInput(BaseModel):
     time_seconds: float
 
 class RouteStatistics(BaseModel):
-    avg_safety_score: float
-    min_safety_score: float
-    max_safety_score: float
-    median_safety_score: float
+    avg_safety_score: Optional[float]
+    min_safety_score: Optional[float]
+    max_safety_score: Optional[float]
+    median_safety_score: Optional[float]
     avg_confidence: float
     risk_distribution: Dict[str, float]  # Percentage of points per risk category
     safe_segments_count: int
@@ -41,7 +41,7 @@ class RouteRankingItem(BaseModel):
     route_name: str
     rank: int
     rank_score: float
-    avg_safety_score: float
+    avg_safety_score: Optional[float]
     travel_time_seconds: float
     travel_distance_meters: float
 

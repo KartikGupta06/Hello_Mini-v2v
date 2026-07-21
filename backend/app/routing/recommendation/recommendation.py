@@ -42,8 +42,9 @@ class RecommendationEngine:
         if time_diff_min == 0:
             time_diff_min = 1
 
-        rec_safety = recommended_rank.avg_safety_score
-        alt_safety = fastest_rank.avg_safety_score if fastest_rank else rec_safety
+        rec_safety = recommended_rank.avg_safety_score if recommended_rank.avg_safety_score is not None else 0.0
+        alt_safety_raw = fastest_rank.avg_safety_score if fastest_rank else rec_safety
+        alt_safety = alt_safety_raw if alt_safety_raw is not None else 0.0
         safety_diff = rec_safety - alt_safety
         safety_diff_pct = (safety_diff / alt_safety * 100) if alt_safety > 0 else 0.0
 
@@ -52,7 +53,10 @@ class RecommendationEngine:
 
         # Extract reasoning metrics (e.g. check lighting, community reports, or POI differences)
         reasons_list = []
-        if rec_analysis.statistics.avg_safety_score > (fastest_analysis.statistics.avg_safety_score if fastest_analysis else 0.0):
+        rec_avg_stat = rec_analysis.statistics.avg_safety_score if rec_analysis.statistics.avg_safety_score is not None else 0.0
+        alt_avg_stat = (fastest_analysis.statistics.avg_safety_score if fastest_analysis and fastest_analysis.statistics.avg_safety_score is not None else 0.0)
+        
+        if rec_avg_stat > alt_avg_stat:
             reasons_list.append("higher average safety ratings")
             
         rec_hotspots = len(rec_analysis.hotspots)
