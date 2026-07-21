@@ -6,6 +6,15 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 logger = logging.getLogger("app_error_handler")
 
+def get_cors_headers(request: Request) -> dict:
+    origin = request.headers.get("origin")
+    if origin:
+        return {
+            "Access-Control-Allow-Origin": origin,
+            "Access-Control-Allow-Credentials": "true",
+        }
+    return {}
+
 async def http_exception_handler(
     request: Request, 
     exc: StarletteHTTPException
@@ -14,6 +23,7 @@ async def http_exception_handler(
     logger.warning(f"HTTP error intercepted: {exc.detail} | Status: {exc.status_code}")
     return JSONResponse(
         status_code=exc.status_code,
+        headers=get_cors_headers(request),
         content={
             "success": False, 
             "error": exc.detail, 
@@ -38,6 +48,7 @@ async def validation_exception_handler(
     logger.warning(f"Request validation mismatch: {errors}")
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        headers=get_cors_headers(request),
         content={
             "success": False,
             "error": "Request validation failed",
@@ -54,6 +65,7 @@ async def generic_exception_handler(
     logger.error(f"Unhandled system crash: {str(exc)}", exc_info=True)
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        headers=get_cors_headers(request),
         content={
             "success": False,
             "error": "Internal server configuration error",

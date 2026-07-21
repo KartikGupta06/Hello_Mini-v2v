@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey, func
 from sqlalchemy.orm import relationship
 from app.database.base import Base
@@ -11,11 +12,11 @@ class CommunityReport(Base):
     lng = Column(Float, nullable=False)
     type = Column(String, nullable=False)  # e.g., poorly-lit, theft, harassment, obstruction
     description = Column(String, nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    created_at = Column(DateTime(timezone=True), default=datetime.utcnow, nullable=False)
     updated_at = Column(
         DateTime(timezone=True), 
-        server_default=func.now(), 
-        onupdate=func.now(), 
+        default=datetime.utcnow, 
+        onupdate=datetime.utcnow, 
         nullable=False
     )
 
