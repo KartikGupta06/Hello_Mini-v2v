@@ -27,6 +27,7 @@ import { Card, Button, Badge, Modal, Input, LoadingSkeleton, MapContainer, Empty
 import { ContactService } from "@/services/contacts";
 import { AuthService } from "@/services/auth";
 import { useEmergency } from "@/contexts/EmergencyContext";
+import { useLocation } from "@/contexts/LocationContext";
 import { EmergencyContact, User } from "@/types";
 import styles from "./Guardian.module.css";
 
@@ -37,6 +38,7 @@ const MOCK_UPDATES = ["Updated 2m ago", "Updated 10m ago", "Updated 5m ago", "Of
 export default function GuardianPage() {
   const router = useRouter();
   const { triggerEmergency } = useEmergency();
+  const { location } = useLocation();
   
   const [user, setUser] = useState<User | null>(null);
   const [contacts, setContacts] = useState<EmergencyContact[]>([]);
@@ -252,7 +254,7 @@ export default function GuardianPage() {
                   routes={[]} 
                   selectedRouteId="" 
                   onRouteSelect={() => {}} 
-                  center={[77.2083, 28.5233]} // Delhi Saket Center default coords
+                  center={location ? [location.longitude, location.latitude] : [0, 0]}
                   zoom={14}
                 />
               </div>

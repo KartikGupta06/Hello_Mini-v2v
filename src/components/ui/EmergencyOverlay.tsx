@@ -113,25 +113,29 @@ export const EmergencyOverlay: React.FC = () => {
     let active = true;
 
     const triggerSOSCall = async () => {
+      let lat = 0;
+      let lng = 0;
+
       if (!location) {
         if (active) {
-          let errorMsg = "GPS Coordinates Unavailable.";
-          if (locStatus === 'denied') errorMsg = "Location Permission Denied: Please enable browser GPS permissions to trigger SOS.";
-          else if (locStatus === 'unavailable') errorMsg = "GPS Unavailable: SafeRoute is unable to establish contact with satellite location providers.";
-          else if (locStatus === 'timeout') errorMsg = "Timeout: Geolocation query took too long to resolve.";
-          else if (locStatus === 'unsupported') errorMsg = "GPS Unavailable: Geolocation is not supported by your browser.";
+          let errorMsg = "Live location unavailable.";
+          if (locStatus === 'denied') errorMsg = "Location Permission Denied: Live location unavailable.";
+          else if (locStatus === 'unavailable') errorMsg = "GPS Unavailable: Live location unavailable.";
+          else if (locStatus === 'timeout') errorMsg = "Timeout: Live location unavailable.";
+          else if (locStatus === 'unsupported') errorMsg = "GPS Unavailable: Live location unavailable.";
 
           setApiError(errorMsg);
-          setSosStage("hold");
-          setApiLoading(false);
         }
-        return;
+        // Do NOT return here, allow demo SOS to continue
+      } else {
+        lat = location.latitude;
+        lng = location.longitude;
       }
 
       try {
         const res = await SafetyService.triggerSOS({
-          latitude: location.latitude,
-          longitude: location.longitude
+          latitude: lat,
+          longitude: lng
         });
         if (!active) return;
         setSosResponse(res);
@@ -236,7 +240,7 @@ export const EmergencyOverlay: React.FC = () => {
           </div>
           <span className={styles.headerLocationText}>
             <MapPin size={12} />
-            GPS Coordinates: {location ? `${location.latitude.toFixed(5)}° N, ${location.longitude.toFixed(5)}° E` : "Detecting..."}
+            GPS Coordinates: {location ? `${location.latitude.toFixed(5)}° N, ${location.longitude.toFixed(5)}° E` : (locStatus === "detecting" ? "Detecting..." : "Live location unavailable")}
           </span>
         </div>
 
@@ -436,7 +440,7 @@ export const EmergencyOverlay: React.FC = () => {
             <div className={styles.etaSubBox} style={{ gridColumn: "span 2" }}>
               <span className={styles.etaBoxLabel}>Current Coordinates</span>
               <span className={styles.etaBoxValue} style={{ fontSize: "0.85rem" }}>
-                {location ? `${location.latitude.toFixed(6)}° N, ${location.longitude.toFixed(6)}° E` : "Unknown"}
+                {location ? `${location.latitude.toFixed(6)}° N, ${location.longitude.toFixed(6)}° E` : "Live location unavailable"}
               </span>
             </div>
 

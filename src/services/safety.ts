@@ -38,6 +38,8 @@ export const SafetyService = {
     risk_category: string;
     reasons: string[];
     module_breakdown: Record<string, any>;
+    coverage?: boolean;
+    ai_explanation?: { why_this_route: string };
   }> => {
     return apiClient.get(`/ai/safety-score?lat=${lat}&lng=${lng}`);
   },
