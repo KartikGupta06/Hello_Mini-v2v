@@ -201,7 +201,7 @@ export default function DashboardPage() {
               <span className={styles.weatherTemp}>30°C</span>
               <div className={styles.weatherLocRow}>
                 <MapPin size={10} className={styles.weatherPin} />
-                <span className={styles.weatherLoc}>New Delhi</span>
+                <span className={styles.weatherLoc}>{locStatus === "detecting" ? "Detecting..." : location ? `${location.latitude.toFixed(2)}°N, ${location.longitude.toFixed(2)}°E` : "Location Unknown"}</span>
               </div>
               <div className={styles.weatherAqiRow}>
                 <span className={styles.aqiDot} />
@@ -216,7 +216,7 @@ export default function DashboardPage() {
           <div className={styles.locationBadge}>
             <MapPin size={12} className={styles.metaIcon} />
             <span className={styles.metaLabel}>Current Location</span>
-            <span className={styles.metaVal}>{location ? `${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)}` : "Location Unknown"}</span>
+            <span className={styles.metaVal}>{locStatus === "detecting" ? "Detecting your location..." : location ? `${location.latitude.toFixed(4)}° N, ${location.longitude.toFixed(4)}° E` : "Location Unknown"}</span>
           </div>
           <div className={styles.dateBadge}>
             <Calendar size={12} className={styles.metaIcon} />

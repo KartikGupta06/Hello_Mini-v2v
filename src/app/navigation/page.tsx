@@ -74,8 +74,8 @@ export default function NavigationPage() {
   const { triggerEmergency } = useEmergency();
   
   const [user, setUser] = useState<User | null>(null);
-  const [origin, setOrigin] = useState("Saket Metro District, South Delhi");
-  const [destination, setDestination] = useState("Malviya Nagar Police Station Area, South Delhi");
+  const [origin, setOrigin] = useState("");
+  const [destination, setDestination] = useState("");
   
   const [originCoords, setOriginCoords] = useState<[number, number]>([77.2083, 28.5233]);
   const [destCoords, setDestCoords] = useState<[number, number]>([77.2045, 28.5306]);
@@ -85,7 +85,7 @@ export default function NavigationPage() {
   useEffect(() => {
     if (location && locStatus === "success") {
       setOriginCoords([location.longitude, location.latitude]);
-      setOrigin("Current Location");
+      setOrigin(`Current Location (${location.latitude.toFixed(4)}° N, ${location.longitude.toFixed(4)}° E)`);
     }
   }, [location, locStatus]);
 

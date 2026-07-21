@@ -212,7 +212,7 @@ export default function NearbyPage() {
           </button>
           <div className={styles.headerTitles}>
             <h2 className={styles.circleTitle}>Safe Places</h2>
-            <span className={styles.membersCount}>South Delhi District</span>
+            <span className={styles.membersCount}>{location ? `${location.latitude.toFixed(4)}° N, ${location.longitude.toFixed(4)}° E` : "Location Unknown"}</span>
           </div>
           <button onClick={loadHavens} className={styles.refreshBtn} aria-label="Refresh location havens">
             <RotateCcw size={16} />

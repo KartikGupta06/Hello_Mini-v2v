@@ -360,6 +360,13 @@ const LeafletMapComponent: React.FC<LeafletMapProps> = ({
     prevSelectedRef.current = selectedRouteId;
   }, [routes, selectedRouteId, pins, renderRoutes]);
 
+  // ── Pan map when center prop changes ───────────────────────────────────────
+  useEffect(() => {
+    if (refs.current.map && center) {
+      refs.current.map.panTo([center[1], center[0]]);
+    }
+  }, [center]);
+
   return (
     <div
       ref={containerRef}
