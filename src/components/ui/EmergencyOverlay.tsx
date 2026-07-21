@@ -435,15 +435,37 @@ export const EmergencyOverlay: React.FC = () => {
             
             <div className={styles.etaSubBox} style={{ gridColumn: "span 2" }}>
               <span className={styles.etaBoxLabel}>Current Coordinates</span>
-              <span className={styles.etaBoxValue} style={{ fontSize: "0.85rem" }}>
-                {location ? `${location.latitude.toFixed(6)}° N, ${location.longitude.toFixed(6)}° E` : "Live location unavailable"}
+              <span className={styles.etaBoxValue} style={{ fontSize: "0.85rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
+                {sosResponse?.location_url ? (
+                  <>
+                    <span>{location ? `${location.latitude.toFixed(6)}° N, ${location.longitude.toFixed(6)}° E` : "Detecting..."}</span>
+                    <a 
+                      href={sosResponse.location_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      style={{ fontSize: "0.75rem", color: "#3B82F6", textDecoration: "underline", fontWeight: 700 }}
+                    >
+                      View Emergency Location
+                    </a>
+                  </>
+                ) : (
+                  <span>Live location unavailable</span>
+                )}
               </span>
             </div>
 
             <div className={styles.etaSubBox} style={{ gridColumn: "span 2" }}>
               <span className={styles.etaBoxLabel}>Guardian Notification Status</span>
               <span className={styles.etaBoxValue} style={{ fontSize: "0.82rem", color: "#1E2A39" }}>
-                {contactsCount > 0 ? `Notified (${contactsCount} Guardians via SMS Broadcast)` : "No Emergency Contacts configured"}
+                {(() => {
+                  const ns = sosResponse?.notification?.notification_status;
+                  if (ns === "sent") return `Emergency contacts notified (${sosResponse?.notification?.contacts_notified ?? 0})`;
+                  if (ns === "partial") return `SOS activated — some emergency contacts notified (${sosResponse?.notification?.contacts_notified ?? 0}/${sosResponse?.notification?.contacts_attempted ?? 0})`;
+                  if (ns === "failed") return "SOS activated — contact notification failed";
+                  if (ns === "provider_not_configured") return "SOS activated — contact notification unavailable";
+                  if (ns === "no_contacts") return "SOS activated — no emergency contacts configured";
+                  return "Notifying emergency contacts...";
+                })()}
               </span>
             </div>
 

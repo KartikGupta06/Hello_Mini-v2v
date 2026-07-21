@@ -6,6 +6,8 @@ from app.database.session import get_db
 from app.dependencies.auth import get_current_user
 from app.models.user import User as UserModel
 from app.services.sos import SOSService
+from app.services.contact import EmergencyContactService
+from app.services.notification import EmergencyNotificationService
 
 router = APIRouter()
 
@@ -25,7 +27,7 @@ def trigger_sos(
     current_user: UserModel = Depends(get_current_user)
 ):
     try:
-        # 1. Persist the SOS event first
+        # 1. Persist the SOS event first — must succeed before anything else
         sos_event = SOSService.create_sos_event(
             db=db,
             user_id=current_user.id,
@@ -33,15 +35,36 @@ def trigger_sos(
             longitude=request.longitude
         )
 
-        # 2. Proceed with infrastructure lookup
+        # 2. Infrastructure lookup (police/hospital)
         results = SOSService.find_nearest_services(
             db=db,
             latitude=request.latitude,
             longitude=request.longitude
         )
-        
-        # 3. Include event ID in response
+
+        # 3. Fetch ONLY this user's registered emergency contacts
+        guardian_contacts = EmergencyContactService.get_contacts_for_user(
+            db=db,
+            user_id=current_user.id  # derived from JWT — cannot be spoofed by frontend
+        )
+
+        # 4. Dispatch real SMS alerts (never raises — failures are caught inside)
+        notification_svc = EmergencyNotificationService()
+        notification_result = notification_svc.dispatch(
+            contacts=guardian_contacts,
+            user_name=current_user.name,
+            location_url=results.get("location_url")
+        )
+
+        # 5. Compose safe notification summary (no phone numbers exposed)
+        notification_summary = {
+            "notification_status": notification_result.status.value,
+            "contacts_attempted": notification_result.contacts_attempted,
+            "contacts_notified": notification_result.contacts_notified
+        }
+
         results["event_id"] = sos_event.id
+        results["notification"] = notification_summary
 
         return results
     except ValueError as e:

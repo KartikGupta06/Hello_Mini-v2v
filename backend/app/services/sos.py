@@ -33,6 +33,7 @@ class SOSService:
                     "latitude": None,
                     "longitude": None
                 },
+                "location_url": None,
                 "nearest_police": None,
                 "nearest_hospital": None,
                 "nearby_police_stations": [],
@@ -119,6 +120,7 @@ class SOSService:
                 "latitude": latitude,
                 "longitude": longitude
             },
+            "location_url": f"https://www.google.com/maps?q={latitude},{longitude}",
             "nearest_police": nearest_police,
             "nearest_hospital": nearest_hospital,
             "nearby_police_stations": nearby_police,
