@@ -1,16 +1,45 @@
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from sqlalchemy.orm import Session
 from app.models.police_station import PoliceStation
 from app.models.hospital import Hospital
+from app.models.sos_event import SOSEvent
 from app.utils.spatial import query_within_radius
 
 class SOSService:
     @staticmethod
+    def create_sos_event(db: Session, user_id: int, latitude: Optional[float], longitude: Optional[float]) -> SOSEvent:
+        event = SOSEvent(
+            user_id=user_id,
+            latitude=latitude,
+            longitude=longitude,
+            status="ACTIVE"
+        )
+        db.add(event)
+        db.commit()
+        db.refresh(event)
+        return event
+
+    @staticmethod
     def find_nearest_services(
         db: Session, 
-        latitude: float, 
-        longitude: float
+        latitude: Optional[float], 
+        longitude: Optional[float]
     ) -> Dict[str, Any]:
+        # If GPS is completely missing, return a safe fallback message
+        if latitude is None or longitude is None:
+            return {
+                "sos_status": "active",
+                "current_location": {
+                    "latitude": None,
+                    "longitude": None
+                },
+                "nearest_police": None,
+                "nearest_hospital": None,
+                "nearby_police_stations": [],
+                "nearby_hospitals": [],
+                "message": "SOS active, but GPS location is unavailable."
+            }
+
         # Validate coordinates ranges
         if not (-90.0 <= latitude <= 90.0):
             raise ValueError("Latitude must be between -90 and 90.")

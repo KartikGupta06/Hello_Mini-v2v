@@ -81,7 +81,7 @@ export const SafetyService = {
   },
 
   // Trigger SOS Emergency
-  triggerSOS: async (payload: { latitude: number; longitude: number }): Promise<any> => {
+  triggerSOS: async (payload: { latitude?: number; longitude?: number }): Promise<any> => {
     return apiClient.post("/sos/trigger", payload);
   },
 

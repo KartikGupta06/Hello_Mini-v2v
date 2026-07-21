@@ -6,6 +6,7 @@ from app.models.report import CommunityReport
 from app.models.police_station import PoliceStation
 from app.models.hospital import Hospital
 from app.models.street_light import StreetLight
+from app.models.sos_event import SOSEvent
 from app.models.cctv_camera import CCTVCamera
 from app.models.crime_record import CrimeRecord
 

@@ -113,8 +113,7 @@ export const EmergencyOverlay: React.FC = () => {
     let active = true;
 
     const triggerSOSCall = async () => {
-      let lat = 0;
-      let lng = 0;
+      let payload: { latitude?: number; longitude?: number } = {};
 
       if (!location) {
         if (active) {
@@ -128,15 +127,12 @@ export const EmergencyOverlay: React.FC = () => {
         }
         // Do NOT return here, allow demo SOS to continue
       } else {
-        lat = location.latitude;
-        lng = location.longitude;
+        payload.latitude = location.latitude;
+        payload.longitude = location.longitude;
       }
 
       try {
-        const res = await SafetyService.triggerSOS({
-          latitude: lat,
-          longitude: lng
-        });
+        const res = await SafetyService.triggerSOS(payload);
         if (!active) return;
         setSosResponse(res);
         setTriggerTime(new Date().toLocaleTimeString() + " " + new Date().toLocaleDateString());

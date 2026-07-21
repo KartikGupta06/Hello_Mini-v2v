@@ -34,3 +34,8 @@ class User(Base):
         "CommunityReport", 
         back_populates="user"
     )
+    sos_events = relationship(
+        "SOSEvent", 
+        back_populates="user", 
+        cascade="all, delete-orphan"
+    )
