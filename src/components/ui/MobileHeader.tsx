@@ -52,9 +52,15 @@ export const MobileHeader: React.FC = () => {
   if (hideHeader) return null;
 
   const user = AuthService.getSavedUser();
-  const initials = user && user.name
+  let initials = user && user.name
     ? user.name.split(" ").filter(Boolean).map((n) => n[0]).join("").substring(0, 2).toUpperCase()
     : null;
+
+  if (user && (user.email === "demo@saferoute.ai" || user.name === "Demo User")) {
+    initials = "S";
+  } else if (!user) {
+    initials = "S";
+  }
 
   return (
     <header className={`${styles.header} ${isDashboard ? styles.dashboardHeader : ""}`}>
