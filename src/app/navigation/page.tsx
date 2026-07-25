@@ -71,6 +71,82 @@ const getInitialHeading = (coords?: { lat: number; lng: number }[]) => {
   return "Head North-West";
 };
 
+const formatPhotonName = (feature: any) => {
+  const { name, house_number, street, district, city, state, country } = feature.properties || {};
+  const parts = [];
+  if (name) parts.push(name);
+  if (house_number || street) {
+    parts.push([house_number, street].filter(Boolean).join(" "));
+  }
+  if (district) parts.push(district);
+  if (city) parts.push(city);
+  if (state && state !== city) parts.push(state);
+  if (country && country !== city && country !== state) parts.push(country);
+  
+  return parts
+    .filter(Boolean)
+    .filter((val, idx, arr) => arr.indexOf(val) === idx)
+    .join(", ");
+};
+
+const searchCache: Record<string, { name: string; coords: [number, number] }[]> = {};
+
+const fetchSuggestions = async (
+  query: string,
+  biasCoords: [number, number],
+  abortSignal?: AbortSignal
+): Promise<{ name: string; coords: [number, number] }[]> => {
+  const trimmed = query.trim().toLowerCase();
+  if (trimmed.length < 3) return [];
+
+  const cacheKey = `${trimmed}_${biasCoords[0].toFixed(2)}_${biasCoords[1].toFixed(2)}`;
+  if (searchCache[cacheKey]) {
+    return searchCache[cacheKey];
+  }
+
+  try {
+    const url = `https://photon.komoot.io/api/?q=${encodeURIComponent(query)}&limit=8&lon=${biasCoords[0]}&lat=${biasCoords[1]}`;
+    const res = await fetch(url, { signal: abortSignal });
+    const data = await res.json();
+    
+    if (data && data.features && data.features.length > 0) {
+      const suggestions = data.features.map((feature: any) => {
+        const coords = feature.geometry.coordinates; // [lng, lat]
+        return {
+          name: formatPhotonName(feature),
+          coords: [coords[0], coords[1]] as [number, number]
+        };
+      });
+      searchCache[cacheKey] = suggestions;
+      return suggestions;
+    }
+  } catch (e: any) {
+    if (e.name === 'AbortError') throw e;
+    console.warn("Photon lookup failed, falling back to Nominatim:", e);
+  }
+
+  // Fallback to Nominatim
+  try {
+    const fallbackUrl = `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(query)}&limit=5`;
+    const res = await fetch(fallbackUrl, { signal: abortSignal });
+    const data = await res.json();
+    if (data && data.length > 0) {
+      const suggestions = data.map((d: any) => ({
+        name: d.display_name,
+        coords: [parseFloat(d.lon), parseFloat(d.lat)] as [number, number]
+      }));
+      searchCache[cacheKey] = suggestions;
+      return suggestions;
+    }
+  } catch (e: any) {
+    if (e.name === 'AbortError') throw e;
+    console.error("Nominatim fallback geocoding failed:", e);
+  }
+
+  return [];
+};
+
+
 export default function NavigationPage() {
   const router = useRouter();
   const { triggerEmergency } = useEmergency();
@@ -178,46 +254,63 @@ export default function NavigationPage() {
   }, []);
 
   useEffect(() => {
+    const abortController = new AbortController();
+    
+    if (!originFocused || origin.length < 3) {
+      setOriginSuggestions([]);
+      setIsSearchingOrigin(false);
+      return;
+    }
+    
+    setIsSearchingOrigin(true);
     const timer = setTimeout(async () => {
-      if (!originFocused || origin.length < 3) {
-        setOriginSuggestions([]);
-        setIsSearchingOrigin(false);
-        return;
-      }
-      setIsSearchingOrigin(true);
       try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(origin)}&limit=5`);
-        const data = await res.json();
-        setOriginSuggestions(data.map((d: any) => ({ name: d.display_name, coords: [parseFloat(d.lon), parseFloat(d.lat)] })));
-      } catch (e) {
-        console.error(e);
+        const suggestions = await fetchSuggestions(origin, originCoords, abortController.signal);
+        setOriginSuggestions(suggestions);
+      } catch (e: any) {
+        if (e.name !== 'AbortError') {
+          console.error(e);
+        }
       } finally {
         setIsSearchingOrigin(false);
       }
     }, 400);
-    return () => clearTimeout(timer);
+    
+    return () => {
+      clearTimeout(timer);
+      abortController.abort();
+    };
   }, [origin, originFocused]);
 
   useEffect(() => {
+    const abortController = new AbortController();
+    
+    if (!destFocused || destination.length < 3) {
+      setDestSuggestions([]);
+      setIsSearchingDest(false);
+      return;
+    }
+    
+    setIsSearchingDest(true);
     const timer = setTimeout(async () => {
-      if (!destFocused || destination.length < 3) {
-        setDestSuggestions([]);
-        setIsSearchingDest(false);
-        return;
-      }
-      setIsSearchingDest(true);
       try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(destination)}&limit=5`);
-        const data = await res.json();
-        setDestSuggestions(data.map((d: any) => ({ name: d.display_name, coords: [parseFloat(d.lon), parseFloat(d.lat)] })));
-      } catch (e) {
-        console.error(e);
+        const suggestions = await fetchSuggestions(destination, originCoords, abortController.signal);
+        setDestSuggestions(suggestions);
+      } catch (e: any) {
+        if (e.name !== 'AbortError') {
+          console.error(e);
+        }
       } finally {
         setIsSearchingDest(false);
       }
     }, 400);
-    return () => clearTimeout(timer);
+    
+    return () => {
+      clearTimeout(timer);
+      abortController.abort();
+    };
   }, [destination, destFocused]);
+
 
   // Rotate AI Insights during walk navigation
   useEffect(() => {
@@ -303,10 +396,9 @@ export default function NavigationPage() {
       let finalDestCoords = destCoords;
 
       if (origin !== selectedOriginText && origin.trim().length > 2) {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(origin)}&limit=1`);
-        const data = await res.json();
-        if (data && data.length > 0) {
-          finalOriginCoords = [parseFloat(data[0].lon), parseFloat(data[0].lat)];
+        const suggestions = await fetchSuggestions(origin, originCoords);
+        if (suggestions && suggestions.length > 0) {
+          finalOriginCoords = suggestions[0].coords;
           setOriginCoords(finalOriginCoords);
           setSelectedOriginText(origin);
         } else {
@@ -315,16 +407,16 @@ export default function NavigationPage() {
       }
 
       if (destination !== selectedDestText && destination.trim().length > 2) {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(destination)}&limit=1`);
-        const data = await res.json();
-        if (data && data.length > 0) {
-          finalDestCoords = [parseFloat(data[0].lon), parseFloat(data[0].lat)];
+        const suggestions = await fetchSuggestions(destination, originCoords);
+        if (suggestions && suggestions.length > 0) {
+          finalDestCoords = suggestions[0].coords;
           setDestCoords(finalDestCoords);
           setSelectedDestText(destination);
         } else {
           throw new Error(`Could not find coordinates for destination: ${destination}`);
         }
       }
+
 
       const response = await routeCacheService.getRouteIntelligence({
         source_lat: finalOriginCoords[1],
