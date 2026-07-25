@@ -162,7 +162,25 @@ export default function NavigationPage() {
 
   const { location, status: locStatus, locationName, locationNameStatus } = useLocation();
 
+  const [sessionLoaded, setSessionLoaded] = useState(false);
+
   useEffect(() => {
+    if (!sessionLoaded) return;
+
+    // Check if we already have a loaded session with valid routes or selected destination
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("route_session");
+        if (stored) {
+          const session = JSON.parse(stored);
+          if (session.showRoutes || session.destination) {
+            // A saved route session exists, don't overwrite it with live GPS
+            return;
+          }
+        }
+      } catch {}
+    }
+
     if (location && locStatus === "success") {
       setOriginCoords([location.longitude, location.latitude]);
       if (locationName) {
@@ -174,7 +192,7 @@ export default function NavigationPage() {
         setSelectedOriginText(fallbackName);
       }
     }
-  }, [location, locStatus, locationName]);
+  }, [location, locStatus, locationName, sessionLoaded]);
 
   const [showRoutes, setShowRoutes] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState("safest");
@@ -247,6 +265,84 @@ export default function NavigationPage() {
   const [dynamicRoutes, setDynamicRoutes] = useState<any[]>([]);
   const [recommendationReason, setRecommendationReason] = useState("");
   const [tradeOffsSummary, setTradeOffsSummary] = useState("");
+
+  // Load session from localStorage on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("route_session");
+        if (stored) {
+          const session = JSON.parse(stored);
+          if (session.origin) setOrigin(session.origin);
+          if (session.destination) setDestination(session.destination);
+          if (session.selectedOriginText) setSelectedOriginText(session.selectedOriginText);
+          if (session.selectedDestText) setSelectedDestText(session.selectedDestText);
+          if (session.originCoords) setOriginCoords(session.originCoords);
+          if (session.destCoords) setDestCoords(session.destCoords);
+          if (session.showRoutes) setShowRoutes(session.showRoutes);
+          if (session.selectedRoute) setSelectedRoute(session.selectedRoute);
+          if (session.activeFilter) setActiveFilter(session.activeFilter);
+          if (session.dynamicRoutes) setDynamicRoutes(session.dynamicRoutes);
+          if (session.recommendationReason) setRecommendationReason(session.recommendationReason);
+          if (session.tradeOffsSummary) setTradeOffsSummary(session.tradeOffsSummary);
+          if (session.activeWalkMode) setActiveWalkMode(session.activeWalkMode);
+          if (session.activeJourneyId) setActiveJourneyId(session.activeJourneyId);
+          if (session.sheetExpanded) setSheetExpanded(session.sheetExpanded);
+        }
+      } catch (e) {
+        console.error("Failed to restore route session:", e);
+      } finally {
+        setSessionLoaded(true);
+      }
+    }
+  }, []);
+
+  // Save session to localStorage on state changes
+  useEffect(() => {
+    if (!sessionLoaded) return;
+
+    if (typeof window !== "undefined") {
+      if (origin || destination || showRoutes) {
+        const session = {
+          origin,
+          destination,
+          selectedOriginText,
+          selectedDestText,
+          originCoords,
+          destCoords,
+          showRoutes,
+          selectedRoute,
+          activeFilter,
+          dynamicRoutes,
+          recommendationReason,
+          tradeOffsSummary,
+          activeWalkMode,
+          activeJourneyId,
+          sheetExpanded
+        };
+        localStorage.setItem("route_session", JSON.stringify(session));
+      } else {
+        localStorage.removeItem("route_session");
+      }
+    }
+  }, [
+    origin,
+    destination,
+    selectedOriginText,
+    selectedDestText,
+    originCoords,
+    destCoords,
+    showRoutes,
+    selectedRoute,
+    activeFilter,
+    dynamicRoutes,
+    recommendationReason,
+    tradeOffsSummary,
+    activeWalkMode,
+    activeJourneyId,
+    sheetExpanded,
+    sessionLoaded
+  ]);
 
   useEffect(() => {
     setUser(AuthService.getSavedUser());
@@ -528,6 +624,14 @@ export default function NavigationPage() {
 
       setActiveWalkMode(false);
       setActiveJourneyId(null);
+      
+      // Clear session persistence on completion
+      setShowRoutes(false);
+      setDynamicRoutes([]);
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("route_session");
+      }
+
       router.push("/dashboard");
     } catch (e) {
       console.error("Failed to complete journey log:", e);
@@ -540,6 +644,9 @@ export default function NavigationPage() {
     setActiveWalkMode(false);
     setActiveJourneyId(null);
     setSheetExpanded(false);
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("route_session");
+    }
   };
 
   const activeRouteData = useMemo(() => {
