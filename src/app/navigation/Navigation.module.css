@@ -24,7 +24,7 @@
   top: 16px;
   left: 16px;
   width: calc(100% - 32px);
-  z-index: 10;
+  z-index: 1010;
 }
 
 .searchCard {
@@ -58,11 +58,13 @@
   border-radius: var(--radius-md);
   padding: 8px 12px;
   transition: all 0.2s ease;
+  z-index: 2;
 }
 
 .inputBox:focus-within {
   border-color: var(--accent-secondary);
   background: var(--bg-secondary);
+  z-index: 10;
 }
 
 .dotOrigin {
@@ -111,33 +113,50 @@
 /* Suggestion dropdown overlay */
 .suggestionsList {
   position: absolute;
-  top: calc(100% + 4px);
+  top: calc(100% + 6px);
   left: 0;
   right: 0;
   background: var(--bg-secondary);
   border: 1px solid var(--border-medium);
-  border-radius: 12px;
-  max-height: 160px;
+  border-radius: var(--radius-md);
+  max-height: 240px;
   overflow-y: auto;
   z-index: 50;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-lg);
+  animation: dropdownFadeIn var(--transition-fast) forwards;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .suggestPill {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  color: var(--text-secondary);
-  font-size: 0.75rem;
+  gap: 10px;
+  padding: 12px 16px;
+  color: var(--text-primary);
+  font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
   border-bottom: 1px solid var(--border-light);
+  transition: background var(--transition-fast), color var(--transition-fast);
 }
 
 .suggestPill:hover {
-  background: rgba(30, 42, 57, 0.04);
+  background: rgba(92, 115, 134, 0.08);
   color: var(--text-primary);
+}
+
+.suggestPill:last-child {
+  border-bottom: none;
 }
 
 /* Swap & Action buttons col */
