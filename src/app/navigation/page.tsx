@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { 
   Search, 
@@ -110,6 +111,48 @@ export default function NavigationPage() {
   const [destSuggestions, setDestSuggestions] = useState<{name: string, coords: [number, number]}[]>([]);
   const [isSearchingOrigin, setIsSearchingOrigin] = useState(false);
   const [isSearchingDest, setIsSearchingDest] = useState(false);
+
+  // Portal Dropdown Positioning State
+  const originInputRef = useRef<HTMLDivElement>(null);
+  const destInputRef = useRef<HTMLDivElement>(null);
+  const [originDropdownStyle, setOriginDropdownStyle] = useState<React.CSSProperties>({});
+  const [destDropdownStyle, setDestDropdownStyle] = useState<React.CSSProperties>({});
+
+  const updateDropdownPositions = () => {
+    if (originInputRef.current) {
+      const rect = originInputRef.current.getBoundingClientRect();
+      setOriginDropdownStyle({
+        top: rect.bottom + 6,
+        left: rect.left,
+        width: rect.width,
+        position: 'fixed'
+      });
+    }
+    if (destInputRef.current) {
+      const rect = destInputRef.current.getBoundingClientRect();
+      setDestDropdownStyle({
+        top: rect.bottom + 6,
+        left: rect.left,
+        width: rect.width,
+        position: 'fixed'
+      });
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('resize', updateDropdownPositions);
+    window.addEventListener('scroll', updateDropdownPositions, true);
+    return () => {
+      window.removeEventListener('resize', updateDropdownPositions);
+      window.removeEventListener('scroll', updateDropdownPositions, true);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (originFocused || destFocused) {
+      updateDropdownPositions();
+    }
+  }, [originFocused, destFocused, originSuggestions, destSuggestions, isSearchingOrigin, isSearchingDest]);
 
   // Active Walk States
   const [activeJourneyId, setActiveJourneyId] = useState<number | null>(null);
@@ -451,20 +494,21 @@ export default function NavigationPage() {
             <Card padding="sm" glass={true} className={styles.searchCard}>
               <div className={styles.searchFormRow}>
                 <div className={styles.inputsStack}>
-                  <div className={styles.inputBox}>
+                  <div className={styles.inputBox} ref={originInputRef}>
                     <span className={styles.dotOrigin} />
                     <input 
                       type="text" 
                       value={origin} 
                       onChange={(e) => setOrigin(e.target.value)}
-                      onFocus={() => { setOriginFocused(true); setDestFocused(false); }}
+                      onFocus={() => { setOriginFocused(true); setDestFocused(false); updateDropdownPositions(); }}
                       onBlur={() => setTimeout(() => setOriginFocused(false), 200)}
                       placeholder="Start location..." 
                       className={styles.premiumInput}
                     />
                     <Mic size={14} className={styles.micIcon} />
-                    {originFocused && (originSuggestions.length > 0 || isSearchingOrigin) && (
-                      <div className={styles.suggestionsList}>
+                  </div>
+                  {originFocused && (originSuggestions.length > 0 || isSearchingOrigin) && typeof window !== 'undefined' && createPortal(
+                      <div className={styles.suggestionsList} style={originDropdownStyle}>
                         {isSearchingOrigin ? (
                           <div className={styles.suggestPill} style={{ color: "var(--text-muted)" }}>Searching...</div>
                         ) : (
@@ -479,24 +523,25 @@ export default function NavigationPage() {
                             </div>
                           ))
                         )}
-                      </div>
-                    )}
-                  </div>
+                      </div>,
+                      document.body
+                  )}
 
-                  <div className={styles.inputBox}>
+                  <div className={styles.inputBox} ref={destInputRef}>
                     <MapPin size={14} className={styles.pinDest} />
                     <input 
                       type="text" 
                       value={destination} 
                       onChange={(e) => setDestination(e.target.value)}
-                      onFocus={() => { setDestFocused(true); setOriginFocused(false); }}
+                      onFocus={() => { setDestFocused(true); setOriginFocused(false); updateDropdownPositions(); }}
                       onBlur={() => setTimeout(() => setDestFocused(false), 200)}
                       placeholder="Where do you want to go?" 
                       className={styles.premiumInput}
                     />
                     <Mic size={14} className={styles.micIcon} />
-                    {destFocused && (destSuggestions.length > 0 || isSearchingDest) && (
-                      <div className={styles.suggestionsList}>
+                  </div>
+                  {destFocused && (destSuggestions.length > 0 || isSearchingDest) && typeof window !== 'undefined' && createPortal(
+                      <div className={styles.suggestionsList} style={destDropdownStyle}>
                         {isSearchingDest ? (
                           <div className={styles.suggestPill} style={{ color: "var(--text-muted)" }}>Searching...</div>
                         ) : (
@@ -511,9 +556,9 @@ export default function NavigationPage() {
                             </div>
                           ))
                         )}
-                      </div>
-                    )}
-                  </div>
+                      </div>,
+                      document.body
+                  )}
                 </div>
 
                 <div className={styles.sideButtonsCol}>
