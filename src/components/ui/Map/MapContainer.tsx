@@ -41,16 +41,32 @@ function MapLoadingPlaceholder() {
   );
 }
 
+const getFallbackCenter = (): [number, number] => {
+  if (typeof window !== "undefined") {
+    try {
+      const stored = localStorage.getItem("last_location") || localStorage.getItem("user_coords");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length === 2) return parsed as [number, number];
+        if (parsed.lng !== undefined && parsed.lat !== undefined) return [parsed.lng, parsed.lat];
+        if (parsed.longitude !== undefined && parsed.latitude !== undefined) return [parsed.longitude, parsed.latitude];
+      }
+    } catch {}
+  }
+  return [0, 20]; // Neutral global view fallback
+};
+
 // ── Main component ─────────────────────────────────────────────────────────────
 export const MapContainer: React.FC<MapContainerProps> = ({
   routes,
   selectedRouteId,
   onRouteSelect,
-  center = [77.2045, 28.5306], // Default: South Delhi (matches demo origin)
+  center,
   zoom = 14,
   pins = [],
   onPinSelect,
 }) => {
+  const effectiveCenter = center || getFallbackCenter();
   const [currentZoom, setCurrentZoom] = useState(zoom);
 
   // Zoom helpers — we post messages that LeafletMap can listen to.
@@ -66,7 +82,7 @@ export const MapContainer: React.FC<MapContainerProps> = ({
           routes={routes}
           selectedRouteId={selectedRouteId}
           onRouteSelect={onRouteSelect}
-          center={center}
+          center={effectiveCenter}
           zoom={currentZoom}
           pins={pins}
           onPinSelect={onPinSelect}

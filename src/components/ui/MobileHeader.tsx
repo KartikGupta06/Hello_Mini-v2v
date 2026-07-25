@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { ChevronLeft, Bell, Menu } from "lucide-react";
+import { ChevronLeft, Bell, Menu, User as UserIcon } from "lucide-react";
 import { AuthService } from "@/services/auth";
 import styles from "./MobileHeader.module.css";
 
@@ -54,7 +54,7 @@ export const MobileHeader: React.FC = () => {
   const user = AuthService.getSavedUser();
   const initials = user && user.name
     ? user.name.split(" ").filter(Boolean).map((n) => n[0]).join("").substring(0, 2).toUpperCase()
-    : "U";
+    : null;
 
   return (
     <header className={`${styles.header} ${isDashboard ? styles.dashboardHeader : ""}`}>
@@ -93,7 +93,7 @@ export const MobileHeader: React.FC = () => {
         {showProfile && (
           <button className={styles.profileBtn} aria-label="Profile Settings" onClick={() => router.push("/settings")}>
             <div className={styles.avatarWrapper}>
-              <div className={styles.avatarCircle}>{initials}</div>
+              <div className={styles.avatarCircle}>{initials ? initials : <UserIcon size={16} />}</div>
               <span className={styles.avatarOnlineDot} />
             </div>
           </button>
