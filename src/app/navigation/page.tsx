@@ -80,14 +80,18 @@ export default function NavigationPage() {
   const [originCoords, setOriginCoords] = useState<[number, number]>([77.2083, 28.5233]);
   const [destCoords, setDestCoords] = useState<[number, number]>([77.2045, 28.5306]);
 
-  const { location, status: locStatus } = useLocation();
+  const { location, status: locStatus, locationName, locationNameStatus } = useLocation();
 
   useEffect(() => {
     if (location && locStatus === "success") {
       setOriginCoords([location.longitude, location.latitude]);
-      setOrigin(`Current Location (${location.latitude.toFixed(4)}° N, ${location.longitude.toFixed(4)}° E)`);
+      if (locationName) {
+        setOrigin(`Current Location (${locationName})`);
+      } else {
+        setOrigin(`Current Location (${location.latitude.toFixed(4)}° N, ${location.longitude.toFixed(4)}° E)`);
+      }
     }
-  }, [location, locStatus]);
+  }, [location, locStatus, locationName]);
 
   const [showRoutes, setShowRoutes] = useState(false);
   const [selectedRoute, setSelectedRoute] = useState("safest");

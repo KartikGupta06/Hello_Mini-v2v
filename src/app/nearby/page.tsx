@@ -90,7 +90,7 @@ export default function NearbyPage() {
   
   const [mapCenter, setMapCenter] = useState<[number, number]>([77.2083, 28.5233]);
   const [mapZoom, setMapZoom] = useState(14);
-  const { location, status: locStatus } = useLocation();
+  const { location, status: locStatus, locationName, locationNameStatus } = useLocation();
 
   useEffect(() => {
     if (location && locStatus === "success") {
@@ -212,7 +212,13 @@ export default function NearbyPage() {
           </button>
           <div className={styles.headerTitles}>
             <h2 className={styles.circleTitle}>Safe Places</h2>
-            <span className={styles.membersCount}>{location ? `${location.latitude.toFixed(4)}° N, ${location.longitude.toFixed(4)}° E` : "Location Unknown"}</span>
+            <span className={styles.membersCount}>
+              {locStatus === "detecting" 
+                ? "Detecting your location..." 
+                : locationNameStatus === "loading" && !locationName
+                ? "Resolving location..." 
+                : locationName || (location ? `${location.latitude.toFixed(4)}° N, ${location.longitude.toFixed(4)}° E` : "Location Unknown")}
+            </span>
           </div>
           <button onClick={loadHavens} className={styles.refreshBtn} aria-label="Refresh location havens">
             <RotateCcw size={16} />

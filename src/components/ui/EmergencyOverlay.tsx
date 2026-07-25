@@ -50,7 +50,7 @@ export const EmergencyOverlay: React.FC = () => {
   // Stage 3: Live Active Timer
   const [liveSeconds, setLiveSeconds] = useState(0);
 
-  const { location, status: locStatus } = useLocation();
+  const { location, status: locStatus, locationName, locationNameStatus } = useLocation();
 
   const [closestPost, setClosestPost] = useState("Malviya Nagar Post");
   const [closestHospital, setClosestHospital] = useState("Max Super Speciality");
@@ -236,7 +236,7 @@ export const EmergencyOverlay: React.FC = () => {
           </div>
           <span className={styles.headerLocationText}>
             <MapPin size={12} />
-            GPS Coordinates: {location ? `${location.latitude.toFixed(5)}° N, ${location.longitude.toFixed(5)}° E` : (locStatus === "detecting" ? "Detecting..." : "Live location unavailable")}
+            Location: {locationName || (location ? `${location.latitude.toFixed(5)}° N, ${location.longitude.toFixed(5)}° E` : (locStatus === "detecting" ? "Detecting..." : "Live location unavailable"))}
           </span>
         </div>
 
@@ -438,7 +438,7 @@ export const EmergencyOverlay: React.FC = () => {
               <span className={styles.etaBoxValue} style={{ fontSize: "0.85rem", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
                 {sosResponse?.location_url ? (
                   <>
-                    <span>{location ? `${location.latitude.toFixed(6)}° N, ${location.longitude.toFixed(6)}° E` : "Detecting..."}</span>
+                    <span>{locationName || (location ? `${location.latitude.toFixed(6)}° N, ${location.longitude.toFixed(6)}° E` : "Detecting...")}</span>
                     <a 
                       href={sosResponse.location_url} 
                       target="_blank" 
