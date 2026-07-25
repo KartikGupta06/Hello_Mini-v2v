@@ -31,9 +31,7 @@ import { useLocation } from "@/contexts/LocationContext";
 import { EmergencyContact, User } from "@/types";
 import styles from "./Guardian.module.css";
 
-// Helper distances for guardians
-const MOCK_DISTANCES = ["0.8 km", "2.4 km", "1.5 km", "4.1 km", "3.2 km"];
-const MOCK_UPDATES = ["Updated 2m ago", "Updated 10m ago", "Updated 5m ago", "Offline 1h ago", "Updated 12m ago"];
+
 
 export default function GuardianPage() {
   const router = useRouter();
@@ -205,8 +203,8 @@ export default function GuardianPage() {
               <div className={styles.heroGrid}>
                 {contacts.map((contact, idx) => {
                   const isSelected = selectedIdx === idx;
-                  const distance = MOCK_DISTANCES[idx % MOCK_DISTANCES.length];
-                  const updated = MOCK_UPDATES[idx % MOCK_UPDATES.length];
+                  const distance = "Waiting for live location";
+                  const updated = "Waiting for live update";
                   const initials = contact.name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase();
                   
                   return (
@@ -304,8 +302,8 @@ export default function GuardianPage() {
             {contacts.length > 0 && (
               <div className={styles.guardianListPanel}>
                 {contacts.map((contact, idx) => {
-                  const distance = MOCK_DISTANCES[idx % MOCK_DISTANCES.length];
-                  const updated = MOCK_UPDATES[idx % MOCK_UPDATES.length];
+                  const distance = "Waiting for live location";
+                  const updated = "Waiting for live update";
                   const initials = contact.name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase();
 
                   return (

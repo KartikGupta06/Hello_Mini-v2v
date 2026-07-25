@@ -189,7 +189,7 @@ export default function DashboardPage() {
           <div className={styles.greetingCol}>
             <span className={styles.greetingText}>{getGreeting()},</span>
             <h2 className={styles.userName}>
-              {user && (user.email === "demo@saferoute.ai" || user.name === "Demo User") ? "Siddhi" : (user?.name || "Siddhi")} 👋
+              {user?.name || "User"} 👋
             </h2>
             <p className={styles.greetingSub}>Have a safe and secure day!</p>
           </div>

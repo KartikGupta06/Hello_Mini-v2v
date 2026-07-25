@@ -3,8 +3,7 @@ import { User } from "../types";
 
 export const AuthService = {
   isDevMode: (): boolean => {
-    // Keep isDevMode active for other modules so they can fall back to mock data
-    return true;
+    return false;
   },
 
   login: async (email: string, password: string): Promise<User> => {
