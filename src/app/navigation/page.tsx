@@ -77,6 +77,8 @@ export default function NavigationPage() {
   const [user, setUser] = useState<User | null>(null);
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
+  const [selectedOriginText, setSelectedOriginText] = useState("");
+  const [selectedDestText, setSelectedDestText] = useState("");
   
   const [originCoords, setOriginCoords] = useState<[number, number]>([77.2083, 28.5233]);
   const [destCoords, setDestCoords] = useState<[number, number]>([77.2045, 28.5306]);
@@ -88,8 +90,11 @@ export default function NavigationPage() {
       setOriginCoords([location.longitude, location.latitude]);
       if (locationName) {
         setOrigin(`Current Location (${locationName})`);
+        setSelectedOriginText(`Current Location (${locationName})`);
       } else {
-        setOrigin(`Current Location (${location.latitude.toFixed(4)}° N, ${location.longitude.toFixed(4)}° E)`);
+        const fallbackName = `Current Location (${location.latitude.toFixed(4)}° N, ${location.longitude.toFixed(4)}° E)`;
+        setOrigin(fallbackName);
+        setSelectedOriginText(fallbackName);
       }
     }
   }, [location, locStatus, locationName]);
@@ -138,7 +143,7 @@ export default function NavigationPage() {
       }
       setIsSearchingOrigin(true);
       try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(origin)}&limit=5&countrycodes=in`);
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(origin)}&limit=5`);
         const data = await res.json();
         setOriginSuggestions(data.map((d: any) => ({ name: d.display_name, coords: [parseFloat(d.lon), parseFloat(d.lat)] })));
       } catch (e) {
@@ -159,7 +164,7 @@ export default function NavigationPage() {
       }
       setIsSearchingDest(true);
       try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(destination)}&limit=5&countrycodes=in`);
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(destination)}&limit=5`);
         const data = await res.json();
         setDestSuggestions(data.map((d: any) => ({ name: d.display_name, coords: [parseFloat(d.lon), parseFloat(d.lat)] })));
       } catch (e) {
@@ -217,10 +222,12 @@ export default function NavigationPage() {
   const handleSuggestClick = (name: string, coords: number[], type: "origin" | "dest") => {
     if (type === "origin") {
       setOrigin(name);
+      setSelectedOriginText(name);
       setOriginCoords(coords as [number, number]);
       setOriginFocused(false);
     } else {
       setDestination(name);
+      setSelectedDestText(name);
       setDestCoords(coords as [number, number]);
       setDestFocused(false);
     }
@@ -229,12 +236,18 @@ export default function NavigationPage() {
   const handleSwapLocations = () => {
     const tempOrigin = origin;
     const tempCoords = originCoords;
+    const tempOriginText = selectedOriginText;
+    
     setOrigin(destination);
+    setSelectedOriginText(selectedDestText);
     setOriginCoords(destCoords);
+    
     setDestination(tempOrigin);
+    setSelectedDestText(tempOriginText);
     setDestCoords(tempCoords);
+    
     if (showRoutes) {
-      handleRouteSearch();
+      setTimeout(handleRouteSearch, 0); // Use setTimeout to allow state to settle
     }
   };
 
@@ -243,11 +256,38 @@ export default function NavigationPage() {
     setSheetExpanded(true);
     setRouteError(null);
     try {
+      let finalOriginCoords = originCoords;
+      let finalDestCoords = destCoords;
+
+      if (origin !== selectedOriginText && origin.trim().length > 2) {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(origin)}&limit=1`);
+        const data = await res.json();
+        if (data && data.length > 0) {
+          finalOriginCoords = [parseFloat(data[0].lon), parseFloat(data[0].lat)];
+          setOriginCoords(finalOriginCoords);
+          setSelectedOriginText(origin);
+        } else {
+          throw new Error(`Could not find coordinates for origin: ${origin}`);
+        }
+      }
+
+      if (destination !== selectedDestText && destination.trim().length > 2) {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(destination)}&limit=1`);
+        const data = await res.json();
+        if (data && data.length > 0) {
+          finalDestCoords = [parseFloat(data[0].lon), parseFloat(data[0].lat)];
+          setDestCoords(finalDestCoords);
+          setSelectedDestText(destination);
+        } else {
+          throw new Error(`Could not find coordinates for destination: ${destination}`);
+        }
+      }
+
       const response = await routeCacheService.getRouteIntelligence({
-        source_lat: originCoords[1],
-        source_lng: originCoords[0],
-        dest_lat: destCoords[1],
-        dest_lng: destCoords[0]
+        source_lat: finalOriginCoords[1],
+        source_lng: finalOriginCoords[0],
+        dest_lat: finalDestCoords[1],
+        dest_lng: finalDestCoords[0]
       });
 
       const allRoutes = [];
