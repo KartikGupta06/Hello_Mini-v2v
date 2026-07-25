@@ -1,4 +1,4 @@
-import { apiClient } from "../lib/api";
+import { apiClient, FetchOptions } from "../lib/api";
 import { 
   SafeHaven, 
   SafetyReport, 
@@ -9,8 +9,8 @@ import {
 
 export const SafetyService = {
   // Post route coordinates to obtain analysis, ranking, and explainable safety details
-  getRouteIntelligence: async (payload: RouteIntelligencePayload): Promise<RouteIntelligenceResponse> => {
-    return apiClient.post<RouteIntelligenceResponse>("/routes/intelligence", payload);
+  getRouteIntelligence: async (payload: RouteIntelligencePayload, options?: FetchOptions): Promise<RouteIntelligenceResponse> => {
+    return apiClient.post<RouteIntelligenceResponse>("/routes/intelligence", payload, options);
   },
 
   // Submit hazard reports

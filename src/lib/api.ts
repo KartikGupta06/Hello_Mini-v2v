@@ -47,6 +47,17 @@ export async function fetchJson<T>(endpoint: string, options?: FetchOptions): Pr
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
+  // Link external AbortSignal if present
+  if (options?.signal) {
+    if (options.signal.aborted) {
+      controller.abort();
+    } else {
+      options.signal.addEventListener("abort", () => {
+        controller.abort();
+      });
+    }
+  }
+
   try {
     const response = await fetch(`${BASE_URL}${endpoint}`, {
       ...options,

@@ -21,6 +21,7 @@ import {
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { Card, Button, Badge, MapContainer, FilterChips, AIInsightCard, RouteCard, MapFloatingControls, SlidingBottomSheet } from "@/components/ui";
 import { SafetyService } from "@/services/safety";
+import { routeCacheService } from "@/services/routeCache";
 import { JourneyService } from "@/services/journeys";
 import { ContactService } from "@/services/contacts";
 import { AuthService } from "@/services/auth";
@@ -108,6 +109,7 @@ export default function NavigationPage() {
   // Active Walk States
   const [activeJourneyId, setActiveJourneyId] = useState<number | null>(null);
   const [activeWalkMode, setActiveWalkMode] = useState(false);
+  const [routeError, setRouteError] = useState<string | null>(null);
   const [isMuted, setIsMuted] = useState(false);
   const [insightIndex, setInsightIndex] = useState(0);
   const [navSheetExpanded, setNavSheetExpanded] = useState(false);
@@ -239,8 +241,9 @@ export default function NavigationPage() {
   const handleRouteSearch = async () => {
     setIsSearching(true);
     setSheetExpanded(true);
+    setRouteError(null);
     try {
-      const response = await SafetyService.getRouteIntelligence({
+      const response = await routeCacheService.getRouteIntelligence({
         source_lat: originCoords[1],
         source_lng: originCoords[0],
         dest_lat: destCoords[1],
@@ -292,8 +295,11 @@ export default function NavigationPage() {
       }
       setShowRoutes(true);
       setSheetExpanded(true);
-    } catch (e) {
+    } catch (e: any) {
       console.error("Route analysis failure:", e);
+      setRouteError(e.message || "Failed to generate safety routes. Please check your coordinates or try again.");
+      setDynamicRoutes([]);
+      setShowRoutes(false);
     } finally {
       setIsSearching(false);
     }
@@ -480,6 +486,64 @@ export default function NavigationPage() {
                 </div>
               </div>
             </Card>
+          </div>
+        )}
+
+        {/* 1b. ERROR BANNER */}
+        {routeError && (
+          <div style={{
+            position: "absolute",
+            top: "160px",
+            left: "16px",
+            right: "16px",
+            zIndex: 1000,
+            background: "rgba(239, 68, 68, 0.08)",
+            backdropFilter: "blur(8px)",
+            border: "1px solid rgba(239, 68, 68, 0.2)",
+            borderRadius: "12px",
+            padding: "12px 16px",
+            color: "#ef4444",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "12px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", flex: 1 }}>
+              <AlertTriangle size={16} style={{ flexShrink: 0 }} />
+              <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "#1E2A39" }}>{routeError}</span>
+            </div>
+            <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+              <button 
+                onClick={handleRouteSearch}
+                style={{
+                  background: "#10b981",
+                  border: "none",
+                  color: "white",
+                  padding: "4px 10px",
+                  borderRadius: "4px",
+                  fontSize: "0.75rem",
+                  fontWeight: 700,
+                  cursor: "pointer"
+                }}
+              >
+                Retry
+              </button>
+              <button 
+                onClick={() => setRouteError(null)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "#6b7280",
+                  fontSize: "1.1rem",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  padding: "0 4px"
+                }}
+              >
+                &times;
+              </button>
+            </div>
           </div>
         )}
 

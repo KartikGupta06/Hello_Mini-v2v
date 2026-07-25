@@ -37,9 +37,8 @@ class SafetyEngine:
         if current_date is None:
             current_date = datetime.now().date()
 
-        # 0. Check Dataset Coverage (Delhi NCR Bounding Box)
-        # Lat approx: 28.2 to 29.0, Lng approx: 76.7 to 77.5
-        is_covered = (28.2 <= lat <= 29.0) and (76.7 <= lng <= 77.5)
+        # 0. Check Dataset Coverage (Always True to allow dynamic calculations worldwide)
+        is_covered = True
         
         if not is_covered:
             return {
